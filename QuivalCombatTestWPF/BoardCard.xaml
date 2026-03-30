@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="QuivalCombatTestWPF.BoardCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCombatTestWPF"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="80">
+    <Grid Margin="20" Background="CadetBlue">
+        <Label x:Name="Stats" 
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               FontSize="20"
+               Content="22/22"/>
+    </Grid>
+</UserControl>
