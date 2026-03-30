@@ -10,8 +10,8 @@ namespace QuivalCombatTestWPF
 {
     class QuivalClient
     {
-        private StreamWriter Writer;
-        private StreamReader Reader;
+        private StreamWriter? Writer;
+        private StreamReader? Reader;
 
         public bool ConnectToServer()
         {
@@ -34,6 +34,9 @@ namespace QuivalCombatTestWPF
 
         public void WriteMessage(string message)
         {
+            if (Writer == null) 
+                return;
+
             Writer.WriteLine(message);
         }
     }

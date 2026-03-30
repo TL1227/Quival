@@ -6,14 +6,13 @@ namespace QuivalServer
 {
     internal class Program
     {
-        internal static Version CurrentVersion { get; set; }
+        internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
         internal static int PortNumber = 5005;
         internal static TcpClient? PlayerOne;
         internal static TcpClient? PlayerTwo;
 
         static async Task Main(string[] args)
         {
-            CurrentVersion = new Version(0,1,0);
             Console.WriteLine($"Quival Server Version {CurrentVersion}");
 
             TcpListener listener = new(IPAddress.Any, PortNumber);
