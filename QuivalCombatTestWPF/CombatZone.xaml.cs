@@ -28,10 +28,9 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
-        public void AddCard(int power, int toughness, Side side)
+        public void AddCard(int attack, int defence, Side side)
         {
-            BoardCard card = new();
-            card.Stats.Content = $"{power}/{toughness}";
+            BoardCard card = new(attack, defence);
             card.MouseLeftButtonDown += HandleClick;
 
             if (side == Side.Player)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuivalLogicEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,28 @@ namespace QuivalCombatTestWPF
     /// </summary>
     public partial class HandZone : UserControl
     {
+        public event EventHandler CardClicked;
+
         public HandZone()
         {
             InitializeComponent();
+        }
+
+        public void SetHand(List<BoardCard> hand)
+        {
+            HandGrid.Children.Clear();
+
+            for (int i = 0; i < hand.Count; i++)
+            {
+                Grid.SetColumn(hand[i], i);
+                hand[i].MouseLeftButtonDown += HandleClick;
+                HandGrid.Children.Add(hand[i]);
+            }
+        }
+
+        public void HandleClick(object boardCard, MouseButtonEventArgs args)
+        {
+            CardClicked?.Invoke(boardCard, args);
         }
     }
 }

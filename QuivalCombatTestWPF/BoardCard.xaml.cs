@@ -20,9 +20,28 @@ namespace QuivalCombatTestWPF
     /// </summary>
     public partial class BoardCard : UserControl
     {
-        public BoardCard()
+        public int Attack { get; set; }
+        public int Defence { get; set; }
+        private bool Clickable { get; set; }
+
+        public BoardCard(int attack, int defence)
         {
             InitializeComponent();
+            Attack = attack;
+            Defence = defence;
+            Stats.Content = $"{Attack}/{Defence}";
+            Clickable = true;
+        }
+
+        public void SetClickable(bool value)
+        {
+            Clickable = value;
+            Opacity = 0.5;
+        }
+
+        public bool IsClickable()
+        {
+            return Clickable;
         }
     }
 }

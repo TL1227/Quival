@@ -20,7 +20,14 @@
         </Grid.ColumnDefinitions>
 
         <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="1"/>
-        <local:HandZone Grid.Column="1" Grid.Row="2"/>
+        <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="2"/>
+
+        <Button 
+            x:Name="SpellStreamCastButton" 
+            Margin="50,80,50,80" 
+            Grid.Row="2" Grid.Column="2" 
+            Click="SpellStreamCastButton_Click">Cast SpellStream
+        </Button>
 
     </Grid>
 </Window>
