@@ -22,7 +22,7 @@ public class Match
 
     public Match()
     {
-        Players = new Player[2];
+        Players = new Player[2] { new(), new() };
     }
 
     public void SetSpellStream(Queue<Card> spellStream, int playerId)
