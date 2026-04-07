@@ -12,7 +12,9 @@ internal class Program
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
     internal static TcpClient? PlayerOne;
+    internal static int Player1ID = 1;
     internal static TcpClient? PlayerTwo;
+    internal static int Player2ID = 2;
     internal static Match Match;
 
     static async Task Main(string[] args)
@@ -39,12 +41,13 @@ internal class Program
             StreamWriter streamWriter = new(steam, Encoding.UTF8) { AutoFlush = true };
 
             string? connectMessage = streamReader.ReadLine();
-
+            int playerId = -1;
             if (connectMessage != null)
             {
                 if (PlayerOne == null)
                 {
                     PlayerOne = client;
+                    playerId = 0;
                     Console.WriteLine($"Welcome player 1!");
                     streamWriter.WriteLine($"Welcome player 1!");
 
@@ -70,6 +73,7 @@ internal class Program
                 else if (PlayerTwo == null)
                 {
                     PlayerTwo = client;
+                    playerId = 1;
                     Console.WriteLine($"Welcome player 2!");
 
                     streamWriter.WriteLine($"Welcome player 2!");
@@ -98,14 +102,13 @@ internal class Program
                     Console.WriteLine($"Someome tried to connect but the room's full :(");
                 }
 
-                Match = new();
                 string? message;
                 while ((message = streamReader.ReadLine()) != null)
                 {
                     Message? result = JsonSerializer.Deserialize<Message>(message);
                     if (result != null)
                     {
-                        HandleMessage(result);
+                        HandleMessage(result, playerId);
                     }
                 }
             }
@@ -118,7 +121,7 @@ internal class Program
         }
     }
 
-    static void HandleMessage(Message message)
+    static void HandleMessage(Message message, int playerId)
     {
         switch (message.Type)
         {
@@ -131,7 +134,19 @@ internal class Program
                 {
                     if (message.SpellStream != null)
                     {
-                        //Send this down to the match where it handles the queues.
+                        if (playerId == 1 || playerId == 2)
+                        {
+                            Match.SetSpellStream(message.SpellStream, playerId);
+
+                            if (Match.BothStreamsAreSet())
+                            {
+                                Match.ProcessSpellStreams();
+                            }
+                        }
+                        else
+                        {
+                            //handle playerId error
+                        }
                     }
                 }
                 break;

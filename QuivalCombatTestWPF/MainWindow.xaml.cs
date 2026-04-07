@@ -22,7 +22,7 @@ namespace QuivalCombatTestWPF
 
         BoardCard? FirstClickedCard;
         BoardCard? SecondClickedCard;
-        Queue<BoardCard> CurrentSpellStream = new Queue<BoardCard>();
+        Stack<BoardCard> CurrentSpellStream = new();
 
         public MainWindow()
         {
@@ -31,6 +31,7 @@ namespace QuivalCombatTestWPF
             Client.ConnectToServer();
 
             HandZone.CardClicked += HandZone_CardClicked;
+            SpellstreamZone.CardClicked += SpellStreamZone_CardClicked;
             /*
             CombatZone.AddCard(1, 1, Side.Player);
             CombatZone.AddCard(1, 1, Side.Player);
@@ -52,11 +53,40 @@ namespace QuivalCombatTestWPF
         {
             if (sender is BoardCard card)
             {
-                if (card.IsClickable())
+                if (card.IsClickable() && !SpellstreamZone.SpellStreamIsFull())
                 {
-                    CurrentSpellStream.Enqueue(card);
+                    AddToSpellStream(card);
                     card.SetClickable(false);
                 }
+            }
+        }
+
+        private void SpellStreamZone_CardClicked(object? sender, EventArgs e)
+        {
+            if (sender is BoardCard card)
+            {
+                RemoveFromSpellStream(card);
+            }
+        }
+
+        private void AddToSpellStream(BoardCard card)
+        {
+            CurrentSpellStream.Push(card);
+            SpellstreamZone.AddCard(card);
+        }
+
+        private void RemoveFromSpellStream(BoardCard card)
+        {
+            if (card.Tag == CurrentSpellStream.Peek())
+            {
+                CurrentSpellStream.Pop();
+
+                if (card.Tag is BoardCard handCard)
+                {
+                    handCard.SetClickable(true);
+                }
+
+                SpellstreamZone.RemoveCard(card);
             }
         }
 
@@ -84,7 +114,7 @@ namespace QuivalCombatTestWPF
         {
             Message message = new();
             message.Type = MessageType.SpellStream;
-            message.SpellStream = Mapper.Map(CurrentSpellStream); //TODO: make the dang mapper
+            message.SpellStream = Mapper.MapToQueue(CurrentSpellStream);
 
             Client.SendMessage(message);
         }

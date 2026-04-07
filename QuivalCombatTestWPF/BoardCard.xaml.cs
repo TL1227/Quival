@@ -36,7 +36,8 @@ namespace QuivalCombatTestWPF
         public void SetClickable(bool value)
         {
             Clickable = value;
-            Opacity = 0.5;
+
+            Opacity = value ? 1.0 : 0.5;
         }
 
         public bool IsClickable()

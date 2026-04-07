@@ -19,6 +19,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
+        <local:Spellstream x:Name="SpellstreamZone" Grid.Column="1" Grid.Row="0"/>
         <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="1"/>
         <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="2"/>
 

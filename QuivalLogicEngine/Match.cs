@@ -25,13 +25,24 @@ public class Match
         Players = new Player[2];
     }
 
-    public void GetMessage(Message message)
+    public void SetSpellStream(Queue<Card> spellStream, int playerId)
     {
-
+        Players[playerId].SetSpellStream(spellStream);
     }
 
-    public Message SendMessage()
+    public bool BothStreamsAreSet()
     {
-        return new Message();
+        foreach (var player in Players)
+        {
+            if (player.SpellStreamSet() == false)
+                return false;
+        }
+
+        return true;
+    }
+
+    public void ProcessSpellStreams()
+    {
+
     }
 }
