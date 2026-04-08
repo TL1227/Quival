@@ -1,28 +1,30 @@
-﻿namespace QuivalLogicEngine;
+﻿using System.Runtime.CompilerServices;
+
+namespace QuivalLogicEngine;
 
 internal class Player
 {
     private int HealthPoints { get; set; }
     private List<Card> Hand { get; set; }
     private List<Card> Deck { get; set; }
-    private Queue<Card> SpellStream { get; set; }
+    private SpellStream Stream { get; set; }
 
     public Player()
     {
         HealthPoints = 20;
         Deck = new(); //todo: get this somehow 
         Hand = GetStartingHand(Deck);
-        SpellStream = new();
+        Stream = new();
     }
 
-    public void SetSpellStream(Queue<Card> spellStream)
+    public void SetSpellStream(SpellStream spellStream)
     {
-        SpellStream = spellStream;
+        Stream = spellStream;
     }
 
     public bool SpellStreamSet()
     {
-        return SpellStream.Count > 0;
+        return Stream. > 0;
     }
 
     private List<Card> GetStartingHand(List<Card> deck)
