@@ -78,6 +78,8 @@ internal class Program
 
                     streamWriter.WriteLine($"Welcome player 2!");
 
+                    Match = new();
+
                     Message openingHandMessage = new();
                     openingHandMessage.Type = MessageType.OpeningHand;
 
@@ -123,6 +125,8 @@ internal class Program
 
     static void HandleMessage(Message message, int playerId)
     {
+        Console.WriteLine($"Message from player {playerId}");
+
         switch (message.Type)
         {
             case MessageType.OpeningHand:
@@ -134,7 +138,11 @@ internal class Program
                 {
                     if (message.Cards != null)
                     {
+<<<<<<< HEAD
                         if (playerId == Player1ID || playerId == Player2ID)
+=======
+                        if (playerId == 0 || playerId == 1)
+>>>>>>> a0127bc342dc66b9a4cdda07ba28fa54093a61be
                         {
                             Match.SetSpellStream(message.Cards, playerId);
 

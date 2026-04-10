@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+<<<<<<< HEAD
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,5 +64,28 @@ public class SpellStream
         }
 
         return false;
+=======
+using System.Text;
+using System.Threading.Tasks;
+
+namespace QuivalLogicEngine
+{
+    public class SpellStream
+    {
+        private Card? QuickSlotCard { get; set; }
+        private Queue<Card> Stream { get; set; }
+        private Card? SlowSlotCard { get; set; }
+
+        public SpellStream()
+        {
+            Stream = new();
+        }
+
+        public int GetStreamCount()
+        {
+            return Stream.Count();
+        }
+
+>>>>>>> a0127bc342dc66b9a4cdda07ba28fa54093a61be
     }
 }

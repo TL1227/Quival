@@ -17,5 +17,9 @@ namespace QuivalLogicEngine
     {
         public MessageType Type { get; set; }
         public List<Card>? Cards { get; set; }
+<<<<<<< HEAD
+=======
+        public SpellStream? SpellStream { get; set; }
+>>>>>>> a0127bc342dc66b9a4cdda07ba28fa54093a61be
     }
 }
