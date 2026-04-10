@@ -8,7 +8,7 @@ namespace QuivalLogicEngine
 {
     public enum MessageType
     {
-        Empty, //I'm using this when we need to pass around a "null" message
+        Null, //I'm using this when we need to pass around a "null" message
         OpeningHand,
         SpellStream
     }
@@ -17,6 +17,5 @@ namespace QuivalLogicEngine
     {
         public MessageType Type { get; set; }
         public List<Card>? Cards { get; set; }
-        public Queue<Card>? SpellStream { get; set; }
     }
 }

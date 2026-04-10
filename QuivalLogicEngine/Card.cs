@@ -6,6 +6,7 @@ public enum CardType
     Spell,
     SlowSpell,
     QuickSpell,
+    Attack
 }
 
 public class Card
@@ -16,6 +17,7 @@ public class Card
     public CardType Type { get; set; }
     public int Attack { get; set; }
     public int Defence { get; set; }
+    public List<int>? Targets { get; set; }
 
     public Card(CardType type, int attack, int defence)
     {

@@ -94,7 +94,7 @@ namespace QuivalCombatTestWPF
                         }
                     }
                     break;
-                case MessageType.Empty: 
+                case MessageType.Null: 
                 default:
                     break;
             }
@@ -128,7 +128,7 @@ namespace QuivalCombatTestWPF
             {
                 try
                 {
-                    var value = JsonSerializer.Deserialize<Message>(message) ?? new Message() { Type = MessageType.Empty };
+                    var value = JsonSerializer.Deserialize<Message>(message) ?? new Message() { Type = MessageType.Null };
                     return value;
                 }
                 catch (Exception e)
@@ -138,7 +138,7 @@ namespace QuivalCombatTestWPF
                 //return JsonSerializer.Deserialize<Message>(message) ?? new Message() { Type = MessageType.Empty };
             }
 
-            return new Message() { Type = MessageType.Empty };
+            return new Message() { Type = MessageType.Null };
         }
         
         private static string? MessageToJson(Message message)

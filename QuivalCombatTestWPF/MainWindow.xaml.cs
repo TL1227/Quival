@@ -114,7 +114,7 @@ namespace QuivalCombatTestWPF
         {
             Message message = new();
             message.Type = MessageType.SpellStream;
-            message.SpellStream = Mapper.MapToQueue(CurrentSpellStream);
+            message.Cards = Mapper.MapToList(CurrentSpellStream);
 
             Client.SendMessage(message);
         }

@@ -47,7 +47,7 @@ internal class Program
                 if (PlayerOne == null)
                 {
                     PlayerOne = client;
-                    playerId = 0;
+                    playerId = Player1ID;
                     Console.WriteLine($"Welcome player 1!");
                     streamWriter.WriteLine($"Welcome player 1!");
 
@@ -73,7 +73,7 @@ internal class Program
                 else if (PlayerTwo == null)
                 {
                     PlayerTwo = client;
-                    playerId = 1;
+                    playerId = Player2ID;
                     Console.WriteLine($"Welcome player 2!");
 
                     streamWriter.WriteLine($"Welcome player 2!");
@@ -132,11 +132,11 @@ internal class Program
                 break;
             case MessageType.SpellStream:
                 {
-                    if (message.SpellStream != null)
+                    if (message.Cards != null)
                     {
-                        if (playerId == 1 || playerId == 2)
+                        if (playerId == Player1ID || playerId == Player2ID)
                         {
-                            Match.SetSpellStream(message.SpellStream, playerId);
+                            Match.SetSpellStream(message.Cards, playerId);
 
                             if (Match.BothStreamsAreSet())
                             {
@@ -151,7 +151,7 @@ internal class Program
                 }
                 break;
             default:
-            case MessageType.Empty:
+            case MessageType.Null:
                 break;
         }
     }

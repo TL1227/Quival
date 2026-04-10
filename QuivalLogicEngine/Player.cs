@@ -5,7 +5,7 @@ internal class Player
     private int HealthPoints { get; set; }
     private List<Card> Hand { get; set; }
     private List<Card> Deck { get; set; }
-    private Queue<Card> SpellStream { get; set; }
+    public SpellStream SpellStream { get; }
 
     public Player()
     {
@@ -15,14 +15,9 @@ internal class Player
         SpellStream = new();
     }
 
-    public void SetSpellStream(Queue<Card> spellStream)
-    {
-        SpellStream = spellStream;
-    }
-
     public bool SpellStreamSet()
     {
-        return SpellStream.Count > 0;
+        return SpellStream.ContainsCards();
     }
 
     private List<Card> GetStartingHand(List<Card> deck)
