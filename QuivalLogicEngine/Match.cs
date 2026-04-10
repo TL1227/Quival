@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuivalLogicEngine.Cards;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,14 +21,18 @@ public class Match
 {
     private Player[] Players { get; set; }
     private Phases CurrentPhase { get; set; }
+    private List<ICardIntent>[] CardIntents { get; set; }
+
+    private BoardState BoardState { get; set; }
 
     public Match()
     {
         Players = new Player[2];
         CurrentPhase = Phases.Summon; //TODO: change this after testing combat
+        BoardState = new();
     }
 
-    public void SetSpellStream(List<Card> cards, int playerId)
+    public void SetSpellStream(List<ICard> cards, int playerId)
     {
         Players[playerId].SpellStream.Set(cards);
     }
@@ -45,33 +50,43 @@ public class Match
 
     public void ProcessSpellStreams()
     {
-        List<ICardIntent> intents = new();
-
         for (int i = 0; i < (int)SpellSlot.MAX; i++)
         {
             for (int p = 0; p < 2; p++)
             {
-                Card? card = Players[p].SpellStream.GetCard(i);
+                ICard? card = Players[p].SpellStream.GetCard(i);
 
                 if (card != null)
-                    intents.AddRange(Cast(card));
+                {
+                    CardIntents[i].AddRange(card.GetIntents());
+                }
             }
+        }
+
+        foreach (var slot in CardIntents)
+        {
+            var blocks = slot.Where(i => i is Block).ToArray();
+            AssignBlocks(blocks);
+
+            var attacks = slot.Where(i => i is Attack).ToArray();
         }
     }
 
-    private List<ICardIntent> Cast(Card card)
+    private void AssignBlocks(ICardIntent[]? blocks)
     {
-        List<ICardIntent> intents = new();
+        if (blocks == null || blocks.Length == 0) return;
 
-        if (card.Type == CardType.Attack)
+        foreach (var block in blocks)
         {
-            //intents.Add(new Attack(0, "Hello"));
+            if (block is Block b)
+            {
+                //NOTE: currently this might change depending on rules and if we want to be 
+                //able to stack blocking creatures and whatnot
+                if (!BoardState.PlayerHasBlockingCreatures(b.PlayerId))
+                {
+                    BoardState.SetBlocker(b.PlayerId, b.CardId);
+                }
+            }
         }
-        if (card.Type == CardType.Creature)
-        {
-            //intents.Add(new Summon(4));
-        }
-
-        return intents;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuivalLogicEngine.Cards;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -21,14 +22,14 @@ public enum SpellSlot
 
     public class SpellStream
     {
-    private Card?[] Stream { get; set; }
+    private ICard?[] Stream { get; set; }
 
         public SpellStream()
         {
-        Stream = new Card?[(int)SpellSlot.MAX];
+        Stream = new ICard?[(int)SpellSlot.MAX];
     }
 
-    public void Set(List<Card> cards)
+    public void Set(List<ICard> cards)
     {
         for (int i = 0; i < cards.Count; i++)
         {
@@ -44,12 +45,12 @@ public enum SpellSlot
         }
     }
 
-    public void AddCard(int index, Card card)
+    public void AddCard(int index, ICard card)
     {
         Stream[index] = card;
     }
 
-    public Card? GetCard(int slot)
+    public ICard? GetCard(int slot)
     {
         return Stream[slot];
         }

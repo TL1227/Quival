@@ -9,6 +9,7 @@ using System.Windows;
 
 using System.Text.Json;
 using QuivalLogicEngine;
+using QuivalLogicEngine.Cards;
 
 namespace QuivalCombatTestWPF
 {

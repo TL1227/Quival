@@ -4,6 +4,7 @@ using System.Text;
 using QuivalLogicEngine;
 
 using System.Text.Json;
+using QuivalLogicEngine.Cards;
 
 namespace QuivalServer;
 
