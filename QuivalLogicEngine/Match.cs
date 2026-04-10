@@ -65,11 +65,11 @@ public class Match
 
         if (card.Type == CardType.Attack)
         {
-            intents.Add(new Attack(0, "Hello"));
+            //intents.Add(new Attack(0, "Hello"));
         }
         if (card.Type == CardType.Creature)
         {
-            intents.Add(new Summon(4));
+            //intents.Add(new Summon(4));
         }
 
         return intents;

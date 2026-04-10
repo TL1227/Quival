@@ -8,8 +8,8 @@ namespace QuivalLogicEngine
 {
     public interface ICardIntent 
     {
-        int PlayerId { get; set; }
-        int SlotNumber { get; set; }
+        int PlayerId { get; }
+        int SlotNumber { get; }
     }
 
     public record Attack(int PlayerId, int SlotNumber, int Target, string somethingElse) : ICardIntent;

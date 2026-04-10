@@ -138,11 +138,7 @@ internal class Program
                 {
                     if (message.Cards != null)
                     {
-<<<<<<< HEAD
                         if (playerId == Player1ID || playerId == Player2ID)
-=======
-                        if (playerId == 0 || playerId == 1)
->>>>>>> a0127bc342dc66b9a4cdda07ba28fa54093a61be
                         {
                             Match.SetSpellStream(message.Cards, playerId);
 
