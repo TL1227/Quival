@@ -23,12 +23,8 @@ public class Match
 
     public Match()
     {
-<<<<<<< HEAD
         Players = new Player[2];
         CurrentPhase = Phases.Summon; //TODO: change this after testing combat
-=======
-        Players = new Player[2] { new(), new() };
->>>>>>> a0127bc342dc66b9a4cdda07ba28fa54093a61be
     }
 
     public void SetSpellStream(List<Card> cards, int playerId)
