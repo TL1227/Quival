@@ -19,12 +19,12 @@ public enum SpellSlot
     MAX
 }
 
-public class SpellStream
-{
+    public class SpellStream
+    {
     private Card?[] Stream { get; set; }
 
-    public SpellStream()
-    {
+        public SpellStream()
+        {
         Stream = new Card?[(int)SpellSlot.MAX];
     }
 
@@ -52,7 +52,7 @@ public class SpellStream
     public Card? GetCard(int slot)
     {
         return Stream[slot];
-    }
+        }
 
     public bool ContainsCards()
     {

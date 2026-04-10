@@ -7,24 +7,19 @@ internal class Player
     private int HealthPoints { get; set; }
     private List<Card> Hand { get; set; }
     private List<Card> Deck { get; set; }
-    public SpellStream SpellStream { get; set; }
+    public SpellStream SpellStream { get; }
 
     public Player()
     {
         HealthPoints = 20;
         Deck = new(); //todo: get this somehow 
         Hand = GetStartingHand(Deck);
-        SpellStream = new();
+        Stream = new();
     }
 
     public bool SpellStreamSet()
     {
         return SpellStream.ContainsCards();
-    }
-
-    public void SetSpellStream(SpellStream spellStream)
-    {
-        SpellStream = spellStream;
     }
 
     private List<Card> GetStartingHand(List<Card> deck)
