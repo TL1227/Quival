@@ -32,6 +32,7 @@ namespace QuivalCombatTestWPF
 
             HandZone.CardClicked += HandZone_CardClicked;
             SpellstreamZone.CardClicked += SpellStreamZone_CardClicked;
+
             /*
             CombatZone.AddCard(1, 1, Side.Player);
             CombatZone.AddCard(1, 1, Side.Player);
@@ -114,7 +115,10 @@ namespace QuivalCombatTestWPF
         {
             Message message = new();
             message.Type = MessageType.SpellStream;
-            message.Cards = Mapper.MapToList(CurrentSpellStream);
+            message.CardIds = new();
+
+            foreach (var card in CurrentSpellStream)
+                message.CardIds.Add(card.CardId);
 
             Client.SendMessage(message);
         }

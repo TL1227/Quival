@@ -13,10 +13,11 @@ internal class Program
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
     internal static TcpClient? PlayerOne;
-    internal static int Player1ID = 1;
+    internal static int PLAYER_1 = 1;
     internal static TcpClient? PlayerTwo;
-    internal static int Player2ID = 2;
+    internal static int PLAYER_2 = 2;
     internal static Match Match;
+    internal static List<ICard> TheDeck;
 
     static async Task Main(string[] args)
     {
@@ -25,6 +26,22 @@ internal class Program
         TcpListener listener = new(IPAddress.Any, PortNumber);
         listener.Start();
         Console.WriteLine($"Server listening on port {PortNumber}");
+
+        Match = new Match();
+
+        TheDeck =
+        [
+            new CreatureCard(0, 1, 1),
+            new CreatureCard(0, 1, 1),
+            new CreatureCard(0, 2, 2),
+            new CreatureCard(0, 2, 3),
+            new CreatureCard(0, 3, 1),
+            new CreatureCard(0, 2, 4),
+            new CreatureCard(0, 4, 2),
+            new CreatureCard(0, 2, 4),
+            new CreatureCard(0, 2, 4),
+            new CreatureCard(0, 2, 4)
+        ];
 
         while (true)
         {
@@ -48,24 +65,15 @@ internal class Program
                 if (PlayerOne == null)
                 {
                     PlayerOne = client;
-                    playerId = Player1ID;
+                    playerId = PLAYER_1;
                     Console.WriteLine($"Welcome player 1!");
                     streamWriter.WriteLine($"Welcome player 1!");
 
+                    Match.SetPlayer(PLAYER_1, TheDeck);
+
                     Message openingHandMessage = new();
                     openingHandMessage.Type = MessageType.OpeningHand;
-
-                    openingHandMessage.Cards = new List<Card>()
-                    {
-                        //hardcode for now
-                        new Card(CardType.Creature, 1, 1),
-                        new Card(CardType.Creature, 1, 2),
-                        new Card(CardType.Creature, 1, 2),
-                        new Card(CardType.Creature, 2, 1),
-                        new Card(CardType.Creature, 3, 1),
-                        new Card(CardType.Creature, 3, 2),
-                        new Card(CardType.Creature, 4, 4),
-                    };
+                    openingHandMessage.Cards = Match.GetPlayerHand(PLAYER_1);
 
                     string jsonMessage = JsonSerializer.Serialize(openingHandMessage);
 
@@ -74,27 +82,16 @@ internal class Program
                 else if (PlayerTwo == null)
                 {
                     PlayerTwo = client;
-                    playerId = Player2ID;
-                    Console.WriteLine($"Welcome player 2!");
+                    playerId = PLAYER_2;
 
+                    Console.WriteLine($"Welcome player 2!");
                     streamWriter.WriteLine($"Welcome player 2!");
 
-                    Match = new();
+                    Match.SetPlayer(PLAYER_2, TheDeck);
 
                     Message openingHandMessage = new();
                     openingHandMessage.Type = MessageType.OpeningHand;
-
-                    openingHandMessage.Cards = new List<Card>()
-                    {
-                        //hardcode for now
-                        new Card(CardType.Creature, 1, 1),
-                        new Card(CardType.Creature, 1, 2),
-                        new Card(CardType.Creature, 1, 2),
-                        new Card(CardType.Creature, 2, 1),
-                        new Card(CardType.Creature, 3, 1),
-                        new Card(CardType.Creature, 3, 2),
-                        new Card(CardType.Creature, 4, 4),
-                    };
+                    openingHandMessage.Cards = Match.GetPlayerHand(PLAYER_2);
 
                     string jsonMessage = JsonSerializer.Serialize(openingHandMessage);
 
@@ -139,7 +136,7 @@ internal class Program
                 {
                     if (message.Cards != null)
                     {
-                        if (playerId == Player1ID || playerId == Player2ID)
+                        if (playerId == PLAYER_1 || playerId == PLAYER_2)
                         {
                             Match.SetSpellStream(message.Cards, playerId);
 

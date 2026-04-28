@@ -28,6 +28,7 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
+        /*
         public void AddCard(int attack, int defence, Side side)
         {
             BoardCard card = new(attack, defence);
@@ -52,6 +53,7 @@ namespace QuivalCombatTestWPF
                 }
             }
         }
+        */
 
         public void HandleClick(object boardCard, MouseButtonEventArgs args)
         {

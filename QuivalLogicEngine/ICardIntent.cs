@@ -8,11 +8,34 @@ namespace QuivalLogicEngine
 {
     public interface ICardIntent 
     {
-        public int CardId { get; }
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
     }
 
-    public record Attack(int CardId) : ICardIntent;
-    public record Block(int CardId, int PlayerId, int SlotNumber) : ICardIntent;
-    public record Summon(int CardId, int PlayerId, int SlotNumber) : ICardIntent;
-    public record DoubleUp(int CardId, int SlotNumber) : ICardIntent;
+    public class Attack : ICardIntent
+    {
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
+    }
+
+    public class Block : ICardIntent
+    {
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
+    }
+
+    public class Summon : ICardIntent
+    {
+        public int CardId { get; set; } 
+        public int PlayerId { get; set; } 
+
+        public Summon(int id) { CardId = id; }
+    }
+
+    public class DamageMultiply : ICardIntent //TODO: This could be a more generic MultiplyDamage intent
+    {
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
+        public int Ammount { get; set; }
+    }
 }

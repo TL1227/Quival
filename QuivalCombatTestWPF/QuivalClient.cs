@@ -102,16 +102,24 @@ namespace QuivalCombatTestWPF
         }
 
         //TODO: maybe this goes in a Mapper class
-        private List<BoardCard> CardToBoardCard(List<Card> cards)
+        private List<BoardCard> CardToBoardCard(List<ICard> cards)
         {
             List<BoardCard> result = new();
 
             try
             {
-                foreach (Card card in cards)
+                foreach (ICard card in cards)
                 {
-                    BoardCard bc = new(card.Attack, card.Defence);
-                    result.Add(bc);
+                    if (card is CreatureCard creature)
+                    {
+                        BoardCard bc = new(0, creature.Attack, creature.Health);
+                        result.Add(bc);
+                    }
+                    else
+                    {
+                        BoardCard bc = new(0, 0, 0);
+                        result.Add(bc);
+                    }
                 }
             }
             catch (Exception e)

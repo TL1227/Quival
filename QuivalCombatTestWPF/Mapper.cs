@@ -9,6 +9,7 @@ namespace QuivalCombatTestWPF
 {
     internal static class Mapper
     {
+        /*
         public static Queue<ICard>? Map(Queue<BoardCard> boardCards)
         {
             Queue<ICard>? queue = new();
@@ -39,6 +40,7 @@ namespace QuivalCombatTestWPF
             return queue;
         }
 
+
         public static List<ICard>? MapToList(Stack<BoardCard> boardCards)
         {
             List<ICard>? queue = new();
@@ -53,5 +55,6 @@ namespace QuivalCombatTestWPF
 
             return queue;
         }
+        */
     }
 }

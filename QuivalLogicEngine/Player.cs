@@ -6,16 +6,18 @@ namespace QuivalLogicEngine;
 internal class Player
 {
     private int HealthPoints { get; set; }
-    private List<Card> Hand { get; set; }
-    private List<Card> Deck { get; set; }
+    public List<ICard> Hand { get; set; }
+    public List<ICard> Deck { get; set; }
     public SpellStream SpellStream { get; }
 
-    public Player()
+    public Player(List<ICard> deck)
     {
         HealthPoints = 20;
-        Deck = new(); //todo: get this somehow 
-        Hand = GetStartingHand(Deck);
-        Stream = new();
+        Deck = new(deck);
+        Hand = new();
+        SpellStream = new();
+
+        GetStartingHand();
     }
 
     public bool SpellStreamSet()
@@ -23,8 +25,12 @@ internal class Player
         return SpellStream.ContainsCards();
     }
 
-    private List<Card> GetStartingHand(List<Card> deck)
+    private void GetStartingHand()
     {
-        return new();
+        for (int i = 0; i < 7; i++)
+        {
+            Hand.Add(Deck[0]);
+            Deck.RemoveAt(0);
+        }
     }
 }

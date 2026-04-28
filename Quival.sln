@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuivalCombatTestWPF", "Quiv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuivalLogicEngine", "QuivalLogicEngine\QuivalLogicEngine.csproj", "{4A07C1F0-4657-4197-8177-1A10025BEB44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicEngineConsole", "LogicEngineConsole\LogicEngineConsole.csproj", "{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4A07C1F0-4657-4197-8177-1A10025BEB44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A07C1F0-4657-4197-8177-1A10025BEB44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A07C1F0-4657-4197-8177-1A10025BEB44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

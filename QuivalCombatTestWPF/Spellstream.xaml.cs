@@ -32,7 +32,7 @@ namespace QuivalCombatTestWPF
 
         public void AddCard(BoardCard card)
         {
-            BoardCard streamCard = new(card.Attack, card.Defence);
+            BoardCard streamCard = new(card.CardId, card.Attack, card.Defence);
             streamCard.Tag = card;
 
             streamCard.MouseLeftButtonDown += HandleClick;

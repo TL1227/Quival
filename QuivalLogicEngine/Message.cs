@@ -17,6 +17,7 @@ namespace QuivalLogicEngine
     public class Message
     {
         public MessageType Type { get; set; }
-        public List<Card>? Cards { get; set; }
+        public List<ICard>? Cards { get; set; }
+        public List<int>? CardIds { get; set; }
     }
 }
