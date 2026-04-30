@@ -1,0 +1,40 @@
+{
+    "Cards":[
+        {
+            "UniqueID": "ALP001",
+            "Type": "SPELL",
+            "Name": "Slight of Hand",
+            "FlavorText": "Now you see it, now you don't!",
+            "Cost": 3,
+            "Attack": null,
+            "Health": null,
+            "KeyWords": [],
+            "Abilities": [
+                {
+                    "Triggers": [ "CAST" ],
+                    "Intents": [ "DRAW"  ],
+                    "Value": [ 1 ],
+                    "Conditionals": [ ]
+                }
+            ]
+        },
+        {
+            "UniqueID": "ALP002",
+            "Type": "CREATURE",
+            "Name": "Keen Bean",
+            "FlavorText": "'I've heard of a runner bean but this is rediculous!' - Some Guy",
+            "Cost": 2,
+            "Attack": 1,
+            "Health": 1,
+            "KeyWords": [ "Rushdown" ],
+            "Abilities": [
+                {
+                    "Triggers": [],
+                    "Intents": [],
+                    "Value": [],
+                    "Conditionals": []
+                }
+            ]
+        }
+    ]
+}
