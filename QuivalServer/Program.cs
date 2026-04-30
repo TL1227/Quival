@@ -140,9 +140,9 @@ internal class Program
                         {
                             Match.SetSpellStream(message.Cards, playerId);
 
-                            if (Match.BothStreamsAreSet())
+                            if (Match.BothCardsToPlayAreSet())
                             {
-                                Match.ProcessSpellStreams();
+                                Match.ProcessCards();
                             }
                         }
                         else

@@ -8,21 +8,16 @@ internal class Player
     private int HealthPoints { get; set; }
     public List<ICard> Hand { get; set; }
     public List<ICard> Deck { get; set; }
-    public SpellStream SpellStream { get; }
+
+    public int CardToPlay { get; set; }
 
     public Player(List<ICard> deck)
     {
         HealthPoints = 20;
         Deck = new(deck);
         Hand = new();
-        SpellStream = new();
 
         GetStartingHand();
-    }
-
-    public bool SpellStreamSet()
-    {
-        return SpellStream.ContainsCards();
     }
 
     private void GetStartingHand()

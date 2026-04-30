@@ -22,7 +22,6 @@ public class Match
     private Player[] Players { get; set; }
     private Phases CurrentPhase { get; set; }
     private List<ICardIntent>[] CardIntents { get; set; }
-
     private BoardState BoardState { get; set; }
     private int TurnCount { get; set; }
 
@@ -45,6 +44,22 @@ public class Match
         Players[id] = new Player(deck);
     }
 
+    public void SetCardToPlay(int playerId, int cardId)
+    {
+        Players[playerId].CardToPlay = cardId;
+    }
+
+    public bool BothCardsToPlayAreSet()
+    {
+        foreach (var player in Players)
+        {
+            if (player.CardToPlay == 0)
+                return false;
+        }
+
+        return true;
+    }
+
     public List<ICard> GetPlayerHand(int id)
     {
         return Players[id].Hand;
@@ -61,69 +76,65 @@ public class Match
                 card.Id = CardIdTotal++;
     }
 
-    public void SetSpellStream(List<ICard> cards, int playerId)
-    {
-        Players[playerId].SpellStream.Set(cards);
-    }
-
-    public bool BothStreamsAreSet()
+    //TODO: probably set all the cards to a dictionary at the start of the match
+    private ICard? GetCardFromId(int cardId)
     {
         foreach (var player in Players)
-        {
-            if (player.SpellStreamSet() == false)
-                return false;
-        }
+            foreach (var card in player.Deck)
+                if (card.Id == cardId)
+                    return card;
 
-        return true;
+        return null;
     }
 
-    public void ProcessSpellStreams()
+    public void ProcessCards(int spellSlot)
     {
-        Console.WriteLine($"[EVENT]: TURN {TurnCount}");
+        Console.WriteLine($"[EVENT]: Round {spellSlot}");
 
-        for (int i = 0; i < (int)SpellSlot.MAX; i++)
+        for (int p = 0; p < 2; p++)
         {
-            Console.WriteLine($"[EVENT]: SPELLSLOT {i}");
+            if (Players[p].CardToPlay == 0) 
+                continue;
 
-            for (int p = 0; p < 2; p++)
+            ICard? card = GetCardFromId(Players[p].CardToPlay);
+
+            if (card != null)
             {
-                ICard? card = Players[p].SpellStream.GetCard(i);
+                var intents = card.GetIntents();
 
-                if (card != null)
-                {
-                    var intents = card.GetIntents();
+                foreach (var intent in intents)
+                    intent.PlayerId = p;
 
-                    foreach (var intent in intents)
-                        intent.PlayerId = p;
-
-                    CardIntents[p].AddRange(intents);
-                }
+                CardIntents[p].AddRange(intents);
             }
-
-            List<Summon> Summons = new();
-            List<Block> Blocks = new();
-            List<Attack> Attacks = new();
-            List<DamageMultiply> DamageMultiplies = new();
-
-            foreach (var intent in CardIntents)
-            {
-                Summons.AddRange(intent.OfType<Summon>().ToList());
-                Blocks.AddRange(intent.OfType<Block>().ToList());
-                Attacks.AddRange(intent.OfType<Attack>().ToList());
-            }
-
-            //handle the intents
-            foreach (var summon in Summons)
-            {
-                if (BoardState.CreatureSlotFree(summon.PlayerId))
-                {
-                    BoardState.SummonCreature(summon.PlayerId, summon.CardId);
-                }
-            }
-
-            CardIntents[0].Clear();
-            CardIntents[1].Clear();
         }
+
+        List<Summon> Summons = new();
+        List<Block> Blocks = new();
+        List<Attack> Attacks = new();
+        List<DamageMultiply> DamageMultiplies = new();
+
+        foreach (var intent in CardIntents)
+        {
+            Summons.AddRange(intent.OfType<Summon>().ToList());
+            Blocks.AddRange(intent.OfType<Block>().ToList());
+            Attacks.AddRange(intent.OfType<Attack>().ToList());
+        }
+
+        //handle the intents
+        foreach (var summon in Summons)
+        {
+            if (BoardState.CreatureSlotFree(summon.PlayerId))
+            {
+                BoardState.SummonCreature(summon.PlayerId, summon.CardId);
+            }
+        }
+
+        foreach (var cardintent in CardIntents)
+            cardintent.Clear();
+
+        foreach (var player in Players)
+            player.CardToPlay = 0;
 
         TurnCount++;
     }

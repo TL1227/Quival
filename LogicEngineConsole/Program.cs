@@ -46,7 +46,7 @@ namespace LogicEngineConsole
 
             if (match.BothStreamsAreSet())
             {
-                match.ProcessSpellStreams();
+                match.ProcessCards();
             }
         }
     }
