@@ -13,9 +13,9 @@ internal class Program
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
     internal static TcpClient? PlayerOne;
-    internal static int PLAYER_1 = 1;
+    internal static int PLAYER_1 = 0;
     internal static TcpClient? PlayerTwo;
-    internal static int PLAYER_2 = 2;
+    internal static int PLAYER_2 = 1;
     internal static Match Match;
     internal static List<ICard> TheDeck;
 
