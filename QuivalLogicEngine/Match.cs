@@ -1,10 +1,4 @@
 ﻿using QuivalLogicEngine.Cards;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace QuivalLogicEngine;
 
@@ -20,20 +14,23 @@ enum Phases
 public class Match
 {
     private Player[] Players { get; set; }
-    private Phases CurrentPhase { get; set; }
     private List<ICardIntent>[] CardIntents { get; set; }
     private BoardState BoardState { get; set; }
     private int TurnCount { get; set; }
+    private int RoundCount { get; set; }
 
     private int CardIdTotal = 1;
+
+    private List<ICard> MatchCards;
 
     public Match()
     {
         Players = new Player[2];
-        CurrentPhase = Phases.Summon; //TODO: change this after testing combat
         CardIntents = new List<ICardIntent>[2]{ new(), new() } ;
         BoardState = new();
         TurnCount = 1;
+        RoundCount = 1;
+        MatchCards = new();
     }
 
     public void SetPlayer(int id, List<ICard> deck)
@@ -41,7 +38,11 @@ public class Match
         if (id > Players.Length - 1) 
             return;
 
+        SetCardIds(deck);
+        MatchCards.AddRange(deck);
+
         Players[id] = new Player(deck);
+
     }
 
     public void SetCardToPlay(int playerId, int cardId)
@@ -65,31 +66,20 @@ public class Match
         return Players[id].Hand;
     }
 
-    public void SetCardIds()
+    public void SetCardIds(List<ICard> deck)
     {
-        foreach (var player in Players)
-            if (player.Deck.Count == 0)
-                return;
-
-        foreach (var player in Players)
-            foreach (var card in player.Deck)
-                card.Id = CardIdTotal++;
+        foreach (var card in deck)
+            card.Id = CardIdTotal++;
     }
 
-    //TODO: probably set all the cards to a dictionary at the start of the match
     private ICard? GetCardFromId(int cardId)
     {
-        foreach (var player in Players)
-            foreach (var card in player.Deck)
-                if (card.Id == cardId)
-                    return card;
-
-        return null;
+        return MatchCards.SingleOrDefault(c => c.Id == cardId) ?? null;
     }
 
-    public void ProcessCards(int spellSlot)
+    public void ProcessCards()
     {
-        Console.WriteLine($"[EVENT]: Round {spellSlot}");
+        Console.WriteLine($"[EVENT]: Round {RoundCount}");
 
         for (int p = 0; p < 2; p++)
         {
@@ -136,7 +126,7 @@ public class Match
         foreach (var player in Players)
             player.CardToPlay = 0;
 
-        TurnCount++;
+        RoundCount++;
     }
 
     private void AssignBlocks(ICardIntent[]? blocks)

@@ -14,40 +14,54 @@ namespace LogicEngineConsole
 
             Match match = new();
 
-            match.SetPlayer(PLAYER_1);
-            match.SetPlayer(PLAYER_2);
+            Console.WriteLine("Sending player decks");
 
-            List<ICard> spellstream1 = new() 
-            { 
-                new BlankCard(), //simulate the quickslot
-                new CreatureCard(1, 1, 2),
-                new CreatureCard(2, 1, 2),
-                new CreatureCard(3, 1, 2),
-                new CreatureCard(4, 1, 2),
-                new CreatureCard(5, 1, 2),
-                new BlankCard(), //simulate the slowslot
-            };
+            List <ICard> TheDeck =
+            [
+                new CreatureCard(0, 1, 1),
+                new CreatureCard(0, 1, 1),
+                new CreatureCard(0, 2, 2),
+                new CreatureCard(0, 2, 3),
+                new CreatureCard(0, 3, 1),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 4, 2),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 2, 4)
+            ];
 
-            match.SetSpellStream(spellstream1, PLAYER_1);
+            List <ICard> TheOtherDeck =
+            [
+                new CreatureCard(0, 1, 1),
+                new CreatureCard(0, 1, 1),
+                new CreatureCard(0, 2, 2),
+                new CreatureCard(0, 2, 3),
+                new CreatureCard(0, 3, 1),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 4, 2),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 2, 4),
+                new CreatureCard(0, 2, 4)
+            ];
 
-            List<ICard> spellstream2 = new()
+            match.SetPlayer(PLAYER_1, TheDeck);
+            match.SetPlayer(PLAYER_2, TheOtherDeck);
 
-            { 
-                new BlankCard(), //simulate the quickslot
-                new CreatureCard(6, 1, 2),
-                new CreatureCard(7, 1, 2),
-                new CreatureCard(8, 1, 2),
-                new CreatureCard(9, 1, 2),
-                new CreatureCard(10, 1, 2),
-                new BlankCard(), //simulate the slowslot
-            };
+            List<List<ICard>> PlayerHands = new() { new (), new() };
 
-            match.SetSpellStream(spellstream2, PLAYER_2);
+            Console.WriteLine("Fetching player's opening hands");
 
-            if (match.BothStreamsAreSet())
-            {
+            for (int i = 0; i < 2; i++)
+                PlayerHands[i] = match.GetPlayerHand(i);
+
+            Console.WriteLine($"Player 1 plays {PlayerHands[PLAYER_1][0].Id} card");
+            match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][0].Id);
+
+            Console.WriteLine($"Player 2 plays {PlayerHands[PLAYER_2][2].Id} card");
+            match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][2].Id);
+
+            if (match.BothCardsToPlayAreSet())
                 match.ProcessCards();
-            }
         }
     }
 }
