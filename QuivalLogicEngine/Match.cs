@@ -118,6 +118,10 @@ public class Match
             {
                 BoardState.SummonCreature(summon.PlayerId, summon.CardId);
             }
+            else
+            {
+                Console.WriteLine($"[ERROR]: Not enough room on {summon.PlayerId} board for {summon.CardId}");
+            }
         }
 
         foreach (var cardintent in CardIntents)

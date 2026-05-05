@@ -54,14 +54,18 @@ namespace LogicEngineConsole
             for (int i = 0; i < 2; i++)
                 PlayerHands[i] = match.GetPlayerHand(i);
 
-            Console.WriteLine($"Player 1 plays {PlayerHands[PLAYER_1][0].Id} card");
-            match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][0].Id);
+            for (int i = 0; i < 6; i++)
+            {
+                Console.WriteLine($"Player 1 plays {PlayerHands[PLAYER_1][i].Id} card");
+                match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][i].Id);
 
-            Console.WriteLine($"Player 2 plays {PlayerHands[PLAYER_2][2].Id} card");
-            match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][2].Id);
+                Console.WriteLine($"Player 2 plays {PlayerHands[PLAYER_2][i].Id} card");
+                match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][i].Id);
 
-            if (match.BothCardsToPlayAreSet())
-                match.ProcessCards();
+                if (match.BothCardsToPlayAreSet())
+                    match.ProcessCards();
+            }
+
         }
     }
 }
