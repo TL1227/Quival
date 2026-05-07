@@ -15,6 +15,7 @@ public class Match
 {
     private Player[] Players { get; set; }
     private List<ICardIntent>[] CardIntents { get; set; }
+    public List<ICardIntent> SuccessfulIntents { get; set; }
     private BoardState BoardState { get; set; }
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
@@ -27,6 +28,7 @@ public class Match
     {
         Players = new Player[2];
         CardIntents = new List<ICardIntent>[2]{ new(), new() } ;
+        SuccessfulIntents = new();
         BoardState = new();
         TurnCount = 1;
         RoundCount = 1;
@@ -77,7 +79,7 @@ public class Match
         return MatchCards.SingleOrDefault(c => c.Id == cardId) ?? null;
     }
 
-    public void ProcessCards()
+    public int ProcessCards()
     {
         Console.WriteLine($"[EVENT]: Round {RoundCount}");
 
@@ -87,6 +89,7 @@ public class Match
                 continue;
 
             ICard? card = GetCardFromId(Players[p].CardToPlay);
+            Players[p].RemoveCardFromHand(Players[p].CardToPlay);
 
             if (card != null)
             {
@@ -116,7 +119,12 @@ public class Match
         {
             if (BoardState.CreatureSlotFree(summon.PlayerId))
             {
-                BoardState.SummonCreature(summon.PlayerId, summon.CardId);
+                var card = GetCardFromId(summon.CardId);
+                if (card != null && card is CreatureCard creature) 
+                {
+                    BoardState.SummonCreature(summon.PlayerId, creature);
+                    SuccessfulIntents.Add(summon);
+                }
             }
             else
             {
@@ -130,7 +138,7 @@ public class Match
         foreach (var player in Players)
             player.CardToPlay = 0;
 
-        RoundCount++;
+        return ++RoundCount;
     }
 
     private void AssignBlocks(ICardIntent[]? blocks)

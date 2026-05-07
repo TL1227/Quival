@@ -35,11 +35,10 @@ namespace QuivalLogicEngine
             return SummonedCreatures[playerId].Count < 5;
         }
 
-        public void SummonCreature(int playerId, int cardId)
+        public void SummonCreature(int playerId, CreatureCard creature)
         {
-            //TODO: This needs to find card in players hand and move it to the battlefield
-            SummonedCreatures[playerId].Add(new CreatureCard(cardId, 2, 4));
-            Console.WriteLine($"[EVENT]: player {playerId} summoned {cardId}");
+            SummonedCreatures[playerId].Add((creature));
+            Console.WriteLine($"[EVENT]: player {playerId} summoned {creature.Name}");
         }
     }
 }

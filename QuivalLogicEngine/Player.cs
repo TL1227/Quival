@@ -20,6 +20,17 @@ internal class Player
         GetStartingHand();
     }
 
+    public void RemoveCardFromHand(int cardId)
+    {
+        for (int i = 0; i < Hand.Count; i++)
+        {
+            if (Hand[i].Id == cardId)
+            {
+                Hand.RemoveAt(i);
+            }
+        }
+    }
+
     private void GetStartingHand()
     {
         for (int i = 0; i < 7; i++)

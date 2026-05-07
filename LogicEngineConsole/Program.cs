@@ -1,5 +1,4 @@
-﻿using QuivalLogicEngine;
-using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine; using QuivalLogicEngine.Cards;
 
 namespace LogicEngineConsole
 {
@@ -54,7 +53,8 @@ namespace LogicEngineConsole
             for (int i = 0; i < 2; i++)
                 PlayerHands[i] = match.GetPlayerHand(i);
 
-            for (int i = 0; i < 6; i++)
+            int round = 0;
+            for (int i = 0; i < 5; i++)
             {
                 Console.WriteLine($"Player 1 plays {PlayerHands[PLAYER_1][i].Id} card");
                 match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][i].Id);
@@ -63,9 +63,18 @@ namespace LogicEngineConsole
                 match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][i].Id);
 
                 if (match.BothCardsToPlayAreSet())
-                    match.ProcessCards();
+                {
+                    round = match.ProcessCards();
+                }
+
+                foreach (var action in match.SuccessfulIntents)
+                {
+                    //The client would do some animating and updating
+                }
+                match.SuccessfulIntents.Clear();
             }
 
+            Console.WriteLine("Next Turn...");
         }
     }
 }
