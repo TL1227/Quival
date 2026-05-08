@@ -57,12 +57,15 @@ public class AttackCard : ICard
     public int Id { get; set; }
     public string Name { get; set; }
     public string? Description { get; set; }
+    public int PlayerId { get; set; }
 
-    public AttackCard()
+    public AttackCard(int playerId, int cardId)
     {
-        Id = 0;
+        Id = cardId;
         Name = "Attack!";
         Description = "Attack the opponent.";
+        PlayerId = playerId;
+        
     }
 
     public List<ICardIntent> GetIntents()
@@ -71,13 +74,14 @@ public class AttackCard : ICard
         //abilities. So like DoubleUp
         //Maybe a function called List<ICardIntent> GetAttackingIntents(int CardId);
 
-        List<ICardIntent> intents = [ /*new Attack(Id)*/ ];
-        return new List<ICardIntent>();
+        List<ICardIntent> intents = [ new Attack(PlayerId, Id) ];
+        return intents;
     }
 }
 
 
 //TODO: maybe inheritance would make more sense here, like the below 
+/*
 public abstract class GameCard
 {
     public int Id { get; set; }
@@ -101,7 +105,6 @@ public class Attack : GameCard
         //abilities. So like DoubleUp
         //Maybe a function called List<ICardIntent> GetAttackingIntents(int CardId);
 
-        List<ICardIntent> intents = [ /*new Attack(Id)*/ ];
-        return new List<ICardIntent>();
     }
 }
+*/

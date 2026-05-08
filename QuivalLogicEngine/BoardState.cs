@@ -38,7 +38,6 @@ namespace QuivalLogicEngine
         public void SummonCreature(int playerId, CreatureCard creature)
         {
             SummonedCreatures[playerId].Add((creature));
-            Console.WriteLine($"[EVENT]: player {playerId} summoned {creature.Name}");
         }
     }
 }

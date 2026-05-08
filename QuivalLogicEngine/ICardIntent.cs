@@ -14,8 +14,13 @@ namespace QuivalLogicEngine
 
     public class Attack : ICardIntent
     {
-        public int CardId { get; set; }
         public int PlayerId { get; set; } 
+        public int CardId { get; set; }
+        public Attack(int playerId, int cardId)
+        {
+            PlayerId = playerId;
+            CardId = cardId;
+        }
     }
 
     public class Block : ICardIntent
@@ -37,5 +42,18 @@ namespace QuivalLogicEngine
         public int CardId { get; set; }
         public int PlayerId { get; set; } 
         public int Ammount { get; set; }
+    }
+
+    public class DamagePlayer : ICardIntent
+    {
+        public int CardId { get; set; } 
+        public int PlayerId { get; set; } 
+        public int Damage { get; set; }
+
+        public DamagePlayer(int playerId, int damage)
+        { 
+            PlayerId = playerId; 
+            Damage = damage;
+        }
     }
 }

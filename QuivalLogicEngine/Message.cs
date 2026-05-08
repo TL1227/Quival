@@ -2,22 +2,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuivalLogicEngine
+namespace QuivalLogicEngine.Messages
 {
-    public enum MessageType
-    {
-        Null, //I'm using this when we need to pass around a "null" message
-        OpeningHand,
-        SpellStream
-    }
-
     public class Message
     {
-        public MessageType Type { get; set; }
-        public List<ICard>? Cards { get; set; }
-        public List<int>? CardIds { get; set; }
+        public string Type { get; set; }
+        public int Version { get; } = 1;
+        public Guid ClientGuid { get; set; }
+        public Guid ServerGuid { get; set; }
+        public DateTime TimeStamp { get; set; }
+    }
+
+    public class Connect : Message
+    {
+        public Connect(Guid guid)
+        {
+            Type = "Connect";
+            ClientGuid = guid;
+        }
+    }
+
+    public class AcceptConnection : Message
+    {
+        public AcceptConnection(Guid guid)
+        {
+            Type = "AcceptConnection";
+            ServerGuid = guid;
+        }
+    }
+
+    public class HandUpdate : Message
+    {
+        List<ICard> Cards { get; set; }
+
+        public HandUpdate(List<ICard> cards)
+        {
+            Type = "HandUpdate";
+            Cards = cards;
+        }
     }
 }

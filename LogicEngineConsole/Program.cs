@@ -56,10 +56,7 @@ namespace LogicEngineConsole
             int round = 0;
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Player 1 plays {PlayerHands[PLAYER_1][i].Id} card");
                 match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][i].Id);
-
-                Console.WriteLine($"Player 2 plays {PlayerHands[PLAYER_2][i].Id} card");
                 match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][i].Id);
 
                 if (match.BothCardsToPlayAreSet())
@@ -69,10 +66,25 @@ namespace LogicEngineConsole
 
                 foreach (var action in match.SuccessfulIntents)
                 {
-                    //The client would do some animating and updating
+                    //Return these actions to the client for animation and such
                 }
                 match.SuccessfulIntents.Clear();
             }
+
+
+            match.SetCardToAttack(PLAYER_1, 1);
+            match.SetCardToAttack(PLAYER_2, 13);
+
+            if (match.BothCardsToPlayAreSet())
+            {
+                round = match.ProcessCards();
+            }
+
+            foreach (var action in match.SuccessfulIntents)
+            {
+                //Return these actions to the client for animation and such
+            }
+            match.SuccessfulIntents.Clear();
 
             Console.WriteLine("Next Turn...");
         }

@@ -23,6 +23,7 @@ public class Match
     private int CardIdTotal = 1;
 
     private List<ICard> MatchCards;
+    private int MaxRounds = 5;
 
     public Match()
     {
@@ -49,14 +50,28 @@ public class Match
 
     public void SetCardToPlay(int playerId, int cardId)
     {
-        Players[playerId].CardToPlay = cardId;
+        var card = GetCardFromId(cardId);
+        if (card != null)
+        {
+            Players[playerId].CardToPlay = card;
+        }
+    }
+
+    public void SetCardToAttack(int playerId, int cardId)
+    {
+        //TODO: maybe check this ID exists on the board first
+        var card = GetCardFromId(cardId);
+        if (card != null)
+        {
+            Players[playerId].CardToPlay = new AttackCard(playerId, cardId);
+        }
     }
 
     public bool BothCardsToPlayAreSet()
     {
         foreach (var player in Players)
         {
-            if (player.CardToPlay == 0)
+            if (player.CardToPlay == null)
                 return false;
         }
 
@@ -85,15 +100,9 @@ public class Match
 
         for (int p = 0; p < 2; p++)
         {
-            if (Players[p].CardToPlay == 0) 
-                continue;
-
-            ICard? card = GetCardFromId(Players[p].CardToPlay);
-            Players[p].RemoveCardFromHand(Players[p].CardToPlay);
-
-            if (card != null)
+            if (Players[p].CardToPlay != null)
             {
-                var intents = card.GetIntents();
+                var intents = Players[p].CardToPlay.GetIntents();
 
                 foreach (var intent in intents)
                     intent.PlayerId = p;
@@ -124,6 +133,7 @@ public class Match
                 {
                     BoardState.SummonCreature(summon.PlayerId, creature);
                     SuccessfulIntents.Add(summon);
+                    Console.WriteLine($"[EVENT]: player {summon.PlayerId} summoned {creature.Name}");
                 }
             }
             else
@@ -132,13 +142,36 @@ public class Match
             }
         }
 
+        foreach (var attack in Attacks)
+        {
+            var card = (CreatureCard)GetCardFromId(attack.CardId);
+            int otherPlayer = attack.PlayerId == 1 ? 0 : 1;
+
+            Players[otherPlayer].HealthPoints -= card.Attack;
+            SuccessfulIntents.Add(new DamagePlayer(otherPlayer, card.Attack));
+            Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer} for {card.Attack}");
+            Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer].HealthPoints} health");
+        }
+
         foreach (var cardintent in CardIntents)
             cardintent.Clear();
 
         foreach (var player in Players)
-            player.CardToPlay = 0;
+            player.CardToPlay = null;
 
-        return ++RoundCount;
+        RoundCount++;
+
+        if (RoundCount > MaxRounds)
+        {
+            TurnCount++;
+            Console.WriteLine($"[EVENT]: Starting Turn {TurnCount}");
+            //StartRoundStuff
+            //Draw Card
+            //ResetBlockers
+            //Maybe reset creature health?
+        }
+
+        return RoundCount;
     }
 
     private void AssignBlocks(ICardIntent[]? blocks)

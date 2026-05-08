@@ -5,11 +5,11 @@ namespace QuivalLogicEngine;
 
 internal class Player
 {
-    private int HealthPoints { get; set; }
+    public int HealthPoints { get; set; }
     public List<ICard> Hand { get; set; }
     public List<ICard> Deck { get; set; }
 
-    public int CardToPlay { get; set; }
+    public ICard? CardToPlay { get; set; }
 
     public Player(List<ICard> deck)
     {
@@ -39,4 +39,5 @@ internal class Player
             Deck.RemoveAt(0);
         }
     }
+
 }
