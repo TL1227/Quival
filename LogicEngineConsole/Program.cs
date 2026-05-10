@@ -15,7 +15,7 @@ namespace LogicEngineConsole
 
             Console.WriteLine("Sending player decks");
 
-            List <ICard> TheDeck =
+            List <Card> TheDeck =
             [
                 new CreatureCard(0, 1, 1),
                 new CreatureCard(0, 1, 1),
@@ -29,7 +29,7 @@ namespace LogicEngineConsole
                 new CreatureCard(0, 2, 4)
             ];
 
-            List <ICard> TheOtherDeck =
+            List <Card> TheOtherDeck =
             [
                 new CreatureCard(0, 1, 1),
                 new CreatureCard(0, 1, 1),
@@ -46,7 +46,7 @@ namespace LogicEngineConsole
             match.SetPlayer(PLAYER_1, TheDeck);
             match.SetPlayer(PLAYER_2, TheOtherDeck);
 
-            List<List<ICard>> PlayerHands = new() { new (), new() };
+            List<List<Card>> PlayerHands = new() { new (), new() };
 
             Console.WriteLine("Fetching player's opening hands");
 

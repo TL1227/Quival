@@ -1,10 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace QuivalLogicEngine.Messages
 {
@@ -15,11 +10,27 @@ namespace QuivalLogicEngine.Messages
         public Guid ClientGuid { get; set; }
         public Guid ServerGuid { get; set; }
         public DateTime TimeStamp { get; set; }
+
+        public static Message? GetMessageFromJson(string json)
+        {
+            var parsed = JsonDocument.Parse(json);
+            var type = parsed.RootElement.GetProperty("type").GetString();
+
+            Message? message = type switch
+            {
+                "Connect" => JsonSerializer.Deserialize<ConnectionRequest>(parsed),
+                "AcceptConnection" => JsonSerializer.Deserialize<AcceptConnection>(parsed),
+                "HandUpdate" => JsonSerializer.Deserialize<HandUpdate>(parsed),
+                _ => null
+            };
+
+            return message;
+        }
     }
 
-    public class Connect : Message
+    public class ConnectionRequest : Message
     {
-        public Connect(Guid guid)
+        public ConnectionRequest(Guid guid)
         {
             Type = "Connect";
             ClientGuid = guid;
@@ -37,12 +48,22 @@ namespace QuivalLogicEngine.Messages
 
     public class HandUpdate : Message
     {
-        List<ICard> Cards { get; set; }
+        public List<Card> Cards { get; set; }
 
-        public HandUpdate(List<ICard> cards)
+        public HandUpdate(List<Card> cards)
         {
             Type = "HandUpdate";
             Cards = cards;
+        }
+    }
+
+    public class PlayCard : Message
+    {
+        public Card CardToPlay { get; set; }
+
+        public PlayCard(Card cardToPlay)
+        {
+            CardToPlay = cardToPlay;
         }
     }
 }

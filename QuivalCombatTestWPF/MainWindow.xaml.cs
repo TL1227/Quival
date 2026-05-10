@@ -9,20 +9,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using QuivalLogicEngine;
+using QuivalLogicEngine.Cards;
 
 namespace QuivalCombatTestWPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         QuivalClient Client;
 
         BoardCard? FirstClickedCard;
         BoardCard? SecondClickedCard;
-        Stack<BoardCard> CurrentSpellStream = new();
 
         public MainWindow()
         {
@@ -31,23 +27,11 @@ namespace QuivalCombatTestWPF
             Client.ConnectToServer();
 
             HandZone.CardClicked += HandZone_CardClicked;
-            SpellstreamZone.CardClicked += SpellStreamZone_CardClicked;
-
-            /*
-            CombatZone.AddCard(1, 1, Side.Player);
-            CombatZone.AddCard(1, 1, Side.Player);
-            CombatZone.AddCard(1, 1, Side.Player);
-
-            CombatZone.AddCard(2, 2, Side.Opponent);
-            CombatZone.AddCard(2, 2, Side.Opponent);
-
-            CombatZone.CardClicked += CombatZone_CardClicked;
-            */
         }
 
-        public void UpdateHand(List<BoardCard> hand)
+        public void UpdateHand(List<Card> hand)
         {
-            HandZone.SetHand(hand);
+            //HandZone.SetHand(hand);
         }
 
         private void HandZone_CardClicked(object? sender, EventArgs e)
@@ -59,35 +43,6 @@ namespace QuivalCombatTestWPF
                     AddToSpellStream(card);
                     card.SetClickable(false);
                 }
-            }
-        }
-
-        private void SpellStreamZone_CardClicked(object? sender, EventArgs e)
-        {
-            if (sender is BoardCard card)
-            {
-                RemoveFromSpellStream(card);
-            }
-        }
-
-        private void AddToSpellStream(BoardCard card)
-        {
-            CurrentSpellStream.Push(card);
-            SpellstreamZone.AddCard(card);
-        }
-
-        private void RemoveFromSpellStream(BoardCard card)
-        {
-            if (card.Tag == CurrentSpellStream.Peek())
-            {
-                CurrentSpellStream.Pop();
-
-                if (card.Tag is BoardCard handCard)
-                {
-                    handCard.SetClickable(true);
-                }
-
-                SpellstreamZone.RemoveCard(card);
             }
         }
 
@@ -113,14 +68,7 @@ namespace QuivalCombatTestWPF
 
         private void SpellStreamCastButton_Click(object sender, RoutedEventArgs e)
         {
-            Message message = new();
-            message.Type = MessageType.SpellStream;
-            message.CardIds = new();
-
-            foreach (var card in CurrentSpellStream)
-                message.CardIds.Add(card.CardId);
-
-            Client.SendMessage(message);
+            //Client.SubmitCard();
         }
     }
 }

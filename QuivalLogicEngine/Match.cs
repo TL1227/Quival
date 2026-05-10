@@ -22,7 +22,7 @@ public class Match
 
     private int CardIdTotal = 1;
 
-    private List<ICard> MatchCards;
+    private List<Card> MatchCards;
     private int MaxRounds = 5;
 
     public Match()
@@ -36,7 +36,7 @@ public class Match
         MatchCards = new();
     }
 
-    public void SetPlayer(int id, List<ICard> deck)
+    public void SetPlayer(int id, List<Card> deck)
     {
         if (id > Players.Length - 1) 
             return;
@@ -78,18 +78,18 @@ public class Match
         return true;
     }
 
-    public List<ICard> GetPlayerHand(int id)
+    public List<Card> GetPlayerHand(int id)
     {
         return Players[id].Hand;
     }
 
-    public void SetCardIds(List<ICard> deck)
+    public void SetCardIds(List<Card> deck)
     {
         foreach (var card in deck)
             card.Id = CardIdTotal++;
     }
 
-    private ICard? GetCardFromId(int cardId)
+    private Card? GetCardFromId(int cardId)
     {
         return MatchCards.SingleOrDefault(c => c.Id == cardId) ?? null;
     }

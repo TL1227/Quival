@@ -12,16 +12,20 @@ internal class Program
 {
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
+
     internal static TcpClient? PlayerOne;
     internal static Guid PlayerOneGuid;
     internal static int PLAYER_1 = 0;
+    internal static List<Card> TheDeck;
+
     internal static TcpClient? PlayerTwo;
     internal static Guid PlayerTwoGuid;
     internal static int PLAYER_2 = 1;
+    internal static List<Card> TheDeck2;
+
     internal static Guid ServerGuid;
+
     internal static Match Match;
-    internal static List<ICard> TheDeck;
-    internal static List<ICard> TheDeck2;
 
     static async Task Main(string[] args)
     {
@@ -89,7 +93,7 @@ internal class Program
             if (doc == null)
                 return;
 
-            Connect initialMessage = JsonSerializer.Deserialize<Connect>(doc)!;
+            ConnectionRequest initialMessage = JsonSerializer.Deserialize<ConnectionRequest>(doc)!;
 
             int playerId = -1;
             if (connectMessage != null)
@@ -119,16 +123,16 @@ internal class Program
                     playerId = PLAYER_2;
                     PlayerTwoGuid = initialMessage.ClientGuid;
 
-                    Console.WriteLine($"Welcome player 2!");
-                    streamWriter.WriteLine($"Welcome player 2!");
+                    AcceptConnection acceptConnection = new(ServerGuid);
+                    string jsonMessage = JsonSerializer.Serialize(acceptConnection);
+                    streamWriter.WriteLine(jsonMessage);
+                    Console.WriteLine("Accepting Player 2");
 
                     Match.SetPlayer(PLAYER_2, TheDeck2);
+                    var hand = Match.GetPlayerHand(PLAYER_2);
+                    HandUpdate handupdate = new(hand);
 
-                    Message openingHandMessage = new();
-                    openingHandMessage.Type = MessageType.OpeningHand;
-                    openingHandMessage.Cards = Match.GetPlayerHand(PLAYER_2);
-
-                    string jsonMessage = JsonSerializer.Serialize(openingHandMessage);
+                    jsonMessage = JsonSerializer.Serialize(handupdate);
 
                     streamWriter.WriteLine(jsonMessage);
                 }
@@ -140,10 +144,11 @@ internal class Program
                 string? message;
                 while ((message = streamReader.ReadLine()) != null)
                 {
-                    Message? result = JsonSerializer.Deserialize<Message>(message);
-                    if (result != null)
+                    var parsedMessage = Message.GetMessageFromJson(message);
+
+                    if (parsedMessage != null)
                     {
-                        HandleMessage(result, playerId);
+                        HandleMessage(parsedMessage, playerId);
                     }
                 }
             }
@@ -160,36 +165,24 @@ internal class Program
     {
         Console.WriteLine($"Message from player {playerId}");
 
-        switch (message.Type)
-        {
-            case MessageType.OpeningHand:
-                {
-                    //Shouldn't get this type of message probably
-                }
-                break;
-            case MessageType.SpellStream:
-                {
-                    if (message.Cards != null)
+            switch (message)
+            {
+                case AcceptConnection:
                     {
-                        if (playerId == PLAYER_1 || playerId == PLAYER_2)
-                        {
-                            Match.SetSpellStream(message.Cards, playerId);
-
-                            if (Match.BothCardsToPlayAreSet())
-                            {
-                                Match.ProcessCards();
-                            }
-                        }
-                        else
-                        {
-                            //handle playerId error
-                        }
                     }
-                }
-                break;
-            default:
-            case MessageType.Null:
-                break;
+                    break;
+                case ConnectionRequest:
+                    {
+                    }
+                    break;
+                case HandUpdate:
+                    {
+                        //HandUpdate handUpdate = (HandUpdate)message;
+                        //Window.UpdateHand(handUpdate.Cards);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
-}

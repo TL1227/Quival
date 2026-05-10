@@ -6,12 +6,12 @@ namespace QuivalLogicEngine;
 internal class Player
 {
     public int HealthPoints { get; set; }
-    public List<ICard> Hand { get; set; }
-    public List<ICard> Deck { get; set; }
+    public List<Card> Hand { get; set; }
+    public List<Card> Deck { get; set; }
 
-    public ICard? CardToPlay { get; set; }
+    public Card? CardToPlay { get; set; }
 
-    public Player(List<ICard> deck)
+    public Player(List<Card> deck)
     {
         HealthPoints = 20;
         Deck = new(deck);

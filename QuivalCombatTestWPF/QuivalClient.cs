@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Windows;
 
 using System.Text.Json;
-using QuivalLogicEngine;
 using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Messages;
 
 namespace QuivalCombatTestWPF
 {
@@ -18,10 +14,13 @@ namespace QuivalCombatTestWPF
         private StreamWriter? Writer;
         private StreamReader? Reader;
         private MainWindow Window;
+        private Guid Clientguid;
+        private Guid Serverguid;
 
         public QuivalClient(MainWindow window)
         {
             Window = window;
+            Clientguid = Guid.NewGuid();
         }
 
         public async Task<bool> ConnectToServer()
@@ -33,11 +32,22 @@ namespace QuivalCombatTestWPF
                 Writer = new StreamWriter(Stream, Encoding.UTF8) { AutoFlush = true };
                 Reader = new StreamReader(Stream, Encoding.UTF8);
 
-                Writer.WriteLine("This is a connection test!");
+                ConnectionRequest connectionRequest = new(Clientguid);
+
+                string req = JsonSerializer.Serialize<ConnectionRequest>(connectionRequest);
+
+                Writer.WriteLine(req);
+
                 string? response = Reader.ReadLine();
 
-                if (response != null)
+                if (response == null)
+                    return false;
+
+                var message = Message.GetMessageFromJson(response);
+
+                if (response != null && message is AcceptConnection accept)
                 {
+                    Serverguid = accept.ServerGuid;
                     _ = RecieveMessages();
                 }
 
@@ -59,10 +69,10 @@ namespace QuivalCombatTestWPF
 
         public void SendMessage(Message message)
         {
-            if (Writer == null) 
+            if (Writer == null || message == null) 
                 return;
 
-            string toSend = MessageToJson(message);
+            string? toSend = MessageToJson(message);
 
             Writer.WriteLine(toSend);
         }
@@ -73,42 +83,48 @@ namespace QuivalCombatTestWPF
                 return;
 
             string? message;
-            while ((message =  await Reader.ReadLineAsync()) != null)
+            while ((message = await Reader.ReadLineAsync()) != null)
             {
-                await HandleMessage(GetMessage(message.ToString()));
+                Message? recieved = Message.GetMessageFromJson(message);
+
+                if (recieved != null)
+                {
+                    await HandleMessage(recieved);
+                }
             }
         }
 
         private async Task HandleMessage(Message message)
         {
-            switch (message.Type)
+            switch (message)
             {
-                case MessageType.OpeningHand:
+                case AcceptConnection:
                     {
-                        if (message.Cards != null)
-                        {
-                            await Application.Current.Dispatcher.InvokeAsync(() => 
-                            {
-                                var hand = CardToBoardCard(message.Cards);
-                                Window.UpdateHand(hand);
-                            });
-                        }
                     }
                     break;
-                case MessageType.Null: 
+                case ConnectionRequest:
+                    {
+                    }
+                    break;
+                case HandUpdate:
+                    {
+                        HandUpdate handUpdate = (HandUpdate)message;
+                        Window.UpdateHand(handUpdate.Cards);
+                    }
+                    break;
                 default:
                     break;
             }
         }
 
         //TODO: maybe this goes in a Mapper class
-        private List<BoardCard> CardToBoardCard(List<ICard> cards)
+        private List<BoardCard> CardToBoardCard(List<Card> cards)
         {
             List<BoardCard> result = new();
 
             try
             {
-                foreach (ICard card in cards)
+                foreach (Card card in cards)
                 {
                     if (card is CreatureCard creature)
                     {
@@ -130,26 +146,6 @@ namespace QuivalCombatTestWPF
             return result;
         }
 
-        //TODO: put into some sort of translator class
-        private static Message GetMessage(string message)
-        {
-            if (message != null)
-            {
-                try
-                {
-                    var value = JsonSerializer.Deserialize<Message>(message) ?? new Message() { Type = MessageType.Null };
-                    return value;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-                //return JsonSerializer.Deserialize<Message>(message) ?? new Message() { Type = MessageType.Empty };
-            }
-
-            return new Message() { Type = MessageType.Null };
-        }
-        
         private static string? MessageToJson(Message message)
         {
             if (message != null)
@@ -165,6 +161,11 @@ namespace QuivalCombatTestWPF
             }
 
             return null;
+        }
+
+        public void SubmitCard(Card card)
+        {
+
         }
     }
 }

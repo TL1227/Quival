@@ -22,14 +22,14 @@ public enum SpellSlot
 
     public class SpellStream
     {
-    private ICard?[] Stream { get; set; }
+    private Card?[] Stream { get; set; }
 
         public SpellStream()
         {
-        Stream = new ICard?[(int)SpellSlot.MAX];
+        Stream = new Card?[(int)SpellSlot.MAX];
     }
 
-    public void Set(List<ICard> cards)
+    public void Set(List<Card> cards)
     {
         for (int i = 0; i < cards.Count; i++)
         {
@@ -45,12 +45,12 @@ public enum SpellSlot
         }
     }
 
-    public void AddCard(int index, ICard card)
+    public void AddCard(int index, Card card)
     {
         Stream[index] = card;
     }
 
-    public ICard? GetCard(int slot)
+    public Card? GetCard(int slot)
     {
         return Stream[slot];
         }
