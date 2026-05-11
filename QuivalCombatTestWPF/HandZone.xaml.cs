@@ -28,7 +28,7 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
-        public void SetHand(List<BoardCard> hand)
+        public void SetHand(List<HandCard> hand)
         {
             HandGrid.Children.Clear();
 
@@ -37,6 +37,17 @@ namespace QuivalCombatTestWPF
                 Grid.SetColumn(hand[i], i);
                 hand[i].MouseLeftButtonDown += HandleClick;
                 HandGrid.Children.Add(hand[i]);
+            }
+        }
+
+        public void DeselectAllCards()
+        {
+            foreach (var card in HandGrid.Children)
+            {
+                if (card is HandCard hc)
+                {
+                    hc.Overlay.Opacity = 0.0;
+                }
             }
         }
 

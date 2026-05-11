@@ -1,6 +1,8 @@
 ﻿using QuivalLogicEngine;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Messages;
+using QuivalLogicEngine.Client;
+
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -41,30 +43,30 @@ internal class Program
 
         TheDeck =
         [
-            new CreatureCard(0, 1, 1),
-            new CreatureCard(0, 1, 1),
-            new CreatureCard(0, 2, 2),
-            new CreatureCard(0, 2, 3),
-            new CreatureCard(0, 3, 1),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 4, 2),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 2, 4)
+            new CreatureCard(0, 1, 1, 3),
+            new CreatureCard(0, 1, 1, 3),
+            new CreatureCard(0, 2, 2, 3),
+            new CreatureCard(0, 2, 3, 3),
+            new CreatureCard(0, 3, 1, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 4, 2, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 2, 4, 3)
         ];
 
         TheDeck2 =
         [
-            new CreatureCard(0, 1, 1),
-            new CreatureCard(0, 1, 1),
-            new CreatureCard(0, 2, 2),
-            new CreatureCard(0, 2, 3),
-            new CreatureCard(0, 3, 1),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 4, 2),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 2, 4),
-            new CreatureCard(0, 2, 4)
+            new CreatureCard(0, 1, 1, 3),
+            new CreatureCard(0, 1, 1, 3),
+            new CreatureCard(0, 2, 2, 3),
+            new CreatureCard(0, 2, 3, 3),
+            new CreatureCard(0, 3, 1, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 4, 2, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 2, 4, 3),
+            new CreatureCard(0, 2, 4, 3)
         ];
 
         while (true)
@@ -85,13 +87,15 @@ internal class Program
             string? connectMessage = streamReader.ReadLine();
 
             var doc = JsonDocument.Parse(connectMessage);
-            var type = doc.RootElement.GetProperty("type").GetString();
+
+            if (doc == null)
+                return;
+
+            var type = doc.RootElement.GetProperty("Type").GetString();
 
             if (type != "Connect")
                 return;
 
-            if (doc == null)
-                return;
 
             ConnectionRequest initialMessage = JsonSerializer.Deserialize<ConnectionRequest>(doc)!;
 
@@ -104,8 +108,9 @@ internal class Program
                     playerId = PLAYER_1;
                     PlayerOneGuid = initialMessage.ClientGuid;
 
-                    AcceptConnection acceptConnection = new(ServerGuid);
-                    string jsonMessage = JsonSerializer.Serialize(acceptConnection);
+                    //send connection message back with server guid populated
+                    initialMessage.ServerGuid = ServerGuid;
+                    string jsonMessage = JsonSerializer.Serialize(initialMessage);
                     streamWriter.WriteLine(jsonMessage);
                     Console.WriteLine("Accepting Player 1");
 
@@ -123,8 +128,9 @@ internal class Program
                     playerId = PLAYER_2;
                     PlayerTwoGuid = initialMessage.ClientGuid;
 
-                    AcceptConnection acceptConnection = new(ServerGuid);
-                    string jsonMessage = JsonSerializer.Serialize(acceptConnection);
+                    //send connection message back with server guid populated
+                    initialMessage.ServerGuid = ServerGuid;
+                    string jsonMessage = JsonSerializer.Serialize(initialMessage);
                     streamWriter.WriteLine(jsonMessage);
                     Console.WriteLine("Accepting Player 2");
 
@@ -148,7 +154,7 @@ internal class Program
 
                     if (parsedMessage != null)
                     {
-                        HandleMessage(parsedMessage, playerId);
+                        HandleMessage(parsedMessage, playerId, streamWriter);
                     }
                 }
             }
@@ -161,28 +167,27 @@ internal class Program
         }
     }
 
-    static void HandleMessage(Message message, int playerId)
+    static void HandleMessage(Message message, int playerId, StreamWriter writer)
     {
         Console.WriteLine($"Message from player {playerId}");
 
-            switch (message)
-            {
-                case AcceptConnection:
+        switch (message)
+        {
+            case PlayCard:
+                {
+                    PlayCard playCard = (PlayCard)message;
+                    Match.SetCardToPlay(playerId, playCard.CardId);
+                    if (Match.BothCardsToPlayAreSet())
                     {
+                        Match.ProcessCards();
+                        var gamestate = Match.GetGameState(playerId);
+                        string? gs = JsonSerializer.Serialize(gamestate, gamestate.GetType());
+                        writer.Write(gs);
                     }
-                    break;
-                case ConnectionRequest:
-                    {
-                    }
-                    break;
-                case HandUpdate:
-                    {
-                        //HandUpdate handUpdate = (HandUpdate)message;
-                        //Window.UpdateHand(handUpdate.Cards);
-                    }
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
+            default:
+                break;
         }
     }
+}

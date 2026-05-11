@@ -17,30 +17,30 @@ namespace LogicEngineConsole
 
             List <Card> TheDeck =
             [
-                new CreatureCard(0, 1, 1),
-                new CreatureCard(0, 1, 1),
-                new CreatureCard(0, 2, 2),
-                new CreatureCard(0, 2, 3),
-                new CreatureCard(0, 3, 1),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 4, 2),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 2, 4)
+                new CreatureCard(0, 1, 1, 3),
+                new CreatureCard(0, 1, 1, 3),
+                new CreatureCard(0, 2, 2, 3),
+                new CreatureCard(0, 2, 3, 3),
+                new CreatureCard(0, 3, 1, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 4, 2, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 2, 4, 3)
             ];
 
             List <Card> TheOtherDeck =
             [
-                new CreatureCard(0, 1, 1),
-                new CreatureCard(0, 1, 1),
-                new CreatureCard(0, 2, 2),
-                new CreatureCard(0, 2, 3),
-                new CreatureCard(0, 3, 1),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 4, 2),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 2, 4),
-                new CreatureCard(0, 2, 4)
+                new CreatureCard(0, 1, 1, 3),
+                new CreatureCard(0, 1, 1, 3),
+                new CreatureCard(0, 2, 2, 3),
+                new CreatureCard(0, 2, 3, 3),
+                new CreatureCard(0, 3, 1, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 4, 2, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 2, 4, 3),
+                new CreatureCard(0, 2, 4, 3)
             ];
 
             match.SetPlayer(PLAYER_1, TheDeck);

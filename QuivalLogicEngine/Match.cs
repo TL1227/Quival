@@ -1,20 +1,13 @@
 ﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Client;
+using System.Runtime.CompilerServices;
 
 namespace QuivalLogicEngine;
 
-enum Phases
-{
-    Draw,
-    Summon,
-    Combat,
-    SecondSummon,
-    Last
-}
-
 public class Match
 {
-    private Player[] Players { get; set; }
-    private List<ICardIntent>[] CardIntents { get; set; }
+    private List<Player> Players { get; set; }
+    private List<ICardIntent> CardIntents { get; set; }
     public List<ICardIntent> SuccessfulIntents { get; set; }
     private BoardState BoardState { get; set; }
     private int TurnCount { get; set; }
@@ -25,10 +18,12 @@ public class Match
     private List<Card> MatchCards;
     private int MaxRounds = 5;
 
+    private bool OnePlayerMode = true;
+
     public Match()
     {
-        Players = new Player[2];
-        CardIntents = new List<ICardIntent>[2]{ new(), new() } ;
+        Players = new();
+        CardIntents = new();
         SuccessfulIntents = new();
         BoardState = new();
         TurnCount = 1;
@@ -36,16 +31,37 @@ public class Match
         MatchCards = new();
     }
 
+    public ClientGameState GetGameState(int playerId)
+    {
+        ClientGameState state = new(
+            Players[playerId],
+            BoardState,
+            GetOpponentCardCount(playerId),
+            CardIntents
+            );
+
+        return state;
+    }
+
+    private int GetOpponentCardCount(int playerId)
+    {
+        foreach (var player in Players)
+        {
+            if (player.Id == playerId)
+                continue;
+
+            return Players[player.Id].Hand.Count();
+        }
+
+        return 0;
+    }
+
     public void SetPlayer(int id, List<Card> deck)
     {
-        if (id > Players.Length - 1) 
-            return;
-
         SetCardIds(deck);
         MatchCards.AddRange(deck);
 
-        Players[id] = new Player(deck);
-
+        Players.Add(new Player(id, deck));
     }
 
     public void SetCardToPlay(int playerId, int cardId)
@@ -69,6 +85,9 @@ public class Match
 
     public bool BothCardsToPlayAreSet()
     {
+        if (OnePlayerMode)
+            return true;
+
         foreach (var player in Players)
         {
             if (player.CardToPlay == null)
@@ -96,18 +115,20 @@ public class Match
 
     public int ProcessCards()
     {
+        CardIntents.Clear();
+
         Console.WriteLine($"[EVENT]: Round {RoundCount}");
 
-        for (int p = 0; p < 2; p++)
+        foreach (var player in Players)
         {
-            if (Players[p].CardToPlay != null)
+            if (player.CardToPlay != null)
             {
-                var intents = Players[p].CardToPlay.GetIntents();
+                var intents = player.CardToPlay.GetIntents();
 
                 foreach (var intent in intents)
-                    intent.PlayerId = p;
+                    intent.PlayerId = player.Id;
 
-                CardIntents[p].AddRange(intents);
+                CardIntents.AddRange(intents);
             }
         }
 
@@ -116,12 +137,9 @@ public class Match
         List<Attack> Attacks = new();
         List<DamageMultiply> DamageMultiplies = new();
 
-        foreach (var intent in CardIntents)
-        {
-            Summons.AddRange(intent.OfType<Summon>().ToList());
-            Blocks.AddRange(intent.OfType<Block>().ToList());
-            Attacks.AddRange(intent.OfType<Attack>().ToList());
-        }
+        Summons.AddRange(CardIntents.OfType<Summon>().ToList());
+        Blocks.AddRange(CardIntents.OfType<Block>().ToList());
+        Attacks.AddRange(CardIntents.OfType<Attack>().ToList());
 
         //handle the intents
         foreach (var summon in Summons)
@@ -152,9 +170,6 @@ public class Match
             Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer} for {card.Attack}");
             Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer].HealthPoints} health");
         }
-
-        foreach (var cardintent in CardIntents)
-            cardintent.Clear();
 
         foreach (var player in Players)
             player.CardToPlay = null;

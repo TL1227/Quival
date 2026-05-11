@@ -12,6 +12,7 @@ public abstract class Card
     public int Id { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
+    public int Cost { get; set; }
     public abstract List<ICardIntent> GetIntents();
 }
 
@@ -28,11 +29,12 @@ public class CreatureCard : Card
     public int Attack { get; set; }
     public int Health { get; set; }
 
-    public CreatureCard(int id, int attack, int health)
+    public CreatureCard(int id, int attack, int health, int cost)
     {
         Id = id;
         Name = "My Creature";
         Description = "Some description of the creature";
+        Cost = cost;
         Attack = attack;
         Health = health;
     }

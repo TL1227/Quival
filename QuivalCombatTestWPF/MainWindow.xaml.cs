@@ -19,6 +19,7 @@ namespace QuivalCombatTestWPF
 
         BoardCard? FirstClickedCard;
         BoardCard? SecondClickedCard;
+        HandCard? SelectedHandCard {  get; set; }
 
         public MainWindow()
         {
@@ -29,20 +30,19 @@ namespace QuivalCombatTestWPF
             HandZone.CardClicked += HandZone_CardClicked;
         }
 
-        public void UpdateHand(List<Card> hand)
+        public void UpdateHand(List<Card> cards)
         {
-            //HandZone.SetHand(hand);
+            List<HandCard> hand = Mapper.MapToHandCards(cards);
+            HandZone.SetHand(hand);
         }
 
         private void HandZone_CardClicked(object? sender, EventArgs e)
         {
-            if (sender is BoardCard card)
+            if (sender is HandCard card)
             {
-                if (card.IsClickable() && !SpellstreamZone.SpellStreamIsFull())
-                {
-                    AddToSpellStream(card);
-                    card.SetClickable(false);
-                }
+                HandZone.DeselectAllCards();
+                card.Overlay.Opacity = 0.4;
+                SelectedHandCard = card;
             }
         }
 
@@ -68,7 +68,11 @@ namespace QuivalCombatTestWPF
 
         private void SpellStreamCastButton_Click(object sender, RoutedEventArgs e)
         {
-            //Client.SubmitCard();
+            Client.SubmitCard(SelectedHandCard.CardId);
+        }
+        public void SetCombatZone()
+        {
+
         }
     }
 }

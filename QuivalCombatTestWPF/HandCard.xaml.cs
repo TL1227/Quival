@@ -20,9 +20,11 @@ namespace QuivalCombatTestWPF
     /// </summary>
     public partial class HandCard : UserControl
     {
-        public HandCard()
+        public int CardId { get; set; }
+        public HandCard(int cardId)
         {
             InitializeComponent();
+            CardId = cardId;
         }
     }
 }

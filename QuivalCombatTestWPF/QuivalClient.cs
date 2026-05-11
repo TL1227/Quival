@@ -6,6 +6,7 @@ using System.Windows;
 using System.Text.Json;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Messages;
+using QuivalLogicEngine.Client;
 
 namespace QuivalCombatTestWPF
 {
@@ -45,7 +46,7 @@ namespace QuivalCombatTestWPF
 
                 var message = Message.GetMessageFromJson(response);
 
-                if (response != null && message is AcceptConnection accept)
+                if (response != null && message is ConnectionRequest accept)
                 {
                     Serverguid = accept.ServerGuid;
                     _ = RecieveMessages();
@@ -94,14 +95,10 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        private async Task HandleMessage(Message message)
+        private async Task HandleMessage(Message message) 
         {
             switch (message)
             {
-                case AcceptConnection:
-                    {
-                    }
-                    break;
                 case ConnectionRequest:
                     {
                     }
@@ -112,38 +109,15 @@ namespace QuivalCombatTestWPF
                         Window.UpdateHand(handUpdate.Cards);
                     }
                     break;
+                case GameStateUpdate:
+                    {
+                        GameStateUpdate gameState = (GameStateUpdate)message;
+                        UpdateGameState(gameState.GameState);
+                    }
+                    break;
                 default:
                     break;
             }
-        }
-
-        //TODO: maybe this goes in a Mapper class
-        private List<BoardCard> CardToBoardCard(List<Card> cards)
-        {
-            List<BoardCard> result = new();
-
-            try
-            {
-                foreach (Card card in cards)
-                {
-                    if (card is CreatureCard creature)
-                    {
-                        BoardCard bc = new(0, creature.Attack, creature.Health);
-                        result.Add(bc);
-                    }
-                    else
-                    {
-                        BoardCard bc = new(0, 0, 0);
-                        result.Add(bc);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            return result;
         }
 
         private static string? MessageToJson(Message message)
@@ -152,7 +126,8 @@ namespace QuivalCombatTestWPF
             {
                 try
                 {
-                    return JsonSerializer.Serialize(message);
+                    string str = message.GetType().ToString();
+                    return JsonSerializer.Serialize(message, message.GetType());
                 }
                 catch (Exception e)
                 {
@@ -163,9 +138,21 @@ namespace QuivalCombatTestWPF
             return null;
         }
 
-        public void SubmitCard(Card card)
+        private void UpdateGameState(ClientGameState state)
         {
+            //updateBoardState
 
+            //updatePlayerHealth
+            Window.UpdateHand(state.Player.Hand);
+            //updateOpponentHealth
+            //updateOpponentHandCount
         }
+
+        public void SubmitCard(int cardId)
+        {
+            PlayCard playCard = new(cardId);
+            SendMessage(playCard);
+        }
+
     }
 }

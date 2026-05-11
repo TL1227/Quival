@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuivalLogicEngine
 {
-    internal class BoardState
+    public class BoardState
     {
         public List<int>[] CreatureIds { get; set; }
         public List<int>[] BlockingCreatureIds { get; set; }
