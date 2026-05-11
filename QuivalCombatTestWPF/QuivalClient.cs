@@ -78,6 +78,16 @@ namespace QuivalCombatTestWPF
             Writer.WriteLine(toSend);
         }
 
+        public async Task SendMessageAsync(Message message)
+        {
+            if (Writer == null || message == null) 
+                return;
+
+            string? toSend = MessageToJson(message);
+
+            await Writer.WriteLineAsync(toSend);
+        }
+
         public async Task RecieveMessages() 
         {
             if (Reader == null)
@@ -151,7 +161,7 @@ namespace QuivalCombatTestWPF
         public void SubmitCard(int cardId)
         {
             PlayCard playCard = new(cardId);
-            SendMessage(playCard);
+            _ = SendMessageAsync(playCard);
         }
 
     }

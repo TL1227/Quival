@@ -181,8 +181,9 @@ internal class Program
                     {
                         Match.ProcessCards();
                         var gamestate = Match.GetGameState(playerId);
-                        string? gs = JsonSerializer.Serialize(gamestate, gamestate.GetType());
-                        writer.Write(gs);
+                        GameStateUpdate update = new(gamestate);
+                        string? gs = JsonSerializer.Serialize(update, update.GetType());
+                        writer.WriteLine(gs);
                     }
                 }
                 break;
