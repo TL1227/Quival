@@ -33,6 +33,8 @@ namespace QuivalCombatTestWPF
         public void UpdateHand(List<Card> cards)
         {
             List<HandCard> hand = Mapper.MapToHandCards(cards);
+            
+            HandZone.ClearHand();
             HandZone.SetHand(hand);
         }
 

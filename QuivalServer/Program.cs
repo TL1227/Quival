@@ -180,9 +180,14 @@ internal class Program
                     if (Match.BothCardsToPlayAreSet())
                     {
                         Match.ProcessCards();
-                        var gamestate = Match.GetGameState(playerId);
-                        GameStateUpdate update = new(gamestate);
+
+                        GameStateUpdate update = new()
+                        {
+                            GameState = Match.GetGameState(playerId)
+                        };
+
                         string? gs = JsonSerializer.Serialize(update, update.GetType());
+
                         writer.WriteLine(gs);
                     }
                 }

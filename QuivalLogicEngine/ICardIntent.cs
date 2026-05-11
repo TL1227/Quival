@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+    [JsonDerivedType(typeof(Attack), "attack")]
+    [JsonDerivedType(typeof(Summon), "summon")]
+    [JsonDerivedType(typeof(Block), "block")]
+    [JsonDerivedType(typeof(DamageMultiply), "damagemultiply")]
+    [JsonDerivedType(typeof(DamagePlayer), "damageplayer")]
     public interface ICardIntent 
     {
         public int CardId { get; set; }
@@ -34,6 +36,7 @@ namespace QuivalLogicEngine
         public int CardId { get; set; } 
         public int PlayerId { get; set; } 
 
+        public Summon() {}
         public Summon(int id) { CardId = id; }
     }
 

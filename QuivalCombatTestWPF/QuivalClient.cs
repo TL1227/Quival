@@ -153,7 +153,7 @@ namespace QuivalCombatTestWPF
             //updateBoardState
 
             //updatePlayerHealth
-            Window.UpdateHand(state.Player.Hand);
+            Window.UpdateHand(state.PlayerState.Hand);
             //updateOpponentHealth
             //updateOpponentHandCount
         }

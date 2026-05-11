@@ -40,6 +40,11 @@ namespace QuivalCombatTestWPF
             }
         }
 
+        public void ClearHand()
+        {
+            HandGrid.Children.Clear();
+        }
+
         public void DeselectAllCards()
         {
             foreach (var card in HandGrid.Children)

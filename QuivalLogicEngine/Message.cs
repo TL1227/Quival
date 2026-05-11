@@ -17,16 +17,25 @@ namespace QuivalLogicEngine.Messages
             var parsed = JsonDocument.Parse(json);
             var type = parsed.RootElement.GetProperty("Type").GetString();
 
-            Message? message = type switch
+            try
             {
-                "Connect" => JsonSerializer.Deserialize<ConnectionRequest>(json),
-                "HandUpdate" => JsonSerializer.Deserialize<HandUpdate>(json),
-                "PlayCard" => JsonSerializer.Deserialize<PlayCard>(json),
-                "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
-                _ => null
-            };
+                Message? message = type switch
+                {
+                    "Connect" => JsonSerializer.Deserialize<ConnectionRequest>(json),
+                    "HandUpdate" => JsonSerializer.Deserialize<HandUpdate>(json),
+                    "PlayCard" => JsonSerializer.Deserialize<PlayCard>(json),
+                    "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
+                    _ => null
+                };
 
-            return message;
+                return message;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return null;
         }
     }
 
@@ -64,9 +73,6 @@ namespace QuivalLogicEngine.Messages
     public class GameStateUpdate : Message
     {
         public override string Type => "GameStateUpdate";
-        public ClientGameState GameState { get; set; }
-        public GameStateUpdate(ClientGameState gameState)
-        {
-            GameState = gameState; }
+        public required ClientGameState GameState { get; set; }
     }
 }

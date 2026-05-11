@@ -1,5 +1,6 @@
 ﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
+using QuivalLogicEngine.States;
 using System.Runtime.CompilerServices;
 
 namespace QuivalLogicEngine;
@@ -33,12 +34,22 @@ public class Match
 
     public ClientGameState GetGameState(int playerId)
     {
-        ClientGameState state = new(
-            Players[playerId],
-            BoardState,
-            GetOpponentCardCount(playerId),
-            CardIntents
-            );
+        PlayerState ps = new()
+        {
+            Id = Players[playerId].Id,
+            HealthPoints = Players[playerId].HealthPoints,
+            Hand = Players[playerId].Hand,
+            Deck = Players[playerId].Deck,
+            CardToPlay = Players[playerId].CardToPlay
+        };
+
+        ClientGameState state = new()
+        {
+            PlayerState = ps,
+            BoardState = BoardState,
+            OpponentCardCount = GetOpponentCardCount(playerId),
+            CardIntents = CardIntents
+        };
 
         return state;
     }
@@ -70,6 +81,7 @@ public class Match
         if (card != null)
         {
             Players[playerId].CardToPlay = card;
+            Players[playerId].Hand.Remove(card);
         }
     }
 
