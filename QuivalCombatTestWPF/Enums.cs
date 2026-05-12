@@ -6,9 +6,4 @@ using System.Threading.Tasks;
 
 namespace QuivalCombatTestWPF
 {
-    public enum Side
-    {
-        Opponent,
-        Player
-    }
 }

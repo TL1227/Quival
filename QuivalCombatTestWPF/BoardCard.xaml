@@ -5,12 +5,39 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="80">
-    <Grid Margin="20" Background="CadetBlue">
-        <Label x:Name="Stats" 
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               FontSize="20"
-               Content="22/22"/>
+             d:DesignHeight="170" d:DesignWidth="200">
+    <Grid Margin="20" Background="Coral">
+        <Grid x:Name="CardContent" Margin="10,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Name="TopGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="16"></Label>
+            </Grid>
+
+            <DockPanel Grid.Row="1" Background="White">
+            </DockPanel>
+
+            <Grid Grid.Row="3" Name="BottomGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="16"/>
+                <Label Grid.Column="2" x:Name="Divider" Content="/" FontSize="16"/>
+                <Label Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="16"/>
+            </Grid>
+        </Grid>
+        <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>
     </Grid>
 </UserControl>

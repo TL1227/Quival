@@ -150,19 +150,28 @@ namespace QuivalCombatTestWPF
 
         private void UpdateGameState(ClientGameState state)
         {
-            //updateBoardState
+            Window.UpdateCombatZone(
+                state.BoardState.SummonedCreatures[state.PlayerState.Id],
+                state.BoardState.SummonedCreatures[state.OpponentId]
+                );
 
-            //updatePlayerHealth
+            Window.UpdatePlayerHealth(state.PlayerState.HealthPoints);
+            Window.UpdateOpponentHealth(state.OpponentHealthPoints);
             Window.UpdateHand(state.PlayerState.Hand);
-            //updateOpponentHealth
+
             //updateOpponentHandCount
         }
 
-        public void SubmitCard(int cardId)
+        public void PlayCard(int cardId)
         {
             PlayCard playCard = new(cardId);
             _ = SendMessageAsync(playCard);
         }
 
+        public void PlayAttack(int cardId)
+        {
+            PlayAttack attackCard = new(cardId);
+            _ = SendMessageAsync(attackCard);
+        }
     }
 }

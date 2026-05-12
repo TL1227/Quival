@@ -16,10 +16,7 @@ namespace QuivalCombatTestWPF
     public partial class MainWindow : Window
     {
         QuivalClient Client;
-
-        BoardCard? FirstClickedCard;
-        BoardCard? SecondClickedCard;
-        HandCard? SelectedHandCard {  get; set; }
+        Control? SelectedCard;
 
         public MainWindow()
         {
@@ -28,8 +25,10 @@ namespace QuivalCombatTestWPF
             Client.ConnectToServer();
 
             HandZone.CardClicked += HandZone_CardClicked;
+            CombatZone.CardClicked += CombatZone_CardClicked;
         }
 
+        #region StateUpdates
         public void UpdateHand(List<Card> cards)
         {
             List<HandCard> hand = Mapper.MapToHandCards(cards);
@@ -38,13 +37,36 @@ namespace QuivalCombatTestWPF
             HandZone.SetHand(hand);
         }
 
+        public void UpdatePlayerHealth(int health)
+        {
+            PlayerResources.HealthPoints.Content = health;
+        }
+
+        public void UpdateOpponentHealth(int health)
+        {
+            OpponentResources.HealthPoints.Content = health;
+        }
+
+        public void UpdateCombatZone(List<CreatureCard> playerCreatures, List<CreatureCard> opponentCreatures)
+        {
+            CombatZone.ClearCombatZone();
+            CombatZone.UpdatePlayerCombatZone(playerCreatures);
+            CombatZone.UpdateOpponentCombatZone(opponentCreatures);
+        }
+
+        #endregion
+
+        #region Clicking
         private void HandZone_CardClicked(object? sender, EventArgs e)
         {
             if (sender is HandCard card)
             {
                 HandZone.DeselectAllCards();
+                CombatZone.DeselectAllCards();
+                SelectedCard = null;
+
                 card.Overlay.Opacity = 0.4;
-                SelectedHandCard = card;
+                SelectedCard = card;
             }
         }
 
@@ -52,29 +74,29 @@ namespace QuivalCombatTestWPF
         {
             if (sender is BoardCard card)
             {
-                if (FirstClickedCard == null)
-                {
-                    FirstClickedCard = card;
-                }
-                else
-                {
-                    SecondClickedCard = card;
+                if (Grid.GetRow(card) == (int)Side.Opponent) 
+                    return;
 
-                    Client.SendString($"{FirstClickedCard.Stats} attacks {SecondClickedCard.Stats}");
+                HandZone.DeselectAllCards();
+                CombatZone.DeselectAllCards();
+                SelectedCard = null;
 
-                    FirstClickedCard = null;
-                    SecondClickedCard = null;
-                }
+                card.Overlay.Opacity = 0.4;
+                SelectedCard = card;
             }
         }
 
         private void SpellStreamCastButton_Click(object sender, RoutedEventArgs e)
         {
-            Client.SubmitCard(SelectedHandCard.CardId);
+            if (SelectedCard is HandCard hc)
+            {
+                Client.PlayCard(hc.CardId);
+            }
+            else if (SelectedCard is BoardCard bc)
+            {
+                Client.PlayAttack(bc.CardId);
+            }
         }
-        public void SetCombatZone()
-        {
-
-        }
+        #endregion
     }
 }

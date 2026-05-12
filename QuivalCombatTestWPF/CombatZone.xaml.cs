@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using QuivalLogicEngine.Cards;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
+    public enum Side
+    {
+        Opponent,
+        Player
+    }
+
     public partial class CombatZone : UserControl
     {
         public int PlayerCardCount { get; set; } = 0;
         public int OpponentCardCount { get; set; } = 0;
         public int MaxCards { get; set; } = 5;
+
 
         public event EventHandler CardClicked;
 
@@ -28,32 +24,59 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
-        /*
-        public void AddCard(int attack, int defence, Side side)
+        public void ClearCombatZone()
         {
-            BoardCard card = new(attack, defence);
-            card.MouseLeftButtonDown += HandleClick;
+            CombatGrid.Children.Clear();
+        }
 
-            if (side == Side.Player)
+        public void UpdatePlayerCombatZone(List<CreatureCard> cards)
+        {
+            PlayerCardCount = 0;
+
+            foreach (var card in cards)
             {
-                if (PlayerCardCount < MaxCards)
-                {
-                    Grid.SetRow(card, 1);
-                    Grid.SetColumn(card, PlayerCardCount++);
-                    CombatGrid.Children.Add(card);
-                }
+                BoardCard boardCard = new() { CardId = card.Id, };
+                boardCard.AttackLabel.Content = card.Attack;
+                boardCard.HealthLabel.Content = card.Health;
+                boardCard.CardNameLabel.Content = card.Name;
+
+                boardCard.MouseLeftButtonDown += HandleClick;
+
+                Grid.SetRow(boardCard, (int)Side.Player);
+                Grid.SetColumn(boardCard, PlayerCardCount++);
+                CombatGrid.Children.Add(boardCard);
             }
-            else
+        }
+
+        public void UpdateOpponentCombatZone(List<CreatureCard> cards)
+        {
+            OpponentCardCount = 0;
+
+            foreach (var card in cards)
             {
-                if (OpponentCardCount < MaxCards)
+                BoardCard boardCard = new() { CardId = card.Id, };
+                boardCard.AttackLabel.Content = card.Attack;
+                boardCard.HealthLabel.Content = card.Health;
+                boardCard.CardNameLabel.Content = card.Name;
+
+                boardCard.MouseLeftButtonDown += HandleClick;
+
+                Grid.SetRow(boardCard, (int)Side.Opponent);
+                Grid.SetColumn(boardCard, OpponentCardCount++);
+                CombatGrid.Children.Add(boardCard);
+            }
+        }
+
+        public void DeselectAllCards()
+        {
+            foreach (var card in CombatGrid.Children)
+            {
+                if (card is BoardCard hc)
                 {
-                    Grid.SetRow(card, 0);
-                    Grid.SetColumn(card, OpponentCardCount++);
-                    CombatGrid.Children.Add(card);
+                    hc.Overlay.Opacity = 0.0;
                 }
             }
         }
-        */
 
         public void HandleClick(object boardCard, MouseButtonEventArgs args)
         {

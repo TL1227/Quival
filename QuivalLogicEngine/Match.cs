@@ -43,28 +43,38 @@ public class Match
             CardToPlay = Players[playerId].CardToPlay
         };
 
+
         ClientGameState state = new()
         {
             PlayerState = ps,
             BoardState = BoardState,
-            OpponentCardCount = GetOpponentCardCount(playerId),
-            CardIntents = CardIntents
+            CardIntents = CardIntents,
         };
+
+        Player opponent = GetOpponent(playerId);
+        state.OpponentId = opponent.Id;
+
+        if (OnePlayerMode)
+        {
+            state.OpponentCardCount = 0;
+            state.OpponentHealthPoints = 20;
+        }
+        else
+        {
+            state.OpponentCardCount = GetOpponent(playerId).Hand.Count();
+            state.OpponentHealthPoints = GetOpponent(playerId).HealthPoints;
+        }
 
         return state;
     }
 
-    private int GetOpponentCardCount(int playerId)
+    private Player GetOpponent(int playerId) 
     {
-        foreach (var player in Players)
-        {
-            if (player.Id == playerId)
-                continue;
+        if (OnePlayerMode)
+            return Players[playerId];
 
-            return Players[player.Id].Hand.Count();
-        }
-
-        return 0;
+        int opponentId = playerId == 0 ? 1 : 0;
+        return Players[opponentId];
     }
 
     public void SetPlayer(int id, List<Card> deck)
@@ -163,7 +173,7 @@ public class Match
                 {
                     BoardState.SummonCreature(summon.PlayerId, creature);
                     SuccessfulIntents.Add(summon);
-                    Console.WriteLine($"[EVENT]: player {summon.PlayerId} summoned {creature.Name}");
+                    Console.WriteLine($"[EVENT]: player {summon.PlayerId} summoned {creature.Id}");
                 }
             }
             else
@@ -175,12 +185,12 @@ public class Match
         foreach (var attack in Attacks)
         {
             var card = (CreatureCard)GetCardFromId(attack.CardId);
-            int otherPlayer = attack.PlayerId == 1 ? 0 : 1;
+            Player otherPlayer = GetOpponent(attack.PlayerId);
 
-            Players[otherPlayer].HealthPoints -= card.Attack;
-            SuccessfulIntents.Add(new DamagePlayer(otherPlayer, card.Attack));
-            Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer} for {card.Attack}");
-            Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer].HealthPoints} health");
+            otherPlayer.HealthPoints -= card.Attack;
+            SuccessfulIntents.Add(new DamagePlayer(otherPlayer.Id, card.Attack));
+            Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer.Id} for {card.Attack}");
+            Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer.Id].HealthPoints} health");
         }
 
         foreach (var player in Players)

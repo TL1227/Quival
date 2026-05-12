@@ -10,20 +10,33 @@ using System.Text.Json;
 
 namespace QuivalServer;
 
+internal class PlayerClient
+{
+    internal required TcpClient Client;
+    internal Guid Guid;
+    internal int Id;
+    internal List<Card> Deck;
+    internal required StreamReader Reader;
+    internal required StreamWriter Writer;
+}
+
 internal class Program
 {
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
 
-    internal static TcpClient? PlayerOne;
-    internal static Guid PlayerOneGuid;
-    internal static int PLAYER_1 = 0;
+    //internal static int PLAYER_1 = 0;
+    internal static int PLAYER_2 = 1;
+
     internal static List<Card> TheDeck;
 
     internal static TcpClient? PlayerTwo;
     internal static Guid PlayerTwoGuid;
-    internal static int PLAYER_2 = 1;
     internal static List<Card> TheDeck2;
+
+    internal static List<Card>[] Decks;
+    internal static PlayerClient[] Clients;
+    internal static int ClientCount = 0;
 
     internal static Guid ServerGuid;
 
@@ -40,9 +53,11 @@ internal class Program
         Console.WriteLine($"Server listening on port {PortNumber}");
 
         Match = new Match();
+        Clients = new PlayerClient[2];
 
-        TheDeck =
-        [
+        Decks = new List<Card>[2];
+
+        Decks[0] = [
             new CreatureCard(0, 1, 1, 3),
             new CreatureCard(0, 1, 1, 3),
             new CreatureCard(0, 2, 2, 3),
@@ -55,8 +70,7 @@ internal class Program
             new CreatureCard(0, 2, 4, 3)
         ];
 
-        TheDeck2 =
-        [
+        Decks[1] = [
             new CreatureCard(0, 1, 1, 3),
             new CreatureCard(0, 1, 1, 3),
             new CreatureCard(0, 2, 2, 3),
@@ -80,11 +94,20 @@ internal class Program
     {
         try
         {
-            NetworkStream steam = client.GetStream();
-            StreamReader streamReader = new(steam, Encoding.UTF8);
-            StreamWriter streamWriter = new(steam, Encoding.UTF8) { AutoFlush = true };
+            if (Clients[0] != null && Clients[1] != null)
+            {
+                Console.WriteLine($"Someome tried to connect but the room's full :(");
+                return;
+            }
+
+            NetworkStream stream = client.GetStream();
+            StreamReader streamReader = new(stream, Encoding.UTF8);
+            StreamWriter streamWriter = new(stream, Encoding.UTF8) { AutoFlush = true };
 
             string? connectMessage = streamReader.ReadLine();
+
+            if (connectMessage == null)
+                return;
 
             var doc = JsonDocument.Parse(connectMessage);
 
@@ -96,66 +119,46 @@ internal class Program
             if (type != "Connect")
                 return;
 
-
             ConnectionRequest initialMessage = JsonSerializer.Deserialize<ConnectionRequest>(doc)!;
 
-            int playerId = -1;
-            if (connectMessage != null)
+            PlayerClient playerClient = new()
             {
-                if (PlayerOne == null)
+                Client = client,
+                Id = ClientCount,
+                Guid = initialMessage.ClientGuid,
+                Reader = streamReader,
+                Writer = streamWriter
+            };
+
+            if (Clients[ClientCount] == null)
+            {
+
+                //send connection message back with server guid populated
+                initialMessage.ServerGuid = ServerGuid;
+                string jsonMessage = JsonSerializer.Serialize(initialMessage);
+                streamWriter.WriteLine(jsonMessage);
+
+                Match.SetPlayer(playerClient.Id, Decks[playerClient.Id]);
+                var hand = Match.GetPlayerHand(playerClient.Id);
+                HandUpdate handupdate = new(hand);
+
+                jsonMessage = JsonSerializer.Serialize(handupdate);
+
+                streamWriter.WriteLine(jsonMessage);
+
+                Clients[ClientCount] = playerClient;
+                Console.WriteLine($"Accepting Player {Clients[0].Id + 1}");
+                ClientCount++;
+            }
+
+            string? message;
+            while ((message = streamReader.ReadLine()) != null)
+            {
+                var parsedMessage = Message.GetMessageFromJson(message);
+
+                if (parsedMessage != null)
                 {
-                    PlayerOne = client;
-                    playerId = PLAYER_1;
-                    PlayerOneGuid = initialMessage.ClientGuid;
-
-                    //send connection message back with server guid populated
-                    initialMessage.ServerGuid = ServerGuid;
-                    string jsonMessage = JsonSerializer.Serialize(initialMessage);
-                    streamWriter.WriteLine(jsonMessage);
-                    Console.WriteLine("Accepting Player 1");
-
-                    Match.SetPlayer(PLAYER_1, TheDeck);
-                    var hand = Match.GetPlayerHand(PLAYER_1);
-                    HandUpdate handupdate = new(hand);
-
-                    jsonMessage = JsonSerializer.Serialize(handupdate);
-
-                    streamWriter.WriteLine(jsonMessage);
-                }
-                else if (PlayerTwo == null)
-                {
-                    PlayerTwo = client;
-                    playerId = PLAYER_2;
-                    PlayerTwoGuid = initialMessage.ClientGuid;
-
-                    //send connection message back with server guid populated
-                    initialMessage.ServerGuid = ServerGuid;
-                    string jsonMessage = JsonSerializer.Serialize(initialMessage);
-                    streamWriter.WriteLine(jsonMessage);
-                    Console.WriteLine("Accepting Player 2");
-
-                    Match.SetPlayer(PLAYER_2, TheDeck2);
-                    var hand = Match.GetPlayerHand(PLAYER_2);
-                    HandUpdate handupdate = new(hand);
-
-                    jsonMessage = JsonSerializer.Serialize(handupdate);
-
-                    streamWriter.WriteLine(jsonMessage);
-                }
-                else
-                {
-                    Console.WriteLine($"Someome tried to connect but the room's full :(");
-                }
-
-                string? message;
-                while ((message = streamReader.ReadLine()) != null)
-                {
-                    var parsedMessage = Message.GetMessageFromJson(message);
-
-                    if (parsedMessage != null)
-                    {
-                        HandleMessage(parsedMessage, playerId, streamWriter);
-                    }
+                    HandleMessage(parsedMessage, playerClient.Id, streamWriter);
                 }
             }
         }
@@ -163,7 +166,7 @@ internal class Program
         {
             Console.WriteLine($"Error: {e}");
             client.Close();
-            Console.WriteLine($"Closed client connection: {client}");
+            //Console.WriteLine($"Closed client connection: {client}");
         }
     }
 
@@ -177,23 +180,45 @@ internal class Program
                 {
                     PlayCard playCard = (PlayCard)message;
                     Match.SetCardToPlay(playerId, playCard.CardId);
+
                     if (Match.BothCardsToPlayAreSet())
                     {
-                        Match.ProcessCards();
+                        ProcessCards();
+                    }
+                }
+                break;
+            case PlayAttack:
+                {
+                    PlayAttack attack = (PlayAttack)message;
+                    Match.SetCardToAttack(playerId, attack.CardId);
 
-                        GameStateUpdate update = new()
-                        {
-                            GameState = Match.GetGameState(playerId)
-                        };
-
-                        string? gs = JsonSerializer.Serialize(update, update.GetType());
-
-                        writer.WriteLine(gs);
+                    if (Match.BothCardsToPlayAreSet())
+                    {
+                        ProcessCards();
                     }
                 }
                 break;
             default:
                 break;
+        }
+    }
+
+    static void ProcessCards()
+    {
+        Match.ProcessCards();
+
+        foreach (var client in Clients)
+        {
+            if (client == null)
+                continue;
+
+            GameStateUpdate update = new()
+            {
+                GameState = Match.GetGameState(client.Id)
+            };
+
+            string? gs = JsonSerializer.Serialize(update, update.GetType());
+            client.Writer.WriteLineAsync(gs);
         }
     }
 }

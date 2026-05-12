@@ -9,31 +9,37 @@
     
     <Grid Margin="10" x:Name="BattleField">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="0.5*"></RowDefinition>
-            <RowDefinition x:Name="CombatZoneRow" Height="1.3*"/>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition x:Name="OpponentLifeRow" Height="Auto"></RowDefinition>
+            <RowDefinition x:Name="OpponentBlockZone" Height="0.5*"></RowDefinition>
+            <RowDefinition x:Name="CombatZoneRow" Height="0.8*"/>
+            <RowDefinition x:Name="PlayerBlockZone" Height="0.5*"></RowDefinition>
+            <RowDefinition x:Name="PlayerHandZone" Height="0.6*"></RowDefinition>
+            <RowDefinition x:Name="PlayerLifeRow" Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition x:Name="CombatZoneColumn" Width="4*"/>
+            <ColumnDefinition x:Name="CombatZoneColumn" Width="7*"/>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="OpponentLifeLabel" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Background="CornflowerBlue" FontSize="40" Content="20"></Label>
-        <local:Spellstream x:Name="SpellstreamZone" Grid.Column="1" Grid.Row="1"/>
+        <local:PlayerResource x:Name="OpponentResources"/>
+        <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
+
         <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="2"/>
-        <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="3"/>
-        <Label x:Name="PlayerLifeLabel" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" Background="CornflowerBlue" FontSize="40" Content="20"></Label>
+
+        <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
+            <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="1"/>
+        </Grid>
 
         <Button 
             x:Name="SpellStreamCastButton" 
             Margin="5"
-            Width="100" Height="40"
-            Grid.Row="3" Grid.Column="2" 
-            Click="SpellStreamCastButton_Click">Cast SpellStream
+            Width="110" Height="40"
+            Grid.Row="5" Grid.Column="2" 
+            FontSize="20"
+            Click="SpellStreamCastButton_Click"
+            Background="CornflowerBlue"
+            Foreground="DarkBlue">Cast Spell
         </Button>
-
     </Grid>
 </Window>

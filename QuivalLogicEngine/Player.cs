@@ -14,6 +14,7 @@ public class Player
 
     public Player(int id, List<Card> deck)
     {
+        Id = id;
         HealthPoints = 20;
         Deck = new(deck);
         Hand = new();
