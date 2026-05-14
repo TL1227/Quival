@@ -7,15 +7,19 @@ public class Player
 {
     public int Id { get; set; }
     public int HealthPoints { get; set; }
+    public int Mana { get; set; }
     public List<Card> Hand { get; set; }
     public List<Card> Deck { get; set; }
 
     public Card? CardToPlay { get; set; }
 
+    public CreatureCard? BlockingCreature { get; set; }
+
     public Player(int id, List<Card> deck)
     {
         Id = id;
         HealthPoints = 20;
+        Mana = 0;
         Deck = new(deck);
         Hand = new();
 

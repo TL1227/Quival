@@ -173,5 +173,11 @@ namespace QuivalCombatTestWPF
             PlayAttack attackCard = new(cardId);
             _ = SendMessageAsync(attackCard);
         }
+
+        public void PlayBlock(int cardId)
+        {
+            PlayBlock blockCard = new(cardId);
+            _ = SendMessageAsync(blockCard);
+        }
     }
 }

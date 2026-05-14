@@ -1,8 +1,8 @@
 ﻿using QuivalLogicEngine;
 using QuivalLogicEngine.Cards;
-using QuivalLogicEngine.Messages;
 using QuivalLogicEngine.Client;
-
+using QuivalLogicEngine.Messages;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -55,33 +55,19 @@ internal class Program
         Match = new Match();
         Clients = new PlayerClient[2];
 
-        Decks = new List<Card>[2];
+        Decks = [new List<Card>(), new List<Card>()];
 
-        Decks[0] = [
-            new CreatureCard(0, 1, 1, 3),
-            new CreatureCard(0, 1, 1, 3),
-            new CreatureCard(0, 2, 2, 3),
-            new CreatureCard(0, 2, 3, 3),
-            new CreatureCard(0, 3, 1, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 4, 2, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 2, 4, 3)
-        ];
-
-        Decks[1] = [
-            new CreatureCard(0, 1, 1, 3),
-            new CreatureCard(0, 1, 1, 3),
-            new CreatureCard(0, 2, 2, 3),
-            new CreatureCard(0, 2, 3, 3),
-            new CreatureCard(0, 3, 1, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 4, 2, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 2, 4, 3),
-            new CreatureCard(0, 2, 4, 3)
-        ];
+        //add 4 copies of each card for each deck
+        for (int d = 0; d < 2; d++)
+            for (int i = 0; i < 4; i++)
+            {
+                Decks[d].Add(new CreatureCard(0, 1, 1, 1) { Name = "Token" });
+                Decks[d].Add(new CreatureCard(0, 1, 3, 2) { Name = "Defender" });
+                Decks[d].Add(new CreatureCard(0, 2, 2, 2) { Name = "Desmond" });
+                Decks[d].Add(new CreatureCard(0, 3, 1, 2) { Name = "Aggression" });
+                Decks[d].Add(new CreatureCard(0, 4, 4, 3) { Name = "BFG" });
+                Decks[d].Add(new CreatureCard(0, 0, 5, 5) { Name = "The Wall" });
+            }
 
         while (true)
         {
@@ -178,6 +164,9 @@ internal class Program
         {
             case PlayCard:
                 {
+                    if (Match.PlayerHasSetCard(playerId))
+                        return;
+
                     PlayCard playCard = (PlayCard)message;
                     Match.SetCardToPlay(playerId, playCard.CardId);
 
@@ -189,8 +178,25 @@ internal class Program
                 break;
             case PlayAttack:
                 {
+                    if (Match.PlayerHasSetCard(playerId))
+                        return;
+
                     PlayAttack attack = (PlayAttack)message;
                     Match.SetCardToAttack(playerId, attack.CardId);
+
+                    if (Match.BothCardsToPlayAreSet())
+                    {
+                        ProcessCards();
+                    }
+                }
+                break;
+            case PlayBlock:
+                {
+                    if (Match.PlayerHasSetCard(playerId))
+                        return;
+
+                    PlayBlock attack = (PlayBlock)message;
+                    Match.SetCardToBlock(playerId, attack.CardId);
 
                     if (Match.BothCardsToPlayAreSet())
                     {

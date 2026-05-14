@@ -68,3 +68,20 @@ public class AttackCard : Card
         return intents;
     }
 }
+
+public class BlockCard : Card
+{
+    public int PlayerId { get; set; }
+
+    public BlockCard(int playerId, int cardId)
+    {
+        Id = cardId;
+        PlayerId = playerId;
+    }
+
+    public override List<ICardIntent> GetIntents()
+    {
+        List<ICardIntent> intents = [ new Block(PlayerId, Id) ];
+        return intents;
+    }
+}

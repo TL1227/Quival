@@ -26,6 +26,15 @@ namespace QuivalCombatTestWPF
 
             HandZone.CardClicked += HandZone_CardClicked;
             CombatZone.CardClicked += CombatZone_CardClicked;
+            PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
+        }
+
+        private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
+        {
+            if (SelectedCard != null && SelectedCard is BoardCard bc)
+            {
+                PlayerBlockZone.AddCardToBlockZone(bc);
+            }
         }
 
         #region StateUpdates
@@ -52,6 +61,18 @@ namespace QuivalCombatTestWPF
             CombatZone.ClearCombatZone();
             CombatZone.UpdatePlayerCombatZone(playerCreatures);
             CombatZone.UpdateOpponentCombatZone(opponentCreatures);
+        }
+
+        public void UpdatePlayerBlockZone(CreatureCard card)
+        {
+            BoardCard bc = Mapper.MapToBoardCard(card);
+            PlayerBlockZone.AddCardToBlockZone(bc);
+        }
+
+        public void UpdateOpponentBlockZone(CreatureCard card)
+        {
+            BoardCard bc = Mapper.MapToBoardCard(card);
+            OpponentBlockZone.AddCardToBlockZone(bc);
         }
 
         #endregion

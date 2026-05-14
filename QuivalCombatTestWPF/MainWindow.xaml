@@ -10,9 +10,9 @@
     <Grid Margin="10" x:Name="BattleField">
         <Grid.RowDefinitions>
             <RowDefinition x:Name="OpponentLifeRow" Height="Auto"></RowDefinition>
-            <RowDefinition x:Name="OpponentBlockZone" Height="0.5*"></RowDefinition>
+            <RowDefinition x:Name="OpponentBlockZoneRow" Height="0.5*"></RowDefinition>
             <RowDefinition x:Name="CombatZoneRow" Height="0.8*"/>
-            <RowDefinition x:Name="PlayerBlockZone" Height="0.5*"></RowDefinition>
+            <RowDefinition x:Name="PlayerBlockZoneRow" Height="0.5*"></RowDefinition>
             <RowDefinition x:Name="PlayerHandZone" Height="0.6*"></RowDefinition>
             <RowDefinition x:Name="PlayerLifeRow" Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
@@ -23,13 +23,19 @@
         </Grid.ColumnDefinitions>
 
         <local:PlayerResource x:Name="OpponentResources"/>
-        <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
+
+        <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
 
         <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="2"/>
+
+        <local:BlockZone x:Name="PlayerBlockZone" Grid.Row="3" Grid.Column="1"/>
 
         <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
             <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="1"/>
         </Grid>
+
+        <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
+
 
         <Button 
             x:Name="SpellStreamCastButton" 

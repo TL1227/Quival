@@ -26,5 +26,19 @@ namespace QuivalCombatTestWPF
 
             return result;
         }
+
+        public static BoardCard MapToBoardCard(CreatureCard card)
+        {
+            BoardCard bc = new()
+            { 
+                CardId = card.Id ,
+            };
+
+            bc.CardNameLabel.Content= card.Name;
+            bc.Content = card.Attack;
+            bc.HealthLabel.Content = card.Health;
+
+            return bc;
+        }
     }
 }

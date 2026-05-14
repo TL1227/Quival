@@ -6,6 +6,7 @@ namespace QuivalLogicEngine
     [JsonDerivedType(typeof(Attack), "attack")]
     [JsonDerivedType(typeof(Summon), "summon")]
     [JsonDerivedType(typeof(Block), "block")]
+    [JsonDerivedType(typeof(Mark), "mark")]
     [JsonDerivedType(typeof(DamageMultiply), "damagemultiply")]
     [JsonDerivedType(typeof(DamagePlayer), "damageplayer")]
     public interface ICardIntent 
@@ -29,6 +30,12 @@ namespace QuivalLogicEngine
     {
         public int CardId { get; set; }
         public int PlayerId { get; set; } 
+        public Block() {}
+        public Block(int playerId, int id) 
+        { 
+            PlayerId = playerId; 
+            CardId = id; 
+        }
     }
 
     public class Summon : ICardIntent
@@ -39,12 +46,24 @@ namespace QuivalLogicEngine
         public Summon() {}
         public Summon(int id) { CardId = id; }
     }
+    public class Mark : ICardIntent //TODO: This could be a more generic MultiplyDamage intent
+    {
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
+        public int CardToMarkId { get; set; }
+    }
 
     public class DamageMultiply : ICardIntent //TODO: This could be a more generic MultiplyDamage intent
     {
         public int CardId { get; set; }
         public int PlayerId { get; set; } 
         public int Ammount { get; set; }
+    }
+
+    public class CreatureDeath : ICardIntent
+    {
+        public int CardId { get; set; }
+        public int PlayerId { get; set; } 
     }
 
     public class DamagePlayer : ICardIntent

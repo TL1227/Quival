@@ -32,6 +32,11 @@ public class Match
         MatchCards = new();
     }
 
+    public bool PlayerHasSetCard(int playerId)
+    {
+        return Players[playerId].CardToPlay != null;
+    }
+
     public ClientGameState GetGameState(int playerId)
     {
         PlayerState ps = new()
@@ -105,6 +110,15 @@ public class Match
         }
     }
 
+    public void SetCardToBlock(int playerId, int cardId)
+    {
+        var card = GetCardFromId(cardId);
+        if (card != null)
+        {
+            Players[playerId].CardToPlay = new BlockCard(playerId, cardId);
+        }
+    }
+
     public bool BothCardsToPlayAreSet()
     {
         if (OnePlayerMode)
@@ -127,12 +141,15 @@ public class Match
     public void SetCardIds(List<Card> deck)
     {
         foreach (var card in deck)
+        {
             card.Id = CardIdTotal++;
+            Console.WriteLine($"[EVENT] Card {card.Name} assigned Id {card.Id}");
+        }
     }
 
     private Card? GetCardFromId(int cardId)
     {
-        return MatchCards.SingleOrDefault(c => c.Id == cardId) ?? null;
+        return MatchCards.SingleOrDefault(c => c.Id == cardId);
     }
 
     public int ProcessCards()
@@ -163,7 +180,18 @@ public class Match
         Blocks.AddRange(CardIntents.OfType<Block>().ToList());
         Attacks.AddRange(CardIntents.OfType<Attack>().ToList());
 
-        //handle the intents
+        foreach (var block in Blocks)
+        {
+            var blockingCard = GetCardFromId(block.CardId);
+
+            if (blockingCard != null && blockingCard is CreatureCard cc)
+            {
+                //move card from board to block zone
+                Players[block.PlayerId].BlockingCreature = cc;
+                BoardState.SummonedCreatures[block.PlayerId].Remove(cc);
+            }
+        }
+
         foreach (var summon in Summons)
         {
             if (BoardState.CreatureSlotFree(summon.PlayerId))
@@ -184,13 +212,42 @@ public class Match
 
         foreach (var attack in Attacks)
         {
-            var card = (CreatureCard)GetCardFromId(attack.CardId);
-            Player otherPlayer = GetOpponent(attack.PlayerId);
+            var card = GetCardFromId(attack.CardId);
 
-            otherPlayer.HealthPoints -= card.Attack;
-            SuccessfulIntents.Add(new DamagePlayer(otherPlayer.Id, card.Attack));
-            Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer.Id} for {card.Attack}");
-            Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer.Id].HealthPoints} health");
+            if (card != null && card is CreatureCard attackingCreature)
+            {
+                Player otherPlayer = GetOpponent(attack.PlayerId);
+
+                if (otherPlayer.BlockingCreature != null)
+                {
+                    var blockingCreature = otherPlayer.BlockingCreature; //for easier reading
+                    Console.WriteLine($"[EVENT]: ({blockingCreature.Id}){blockingCreature.Name} blocks ({attackingCreature.Id}){attackingCreature.Name}");
+
+                    blockingCreature.Health -= attackingCreature.Attack;
+                    attackingCreature.Health -= blockingCreature.Attack;
+
+                    if (blockingCreature.Health <= 0)
+                    {
+                        blockingCreature = null;
+                        SuccessfulIntents.Add(new CreatureDeath() { PlayerId = otherPlayer.Id, CardId = blockingCreature!.Id });
+                        Console.WriteLine($"[EVENT]: ({blockingCreature.Id}){blockingCreature.Name} died");
+                    }
+
+                    if (attackingCreature.Health <= 0)
+                    {
+                        BoardState.SummonedCreatures[attack.PlayerId].Remove(attackingCreature);
+                        SuccessfulIntents.Add(new CreatureDeath() { PlayerId = attack.PlayerId, CardId = attackingCreature.Id });
+                        Console.WriteLine($"[EVENT]: ({attackingCreature.Id}){attackingCreature.Name} died");
+                    }
+                }
+                else
+                {
+                    otherPlayer.HealthPoints -= attackingCreature.Attack;
+                    SuccessfulIntents.Add(new DamagePlayer(otherPlayer.Id, attackingCreature.Attack));
+                    Console.WriteLine($"[EVENT]: Player {attack.PlayerId}'s creature {card.Id} attacks player {otherPlayer.Id} for {attackingCreature.Attack}");
+                    Console.WriteLine($"[EVENT]: Player {otherPlayer} has {Players[otherPlayer.Id].HealthPoints} health");
+                }
+            }
         }
 
         foreach (var player in Players)
@@ -209,25 +266,5 @@ public class Match
         }
 
         return RoundCount;
-    }
-
-    private void AssignBlocks(ICardIntent[]? blocks)
-    {
-        if (blocks == null || blocks.Length == 0) return;
-
-        foreach (var block in blocks)
-        {
-            if (block is Block b)
-            {
-                //NOTE: currently this might change depending on rules and if we want to be 
-                //able to stack blocking creatures and whatnot
-                /*
-                if (!BoardState.PlayerHasBlockingCreatures(b.PlayerId))
-                {
-                    BoardState.SetBlocker(b.PlayerId, b.CardId);
-                }
-                */
-            }
-        }
     }
 }
