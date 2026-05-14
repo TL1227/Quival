@@ -84,7 +84,7 @@ namespace QuivalLogicEngine.Messages
 
     public class PlayBlock : Message
     {
-        public override string Type => "BlockAttack";
+        public override string Type => "PlayBlock";
         public int CardId { get; set; }
         public PlayBlock(int cardId)
         {

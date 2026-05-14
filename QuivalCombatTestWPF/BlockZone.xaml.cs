@@ -35,8 +35,8 @@ namespace QuivalCombatTestWPF
             boardCard.AttackLabel.Content = card.AttackLabel.Content;
             boardCard.HealthLabel.Content = card.HealthLabel.Content;
 
-            //BlockArea.Children.Clear();
-            //BlockArea.Children.Add(boardCard);
+            BlockArea.Children.Clear();
+            BlockArea.Children.Add(boardCard);
         }
 
         public void HandleClick(object obj, MouseButtonEventArgs args)

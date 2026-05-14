@@ -19,7 +19,7 @@ public class Match
     private List<Card> MatchCards;
     private int MaxRounds = 5;
 
-    private bool OnePlayerMode = true;
+    private bool OnePlayerMode = false;
 
     public Match()
     {

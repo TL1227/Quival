@@ -29,13 +29,6 @@ namespace QuivalCombatTestWPF
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
         }
 
-        private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
-        {
-            if (SelectedCard != null && SelectedCard is BoardCard bc)
-            {
-                PlayerBlockZone.AddCardToBlockZone(bc);
-            }
-        }
 
         #region StateUpdates
         public void UpdateHand(List<Card> cards)
@@ -78,6 +71,15 @@ namespace QuivalCombatTestWPF
         #endregion
 
         #region Clicking
+        private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
+        {
+            if (SelectedCard != null && SelectedCard is BoardCard bc)
+            {
+                PlayerBlockZone.AddCardToBlockZone(bc);
+                Client.PlayBlock(bc.CardId);
+            }
+        }
+
         private void HandZone_CardClicked(object? sender, EventArgs e)
         {
             if (sender is HandCard card)
