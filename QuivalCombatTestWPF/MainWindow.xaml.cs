@@ -15,8 +15,9 @@ namespace QuivalCombatTestWPF
 {
     public partial class MainWindow : Window
     {
-        QuivalClient Client;
-        Control? SelectedCard;
+        QuivalClient Client { get; set; }
+        Control? SelectedCard { get; set; }
+        bool RoundMessageSent { get; set; }
 
         public MainWindow()
         {
@@ -27,6 +28,8 @@ namespace QuivalCombatTestWPF
             HandZone.CardClicked += HandZone_CardClicked;
             CombatZone.CardClicked += CombatZone_CardClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
+
+            RoundMessageSent = false;
         }
 
 
@@ -56,16 +59,22 @@ namespace QuivalCombatTestWPF
             CombatZone.UpdateOpponentCombatZone(opponentCreatures);
         }
 
-        public void UpdatePlayerBlockZone(CreatureCard card)
+        public void UpdatePlayerBlockZone(CreatureCard? card)
         {
-            BoardCard bc = Mapper.MapToBoardCard(card);
-            PlayerBlockZone.AddCardToBlockZone(bc);
+            if (card != null)
+            {
+                BoardCard bc = Mapper.MapToBoardCard(card);
+                PlayerBlockZone.AddCardToBlockZone(bc);
+            }
         }
 
-        public void UpdateOpponentBlockZone(CreatureCard card)
+        public void UpdateOpponentBlockZone(CreatureCard? card)
         {
-            BoardCard bc = Mapper.MapToBoardCard(card);
-            OpponentBlockZone.AddCardToBlockZone(bc);
+            if (card != null)
+            {
+                BoardCard bc = Mapper.MapToBoardCard(card);
+                OpponentBlockZone.AddCardToBlockZone(bc);
+            }
         }
 
         #endregion
@@ -121,5 +130,14 @@ namespace QuivalCombatTestWPF
             }
         }
         #endregion
+
+        public void MessageSent()
+        {
+            RoundMessageSent = true;
+        }
+        public void MessageRecieved()
+        {
+            RoundMessageSent = false;
+        }
     }
 }

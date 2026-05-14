@@ -66,8 +66,10 @@ public class Match
         }
         else
         {
-            state.OpponentCardCount = GetOpponent(playerId).Hand.Count();
-            state.OpponentHealthPoints = GetOpponent(playerId).HealthPoints;
+            state.OpponentCardCount = opponent.Hand.Count();
+            state.OpponentHealthPoints = opponent.HealthPoints;
+            state.OpponentManaPoints = opponent.Mana;
+            state.OpponentBlockCard = opponent.BlockingCreature;
         }
 
         return state;

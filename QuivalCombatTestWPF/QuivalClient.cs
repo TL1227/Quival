@@ -60,24 +60,6 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        public void SendString(string message)
-        {
-            if (Writer == null) 
-                return;
-
-            Writer.WriteLine(message);
-        }
-
-        public void SendMessage(Message message)
-        {
-            if (Writer == null || message == null) 
-                return;
-
-            string? toSend = MessageToJson(message);
-
-            Writer.WriteLine(toSend);
-        }
-
         public async Task SendMessageAsync(Message message)
         {
             if (Writer == null || message == null) 
@@ -86,6 +68,8 @@ namespace QuivalCombatTestWPF
             string? toSend = MessageToJson(message);
 
             await Writer.WriteLineAsync(toSend);
+
+            Window.MessageSent();
         }
 
         public async Task RecieveMessages() 
@@ -157,7 +141,12 @@ namespace QuivalCombatTestWPF
 
             Window.UpdatePlayerHealth(state.PlayerState.HealthPoints);
             Window.UpdateOpponentHealth(state.OpponentHealthPoints);
+
+            Window.UpdateOpponentBlockZone((CreatureCard)state.OpponentBlockCard);
+
             Window.UpdateHand(state.PlayerState.Hand);
+
+            Window.MessageRecieved();
 
             //updateOpponentHandCount
         }
