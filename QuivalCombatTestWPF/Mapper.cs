@@ -31,11 +31,11 @@ namespace QuivalCombatTestWPF
         {
             BoardCard bc = new()
             { 
-                CardId = card.Id ,
+                CardId = card.Id
             };
 
-            bc.CardNameLabel.Content= card.Name;
-            bc.Content = card.Attack;
+            bc.CardNameLabel.Content = card.Name;
+            bc.AttackLabel.Content = card.Attack;
             bc.HealthLabel.Content = card.Health;
 
             return bc;

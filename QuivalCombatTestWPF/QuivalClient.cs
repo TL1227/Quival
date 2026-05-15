@@ -143,6 +143,7 @@ namespace QuivalCombatTestWPF
             Window.UpdateOpponentHealth(state.OpponentHealthPoints);
 
             Window.UpdateOpponentBlockZone((CreatureCard)state.OpponentBlockCard);
+            Window.UpdatePlayerBlockZone((CreatureCard)state.PlayerState.BlockingCreature);
 
             Window.UpdateHand(state.PlayerState.Hand);
 

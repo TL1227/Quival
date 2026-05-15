@@ -45,9 +45,9 @@ public class Match
             HealthPoints = Players[playerId].HealthPoints,
             Hand = Players[playerId].Hand,
             Deck = Players[playerId].Deck,
-            CardToPlay = Players[playerId].CardToPlay
+            CardToPlay = Players[playerId].CardToPlay,
+            BlockingCreature = Players[playerId].BlockingCreature
         };
-
 
         ClientGameState state = new()
         {
@@ -184,13 +184,22 @@ public class Match
 
         foreach (var block in Blocks)
         {
-            var blockingCard = GetCardFromId(block.CardId);
+            var cardToBlock = GetCardFromId(block.CardId);
 
-            if (blockingCard != null && blockingCard is CreatureCard cc)
+            if (cardToBlock != null && cardToBlock is CreatureCard cc)
             {
-                //move card from board to block zone
+                CreatureCard? oldBlocker = Players[block.PlayerId].BlockingCreature!;
                 Players[block.PlayerId].BlockingCreature = cc;
-                BoardState.SummonedCreatures[block.PlayerId].Remove(cc);
+
+                if (oldBlocker == null)
+                {
+                    BoardState.SummonedCreatures[block.PlayerId].Remove(cc);
+                }
+                else
+                {
+                    int index = BoardState.SummonedCreatures[block.PlayerId].IndexOf(cc);
+                    BoardState.SummonedCreatures[block.PlayerId][index] = oldBlocker;
+                }
             }
         }
 
