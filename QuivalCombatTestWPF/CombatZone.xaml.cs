@@ -35,11 +35,7 @@ namespace QuivalCombatTestWPF
 
             foreach (var card in cards)
             {
-                BoardCard boardCard = new() { CardId = card.Id, };
-                boardCard.AttackLabel.Content = card.Attack;
-                boardCard.HealthLabel.Content = card.Health;
-                boardCard.CardNameLabel.Content = card.Name;
-
+                var boardCard = Mapper.MapToBoardCard(card);
                 boardCard.MouseLeftButtonDown += HandleClick;
 
                 Grid.SetRow(boardCard, (int)Side.Player);
@@ -54,11 +50,7 @@ namespace QuivalCombatTestWPF
 
             foreach (var card in cards)
             {
-                BoardCard boardCard = new() { CardId = card.Id, };
-                boardCard.AttackLabel.Content = card.Attack;
-                boardCard.HealthLabel.Content = card.Health;
-                boardCard.CardNameLabel.Content = card.Name;
-
+                var boardCard = Mapper.MapToBoardCard(card);
                 boardCard.MouseLeftButtonDown += HandleClick;
 
                 Grid.SetRow(boardCard, (int)Side.Opponent);
