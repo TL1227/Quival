@@ -15,30 +15,13 @@ using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
-    /// <summary>
-    /// Interaction logic for BoardCard.xaml
-    /// </summary>
     public partial class BoardCard : UserControl
     {
         public required int CardId { get; set; }
-        private bool Clickable { get; set; }
 
         public BoardCard()
         {
             InitializeComponent();
-            Clickable = true;
-        }
-
-        public void SetClickable(bool value)
-        {
-            Clickable = value;
-
-            Opacity = value ? 1.0 : 0.5;
-        }
-
-        public bool IsClickable()
-        {
-            return Clickable;
         }
     }
 }

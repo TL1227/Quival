@@ -25,6 +25,7 @@ namespace QuivalCombatTestWPF
         {
             InitializeComponent();
             CardId = cardId;
+
         }
     }
 }

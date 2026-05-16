@@ -84,7 +84,7 @@ namespace QuivalCombatTestWPF
         {
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                PlayerBlockZone.AddCardToBlockZone(bc);
+                //PlayerBlockZone.AddCardToBlockZone(bc);
                 Client.PlayBlock(bc.CardId);
             }
         }

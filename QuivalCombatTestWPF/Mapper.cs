@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Windows.Media;
 
 namespace QuivalCombatTestWPF
 {
@@ -19,7 +20,9 @@ namespace QuivalCombatTestWPF
                 {
                     handcard.AttackLabel.Content = cc.Attack;
                     handcard.HealthLabel.Content = cc.Health;
+                    handcard.CardBackground.Background = GetColor(cc.Attack);
                 }
+
 
                 result.Add(handcard);
             }
@@ -31,14 +34,28 @@ namespace QuivalCombatTestWPF
         {
             BoardCard bc = new()
             { 
-                CardId = card.Id ,
+                CardId = card.Id
             };
 
-            bc.CardNameLabel.Content= card.Name;
-            bc.Content = card.Attack;
+            bc.CardNameLabel.Content = card.Name;
+            bc.AttackLabel.Content = card.Attack;
             bc.HealthLabel.Content = card.Health;
+            bc.CardBackground.Background = GetColor(card.Attack);
 
             return bc;
+        }
+
+        private static SolidColorBrush GetColor(int attack)
+        {
+            return attack switch
+            {
+                0 => Brushes.DarkOliveGreen,
+                1 => Brushes.RoyalBlue,
+                2 => Brushes.Teal,
+                3 => Brushes.DarkOrange,
+                4 => Brushes.Tomato,
+                _ => Brushes.Salmon,
+            };
         }
     }
 }

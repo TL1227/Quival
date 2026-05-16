@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="400">
-    <Grid Margin="10" Background="Coral">
+    <Grid x:Name="CardBackground" Margin="10" Background="Coral">
         <Grid x:Name="CardContent" Margin="15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
@@ -19,10 +19,10 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="25"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="14"></Label>
-                <Label Grid.Column="2" x:Name="CostContent" Content="3" FontSize="14"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="14"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="2" x:Name="CostContent" Content="3" FontSize="14"></Label>
             </Grid>
 
             <DockPanel Grid.Row="1" Background="White">
@@ -34,16 +34,16 @@
                 </TextBlock>
             </DockPanel>
 
-            <Grid Grid.Row="3" Name="BottomGrid">
+            <Grid Margin="0,8,0,0" Grid.Row="3" Name="BottomGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="16"/>
-                <Label Grid.Column="2" x:Name="Divider" Content="/" FontSize="16"/>
-                <Label Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="16"/>
+                <Label Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="16"/>
+                <Label Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="16"/>
+                <Label Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="16"/>
             </Grid>
         </Grid>
         <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>

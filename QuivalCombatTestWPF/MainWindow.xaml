@@ -9,12 +9,12 @@
     
     <Grid Margin="10" x:Name="BattleField">
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="OpponentLifeRow" Height="Auto"></RowDefinition>
-            <RowDefinition x:Name="OpponentBlockZoneRow" Height="0.5*"></RowDefinition>
-            <RowDefinition x:Name="CombatZoneRow" Height="0.8*"/>
-            <RowDefinition x:Name="PlayerBlockZoneRow" Height="0.5*"></RowDefinition>
-            <RowDefinition x:Name="PlayerHandZone" Height="0.6*"></RowDefinition>
-            <RowDefinition x:Name="PlayerLifeRow" Height="Auto"></RowDefinition>
+            <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
+            <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>
+            <RowDefinition x:Name="CombatZoneRow" Height="2*"/>
+            <RowDefinition x:Name="PlayerBlockZoneRow" Height="*"></RowDefinition>
+            <RowDefinition x:Name="PlayerHandZone" Height="*"></RowDefinition>
+            <RowDefinition x:Name="PlayerLifeRow" Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
