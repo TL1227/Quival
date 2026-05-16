@@ -106,15 +106,17 @@ namespace QuivalCombatTestWPF
         {
             if (sender is BoardCard card)
             {
-                if (Grid.GetRow(card) == (int)Side.Opponent) 
-                    return;
+                if (Grid.GetRow(card) == (int)Side.Player)
+                {
+                    HandZone.DeselectAllCards();
+                    CombatZone.DeselectAllCards();
+                    SelectedCard = null;
 
-                HandZone.DeselectAllCards();
-                CombatZone.DeselectAllCards();
-                SelectedCard = null;
+                    card.Overlay.Opacity = 0.4;
+                    SelectedCard = card;
 
-                card.Overlay.Opacity = 0.4;
-                SelectedCard = card;
+                    PlayerBlockZone.BlockAreaHighlight.Opacity = 0.5;
+                }
             }
         }
 

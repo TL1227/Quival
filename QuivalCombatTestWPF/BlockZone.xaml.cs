@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
-    /// <summary>
-    /// Interaction logic for BlockZone.xaml
-    /// </summary>
     public partial class BlockZone : UserControl
     {
         public event EventHandler ZoneClicked;

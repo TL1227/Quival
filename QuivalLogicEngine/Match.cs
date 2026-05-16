@@ -14,12 +14,13 @@ public class Match
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
 
+    //NOTE: We start at 1 so we can keep '0' as an unassigned card id
     private int CardIdTotal = 1;
 
     private List<Card> MatchCards;
     private int MaxRounds = 5;
 
-    private bool OnePlayerMode = false;
+    private bool OnePlayerMode = true;
 
     public Match()
     {
