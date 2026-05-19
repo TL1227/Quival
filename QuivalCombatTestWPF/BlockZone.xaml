@@ -15,8 +15,6 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Border x:Name="BlockAreaHighlight" Grid.Column="2" Background="MediumAquamarine" Opacity="0">
-            <StackPanel x:Name="BlockArea"/>
-        </Border>
+        <StackPanel Grid.Column="2" x:Name="BlockArea" Background="Transparent"/>
     </Grid>
 </UserControl>

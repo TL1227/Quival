@@ -18,6 +18,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-
-        </Grid>
+        <Canvas Grid.ColumnSpan="5" x:Name="OpponentCombatZone" Background="Transparent"/>
+        <Canvas Grid.ColumnSpan="5" Grid.Row="1" x:Name="PlayerCombatZone" Background="Transparent"/>
+    </Grid>
 </UserControl>

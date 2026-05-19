@@ -27,10 +27,13 @@ namespace QuivalCombatTestWPF
 
             HandZone.CardClicked += HandZone_CardClicked;
             CombatZone.CardClicked += CombatZone_CardClicked;
+            CombatZone.PlayerZoneClicked += CombatZone_PlayerZoneClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
+
 
             RoundMessageSent = false;
         }
+
 
 
         #region StateUpdates
@@ -57,6 +60,11 @@ namespace QuivalCombatTestWPF
             CombatZone.ClearCombatZone();
             CombatZone.UpdatePlayerCombatZone(playerCreatures);
             CombatZone.UpdateOpponentCombatZone(opponentCreatures);
+
+            //unhighlight everything
+            PlayerBlockZone.SetHighlighted(false);
+            CombatZone.Highlight(false, Side.Player);
+            CombatZone.Highlight(false, Side.Opponent);
         }
 
         public void UpdatePlayerBlockZone(CreatureCard? card)
@@ -80,11 +88,18 @@ namespace QuivalCombatTestWPF
         #endregion
 
         #region Clicking
+        private void CombatZone_PlayerZoneClicked(object? sender, EventArgs e)
+        {
+            if (SelectedCard != null && SelectedCard is HandCard hc)
+            {
+                Client.PlayCard(hc.CardId);
+            }
+        }
+
         private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
         {
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                //PlayerBlockZone.AddCardToBlockZone(bc);
                 Client.PlayBlock(bc.CardId);
             }
         }
@@ -99,6 +114,8 @@ namespace QuivalCombatTestWPF
 
                 card.Overlay.Opacity = 0.4;
                 SelectedCard = card;
+
+                CombatZone.Highlight(true, Side.Player);
             }
         }
 
@@ -115,7 +132,7 @@ namespace QuivalCombatTestWPF
                     card.Overlay.Opacity = 0.4;
                     SelectedCard = card;
 
-                    PlayerBlockZone.BlockAreaHighlight.Opacity = 0.5;
+                    PlayerBlockZone.SetHighlighted(true);
                 }
             }
         }

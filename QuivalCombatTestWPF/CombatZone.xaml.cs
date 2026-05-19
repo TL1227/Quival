@@ -1,6 +1,8 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Diagnostics.Eventing.Reader;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace QuivalCombatTestWPF
 {
@@ -16,17 +18,47 @@ namespace QuivalCombatTestWPF
         public int OpponentCardCount { get; set; } = 0;
         public int MaxCards { get; set; } = 5;
 
-
         public event EventHandler CardClicked;
+        public event EventHandler PlayerZoneClicked;
 
         public CombatZone()
         {
             InitializeComponent();
+            PlayerCombatZone.MouseLeftButtonDown += HandleClick;
         }
+
 
         public void ClearCombatZone()
         {
             CombatGrid.Children.Clear();
+        }
+
+        public void Highlight(bool value, Side side)
+        {
+            if (value)
+            {
+                if (side == Side.Player)
+                {
+                    PlayerCombatZone.Background = Brushes.MediumAquamarine;
+                    PlayerCombatZone.Opacity = 0.5;
+                }
+                else if (side == Side.Opponent)
+                {
+                    OpponentCombatZone.Background = Brushes.MediumAquamarine;
+                    OpponentCombatZone.Opacity = 0.5;
+                }
+            }
+            else
+            {
+                if (side == Side.Player)
+                {
+                    PlayerCombatZone.Background = Brushes.Transparent;
+                }
+                else if (side == Side.Opponent)
+                {
+                    OpponentCombatZone.Background = Brushes.Transparent;
+                }
+            }
         }
 
         public void UpdatePlayerCombatZone(List<CreatureCard> cards)
@@ -70,9 +102,17 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        public void HandleClick(object boardCard, MouseButtonEventArgs args)
+        private void HandleClick(object obj, MouseButtonEventArgs args)
         {
-            CardClicked?.Invoke(boardCard, args);
+            switch (obj)
+            {
+                case BoardCard:
+                    CardClicked?.Invoke(obj, args);
+                    break;
+                default:
+                    PlayerZoneClicked?.Invoke(obj, args);
+                    break;
+            }
         }
     }
 }
