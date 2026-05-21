@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 
 namespace QuivalCombatTestWPF
@@ -18,6 +18,8 @@ namespace QuivalCombatTestWPF
         QuivalClient Client { get; set; }
         Control? SelectedCard { get; set; }
         bool RoundMessageSent { get; set; }
+
+        int MaxSummonedCards = 5;
 
         public MainWindow()
         {
@@ -29,11 +31,10 @@ namespace QuivalCombatTestWPF
             CombatZone.CardClicked += CombatZone_CardClicked;
             CombatZone.PlayerZoneClicked += CombatZone_PlayerZoneClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
-
+            OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
 
             RoundMessageSent = false;
         }
-
 
 
         #region StateUpdates
@@ -57,14 +58,27 @@ namespace QuivalCombatTestWPF
 
         public void UpdateCombatZone(List<CreatureCard> playerCreatures, List<CreatureCard> opponentCreatures)
         {
-            CombatZone.ClearCombatZone();
-            CombatZone.UpdatePlayerCombatZone(playerCreatures);
-            CombatZone.UpdateOpponentCombatZone(opponentCreatures);
+            CombatZone.UpdateCombatZone(playerCreatures, Side.Player);
+            CombatZone.UpdateCombatZone(opponentCreatures, Side.Opponent);
 
             //unhighlight everything
             PlayerBlockZone.SetHighlighted(false);
             CombatZone.Highlight(false, Side.Player);
             CombatZone.Highlight(false, Side.Opponent);
+        }
+
+        public void UnselectAll()
+        {
+            PlayerBlockZone.SetHighlighted(false);
+            OpponentBlockZone.SetHighlighted(false);
+
+            CombatZone.Highlight(false, Side.Player);
+            CombatZone.Highlight(false, Side.Opponent);
+            CombatZone.ClearHighlightedCards();
+
+            HandZone.ClearAllHighlightedCards();
+
+            SelectedCard = null;
         }
 
         public void UpdatePlayerBlockZone(CreatureCard? card)
@@ -93,29 +107,9 @@ namespace QuivalCombatTestWPF
             if (SelectedCard != null && SelectedCard is HandCard hc)
             {
                 Client.PlayCard(hc.CardId);
-            }
-        }
-
-        private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
-        {
-            if (SelectedCard != null && SelectedCard is BoardCard bc)
-            {
-                Client.PlayBlock(bc.CardId);
-            }
-        }
-
-        private void HandZone_CardClicked(object? sender, EventArgs e)
-        {
-            if (sender is HandCard card)
-            {
-                HandZone.DeselectAllCards();
-                CombatZone.DeselectAllCards();
+                QuivalColour.ChangetoPurpleHighlights();
+                SpellStreamCastButton.Content = "Summon";
                 SelectedCard = null;
-
-                card.Overlay.Opacity = 0.4;
-                SelectedCard = card;
-
-                CombatZone.Highlight(true, Side.Player);
             }
         }
 
@@ -123,29 +117,62 @@ namespace QuivalCombatTestWPF
         {
             if (sender is BoardCard card)
             {
-                if (Grid.GetRow(card) == (int)Side.Player)
+                if (SelectedCard != null)
                 {
-                    HandZone.DeselectAllCards();
-                    CombatZone.DeselectAllCards();
-                    SelectedCard = null;
+                    CombatZone_PlayerZoneClicked(sender, e);
+                }
+                else if (CombatZone.CardIsSummonedByPlayer(card, Side.Player))
+                {
+                    UnselectAll();
 
                     card.Overlay.Opacity = 0.4;
                     SelectedCard = card;
 
                     PlayerBlockZone.SetHighlighted(true);
+                    OpponentBlockZone.SetHighlighted(true);
                 }
             }
         }
 
-        private void SpellStreamCastButton_Click(object sender, RoutedEventArgs e)
+        //BlockZones
+        private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
         {
-            if (SelectedCard is HandCard hc)
+            if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                Client.PlayCard(hc.CardId);
+                Client.PlayBlock(bc.CardId);
+                QuivalColour.ChangetoPurpleHighlights();
+                SpellStreamCastButton.Content = "Block";
+                SelectedCard = null;
             }
-            else if (SelectedCard is BoardCard bc)
+        }
+
+        private void OpponentBlockZone_ZoneClicked(object? sender, EventArgs e)
+        {
+            if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                Client.PlayAttack(bc.CardId);
+                if (CombatZone.CardIsSummonedByPlayer(bc, Side.Player))
+                {
+                    Client.PlayAttack(bc.CardId);
+                    QuivalColour.ChangetoPurpleHighlights();
+                    SpellStreamCastButton.Content = "Attack";
+                    SelectedCard = null;
+                }
+            }
+        }
+
+        private void HandZone_CardClicked(object? sender, EventArgs e)
+        {
+            if (sender is HandCard card)
+            {
+                UnselectAll();
+
+                if (CombatZone.GetNumberOfSummonedCards(Side.Player) < MaxSummonedCards)
+                {
+                    card.Overlay.Opacity = 0.4;
+                    SelectedCard = card;
+
+                    CombatZone.Highlight(true, Side.Player);
+                }
             }
         }
         #endregion
@@ -154,6 +181,7 @@ namespace QuivalCombatTestWPF
         {
             RoundMessageSent = true;
         }
+
         public void MessageRecieved()
         {
             RoundMessageSent = false;

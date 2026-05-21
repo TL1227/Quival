@@ -8,7 +8,15 @@
              d:DesignHeight="450" d:DesignWidth="800">
         <Grid x:Name="CombatGrid" Grid.Row="1" Grid.Column="1" ShowGridLines="True">
             <Grid.RowDefinitions>
-                <RowDefinition/>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+        <Grid x:Name="OpponentCombatZone" Background="Transparent" Grid.Row="0">
+            <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -18,7 +26,19 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-        <Canvas Grid.ColumnSpan="5" x:Name="OpponentCombatZone" Background="Transparent"/>
-        <Canvas Grid.ColumnSpan="5" Grid.Row="1" x:Name="PlayerCombatZone" Background="Transparent"/>
+        </Grid>
+
+        <Grid x:Name="PlayerCombatZone" Background="Transparent" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+        </Grid>
     </Grid>
 </UserControl>

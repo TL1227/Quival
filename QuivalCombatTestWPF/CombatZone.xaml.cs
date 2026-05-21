@@ -1,4 +1,6 @@
-﻿using QuivalLogicEngine.Cards;
+﻿using QuivalCombatTestWPF.Colours;
+using QuivalLogicEngine.Cards;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,92 +16,78 @@ namespace QuivalCombatTestWPF
 
     public partial class CombatZone : UserControl
     {
-        public int PlayerCardCount { get; set; } = 0;
-        public int OpponentCardCount { get; set; } = 0;
-        public int MaxCards { get; set; } = 5;
-
         public event EventHandler CardClicked;
         public event EventHandler PlayerZoneClicked;
+
+        private Grid[] CombatZones { get; set; }
 
         public CombatZone()
         {
             InitializeComponent();
             PlayerCombatZone.MouseLeftButtonDown += HandleClick;
+            CombatZones = [OpponentCombatZone, PlayerCombatZone];
         }
 
 
         public void ClearCombatZone()
         {
-            CombatGrid.Children.Clear();
+            foreach (var zone in CombatZones)
+                zone.Children.Clear();
         }
 
-        public void Highlight(bool value, Side side)
+        public void Highlight(bool highlight, Side side)
         {
-            if (value)
+            var theZone = CombatZones[(int)side];
+
+            if (highlight)
             {
-                if (side == Side.Player)
-                {
-                    PlayerCombatZone.Background = Brushes.MediumAquamarine;
-                    PlayerCombatZone.Opacity = 0.5;
-                }
-                else if (side == Side.Opponent)
-                {
-                    OpponentCombatZone.Background = Brushes.MediumAquamarine;
-                    OpponentCombatZone.Opacity = 0.5;
-                }
+                theZone.Background = QuivalColour.HighlightColour;
+                theZone.Opacity = 0.5;
             }
             else
             {
-                if (side == Side.Player)
-                {
-                    PlayerCombatZone.Background = Brushes.Transparent;
-                }
-                else if (side == Side.Opponent)
-                {
-                    OpponentCombatZone.Background = Brushes.Transparent;
-                }
+                theZone.Background = Brushes.Transparent;
+                theZone.Opacity = 1;
             }
         }
 
-        public void UpdatePlayerCombatZone(List<CreatureCard> cards)
+        public void UpdateCombatZone(List<CreatureCard> cards, Side side)
         {
-            PlayerCardCount = 0;
+            var combatZone = CombatZones[(int)side];
 
+            combatZone.Children.Clear();
+
+            int i = 0;
             foreach (var card in cards)
             {
                 var boardCard = Mapper.MapToBoardCard(card);
                 boardCard.MouseLeftButtonDown += HandleClick;
 
-                Grid.SetRow(boardCard, (int)Side.Player);
-                Grid.SetColumn(boardCard, PlayerCardCount++);
-                CombatGrid.Children.Add(boardCard);
+                Grid.SetRow(boardCard, 0);
+                Grid.SetColumn(boardCard, i++);
+                combatZone.Children.Add(boardCard);
             }
         }
 
-        public void UpdateOpponentCombatZone(List<CreatureCard> cards)
+        public bool CardIsSummonedByPlayer(BoardCard bc, Side side)
         {
-            OpponentCardCount = 0;
+            foreach (BoardCard child in CombatZones[(int)side].Children)
+                if (child == bc)
+                    return true;
 
-            foreach (var card in cards)
-            {
-                var boardCard = Mapper.MapToBoardCard(card);
-                boardCard.MouseLeftButtonDown += HandleClick;
-
-                Grid.SetRow(boardCard, (int)Side.Opponent);
-                Grid.SetColumn(boardCard, OpponentCardCount++);
-                CombatGrid.Children.Add(boardCard);
-            }
+            return false;
         }
 
-        public void DeselectAllCards()
+        public int GetNumberOfSummonedCards(Side side)
         {
-            foreach (var card in CombatGrid.Children)
-            {
-                if (card is BoardCard hc)
-                {
-                    hc.Overlay.Opacity = 0.0;
-                }
-            }
+            return CombatZones[(int)side].Children.Count;
+        }
+
+        public void ClearHighlightedCards()
+        {
+            foreach (var zone in CombatZones)
+                foreach (BoardCard child in zone.Children)
+                    child.Overlay.Opacity = 0.0;
         }
 
         private void HandleClick(object obj, MouseButtonEventArgs args)

@@ -149,6 +149,16 @@ namespace QuivalCombatTestWPF
 
             Window.MessageRecieved();
 
+
+            //TODO: make a proper Window.function()
+            string gameEvents = "";
+            foreach (var gameEvent in state.GameEvents)
+                gameEvents += gameEvent + "\n";
+
+            Window.GameEventLog.Text = gameEvents;
+
+            Window.SpellStreamCastButton.Content = "";
+
             //updateOpponentHandCount
         }
 

@@ -22,6 +22,8 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
+        <TextBlock x:Name="GameEventLog" Grid.Row="2"/>
+
         <local:PlayerResource x:Name="OpponentResources"/>
 
         <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
@@ -36,16 +38,15 @@
 
         <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
 
-
         <Button 
             x:Name="SpellStreamCastButton" 
             Margin="5"
             Width="110" Height="40"
-            Grid.Row="5" Grid.Column="2" 
+            Grid.Row="2" Grid.Column="2" 
             FontSize="20"
-            Click="SpellStreamCastButton_Click"
             Background="CornflowerBlue"
-            Foreground="DarkBlue">Cast Spell
+            Foreground="DarkBlue"
+            >
         </Button>
     </Grid>
 </Window>

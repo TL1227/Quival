@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuivalCombatTestWPF.Colours;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -41,7 +43,7 @@ namespace QuivalCombatTestWPF
         {
             if (value)
             {
-                BlockArea.Background = Brushes.MediumAquamarine;
+                BlockArea.Background = QuivalColour.HighlightColour;
                 BlockArea.Opacity = 0.5;
             }
             else

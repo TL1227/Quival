@@ -26,7 +26,7 @@
             <DockPanel Grid.Row="1" Background="White">
             </DockPanel>
 
-            <Grid Grid.Row="3" Name="BottomGrid">
+            <Grid Grid.Row="2" Name="BottomGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="auto"/>

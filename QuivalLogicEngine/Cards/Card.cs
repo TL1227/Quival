@@ -32,8 +32,8 @@ public class CreatureCard : Card
     public CreatureCard(int id, int attack, int health, int cost)
     {
         Id = id;
-        Name = "My Creature";
-        Description = "Some description of the creature";
+        Name = "";
+        Description = "";
         Cost = cost;
         Attack = attack;
         Health = health;
