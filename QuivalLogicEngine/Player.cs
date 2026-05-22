@@ -19,7 +19,7 @@ public class Player
     {
         Id = id;
         HealthPoints = 20;
-        Mana = 0;
+        Mana = 1;
         Deck = new(deck);
         Hand = new();
 

@@ -46,6 +46,7 @@ public class Match
         {
             Id = Players[playerId].Id,
             HealthPoints = Players[playerId].HealthPoints,
+            ManaPoints = Players[playerId].Mana,
             Hand = Players[playerId].Hand,
             Deck = Players[playerId].Deck,
             CardToPlay = Players[playerId].CardToPlay,
@@ -101,8 +102,15 @@ public class Match
         var card = GetCardFromId(cardId);
         if (card != null)
         {
-            Players[playerId].CardToPlay = card;
-            Players[playerId].Hand.Remove(card);
+            if (card.Cost <= Players[playerId].Mana)
+            {
+                Players[playerId].CardToPlay = card;
+                Players[playerId].Hand.Remove(card);
+            }
+            else
+            {
+                //TODO: send some kind of message back to client about not having enough mana?
+            }
         }
     }
 
@@ -123,6 +131,11 @@ public class Match
         {
             Players[playerId].CardToPlay = new BlockCard(playerId, cardId);
         }
+    }
+
+    public void SetBlankCard(int playerId)
+    {
+        Players[playerId].CardToPlay = new BlankCard(playerId);
     }
 
     public bool BothCardsToPlayAreSet()
@@ -169,6 +182,8 @@ public class Match
         {
             if (player.CardToPlay != null)
             {
+                player.Mana -= player.CardToPlay.Cost;
+
                 var intents = player.CardToPlay.GetIntents();
 
                 foreach (var intent in intents)
@@ -269,7 +284,10 @@ public class Match
         }
 
         foreach (var player in Players)
+        {
             player.CardToPlay = null;
+
+        }
 
         RoundCount++;
 
@@ -281,6 +299,13 @@ public class Match
             //Draw Card
             //ResetBlockers
             //Maybe reset creature health?
+
+            foreach (var player in Players)
+            {
+                player.Mana += BoardState.GetCurrentMana();
+            }
+
+            BoardState.IncreaseManaClock();
         }
 
         return RoundCount;

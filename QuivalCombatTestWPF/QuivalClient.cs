@@ -106,7 +106,7 @@ namespace QuivalCombatTestWPF
                 case GameStateUpdate:
                     {
                         GameStateUpdate gameState = (GameStateUpdate)message;
-                        UpdateGameState(gameState.GameState);
+                        Window.UpdateGameState(gameState.GameState);
                     }
                     break;
                 default:
@@ -132,36 +132,6 @@ namespace QuivalCombatTestWPF
             return null;
         }
 
-        private void UpdateGameState(ClientGameState state)
-        {
-            Window.UpdateCombatZone(
-                state.BoardState.SummonedCreatures[state.PlayerState.Id],
-                state.BoardState.SummonedCreatures[state.OpponentId]
-                );
-
-            Window.UpdatePlayerHealth(state.PlayerState.HealthPoints);
-            Window.UpdateOpponentHealth(state.OpponentHealthPoints);
-
-            Window.UpdateOpponentBlockZone((CreatureCard)state.OpponentBlockCard);
-            Window.UpdatePlayerBlockZone((CreatureCard)state.PlayerState.BlockingCreature);
-
-            Window.UpdateHand(state.PlayerState.Hand);
-
-            Window.MessageRecieved();
-
-
-            //TODO: make a proper Window.function()
-            string gameEvents = "";
-            foreach (var gameEvent in state.GameEvents)
-                gameEvents += gameEvent + "\n";
-
-            Window.GameEventLog.Text = gameEvents;
-
-            Window.SpellStreamCastButton.Content = "";
-
-            //updateOpponentHandCount
-        }
-
         public void PlayCard(int cardId)
         {
             PlayCard playCard = new(cardId);
@@ -178,6 +148,11 @@ namespace QuivalCombatTestWPF
         {
             PlayBlock blockCard = new(cardId);
             _ = SendMessageAsync(blockCard);
+        }
+        public void PlayBlank()
+        {
+            PlayBlank blankCard = new();
+            _ = SendMessageAsync(blankCard);
         }
     }
 }

@@ -1,40 +1,116 @@
 {
-    "Cards":[
+  "Cards": [
+    {
+      "UniqueID": "ALP001",
+      "Type": "spell",
+      "Name": "Slight of Hand",
+      "FlavorText": "Now you see it, now you don't!",
+      "Cost": 2,
+      "Attack": null,
+      "Health": null,
+      "KeyWords": [],
+      "Abilities": [
         {
-            "UniqueID": "ALP001",
-            "Type": "SPELL",
-            "Name": "Slight of Hand",
-            "FlavorText": "Now you see it, now you don't!",
-            "Cost": 3,
-            "Attack": null,
-            "Health": null,
-            "KeyWords": [],
-            "Abilities": [
-                {
-                    "Triggers": [ "CAST" ],
-                    "Intents": [ "DRAW"  ],
-                    "Value": [ 1 ],
-                    "Conditionals": [ ]
-                }
-            ]
-        },
-        {
-            "UniqueID": "ALP002",
-            "Type": "CREATURE",
-            "Name": "Keen Bean",
-            "FlavorText": "'I've heard of a runner bean but this is rediculous!' - Some Guy",
-            "Cost": 2,
-            "Attack": 1,
-            "Health": 1,
-            "KeyWords": [ "Rushdown" ],
-            "Abilities": [
-                {
-                    "Triggers": [],
-                    "Intents": [],
-                    "Value": [],
-                    "Conditionals": []
-                }
-            ]
+          "Triggers": [ "cast" ],
+          "Intents": [ "draw" ],
+          "Value": [ 1 ],
+          "Conditionals": []
         }
-    ]
+      ]
+    },
+    {
+      "UniqueID": "ALP002",
+      "Type": "creature",
+      "Name": "Keen Bean",
+      "FlavorText": "'I've heard of a runner bean but this is rediculous!' - Some Guy",
+      "Cost": 2,
+      "Attack": 1,
+      "Health": 1,
+      "KeyWords": [ "Rushdown" ],
+      "Abilities": [
+        {
+          "Triggers": [],
+          "Intents": [],
+          "Value": [],
+          "Conditionals": []
+        }
+      ]
+    },
+    {
+      "UniqueID": "ALP003",
+      "Type": "creature",
+      "Name": "Desmond Future Knight",
+      "FlavorText": "",
+      "Cost": 2,
+      "Attack": 2,
+      "Health": 2,
+      "KeyWords": [],
+      "Abilities": [
+        {
+          "Triggers": [ "Attack" ],
+          "Intents": [ "DamageBuff" ],
+          "Target": [ "Self" ],
+          "Value": [ "1" ],
+          "Conditionals": [ "round2" ]
+        }
+      ]
+    },
+    {
+      "UniqueID": "ALP004",
+      "Type": "Spell",
+      "Name": "Bubble Shield",
+      "FlavorText": "",
+      "Cost": 3,
+      "Attack": null,
+      "Health": null,
+      "KeyWords": [],
+      "Abilities": [
+        {
+          "Triggers": [ "Cast" ],
+          "Intents": [ "CreateDamageAbsorbToken" ],
+          "Target": [ "Player" ],
+          "Value": [ "1" ],
+          "Conditionals": []
+        }
+      ]
+    },
+    {
+      "UniqueID": "ALP005",
+      "Type": "Spell",
+      "Name": "Zap",
+      "FlavorText": "",
+      "Cost": 1,
+      "Attack": null,
+      "Health": null,
+      "KeyWords": [],
+      "Abilities": [
+        {
+          "Triggers": [ "Cast" ],
+          "Intents": [ "Damage" ],
+          "Target": [ "Any" ],
+          "Value": [ "2" ],
+          "Conditionals": []
+        }
+      ]
+    },
+    {
+      "UniqueID": "ALP006",
+      "Type": "Spell",
+      "Name": "Cleansing Oasis",
+      "FlavorText": "",
+      "Cost": 3,
+      "Attack": null,
+      "Health": null,
+      "KeyWords": [],
+      "Abilities": [
+        {
+          "Triggers": [ "Cast" ],
+          "Intents": [ "Heal" ],
+          "Target": [ "AnyHealable" ],
+          "Value": [ "2" ],
+          "Conditionals": []
+        }
+      ]
+    }
+  ]
 }

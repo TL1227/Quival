@@ -13,6 +13,9 @@ namespace QuivalLogicEngine
         public List<int>[] BlockingCreatureIds { get; set; }
         public List<List<CreatureCard>> SummonedCreatures { get; set; }
 
+        public int[] ManaClock = [1, 2, 3, 2];
+        public int ManaClockIndex = 0;
+
         public BoardState() 
         {
             CreatureIds = new List<int>[2];
@@ -38,6 +41,16 @@ namespace QuivalLogicEngine
         public void SummonCreature(int playerId, CreatureCard creature)
         {
             SummonedCreatures[playerId].Add((creature));
+        }
+
+        public int GetCurrentMana()
+        {
+            return ManaClock[ManaClockIndex];
+        }
+        public void IncreaseManaClock()
+        {
+            if (++ManaClockIndex >= ManaClock.Length)
+                ManaClockIndex = 0;
         }
     }
 }

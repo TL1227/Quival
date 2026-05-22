@@ -24,16 +24,6 @@ internal class Program
 {
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
-
-    //internal static int PLAYER_1 = 0;
-    internal static int PLAYER_2 = 1;
-
-    internal static List<Card> TheDeck;
-
-    internal static TcpClient? PlayerTwo;
-    internal static Guid PlayerTwoGuid;
-    internal static List<Card> TheDeck2;
-
     internal static List<Card>[] Decks;
     internal static PlayerClient[] Clients;
     internal static int ClientCount = 0;
@@ -118,35 +108,46 @@ internal class Program
 
             if (Clients[ClientCount] == null)
             {
+                Match.SetPlayer(playerClient.Id, Decks[playerClient.Id]);
 
                 //send connection message back with server guid populated
                 initialMessage.ServerGuid = ServerGuid;
                 string jsonMessage = JsonSerializer.Serialize(initialMessage);
                 streamWriter.WriteLine(jsonMessage);
 
-                Match.SetPlayer(playerClient.Id, Decks[playerClient.Id]);
-                var hand = Match.GetPlayerHand(playerClient.Id);
-                HandUpdate handupdate = new(hand);
-
-                jsonMessage = JsonSerializer.Serialize(handupdate);
-
-                streamWriter.WriteLine(jsonMessage);
-
                 Clients[ClientCount] = playerClient;
                 Console.WriteLine($"Accepting Player {Clients[0].Id + 1}");
                 ClientCount++;
-            }
 
-            string? message;
-            while ((message = streamReader.ReadLine()) != null)
-            {
-                var parsedMessage = Message.GetMessageFromJson(message);
-
-                if (parsedMessage != null)
+                if (Clients[0] != null && Clients[1] != null)
                 {
-                    HandleMessage(parsedMessage, playerClient.Id, streamWriter);
+                    foreach (var cli in Clients)
+                    {
+                        if (client == null)
+                            continue;
+
+                        GameStateUpdate update = new()
+                        {
+                            GameState = Match.GetGameState(cli.Id)
+                        };
+
+                        string? gs = JsonSerializer.Serialize(update, update.GetType());
+                        cli.Writer.WriteLineAsync(gs);
+                    }
+                }
+
+                string? message;
+                while ((message = streamReader.ReadLine()) != null)
+                {
+                    var parsedMessage = Message.GetMessageFromJson(message);
+
+                    if (parsedMessage != null)
+                    {
+                        HandleMessage(parsedMessage, playerClient.Id, streamWriter);
+                    }
                 }
             }
+
         }
         catch (Exception e)
         {
@@ -197,6 +198,20 @@ internal class Program
 
                     PlayBlock attack = (PlayBlock)message;
                     Match.SetCardToBlock(playerId, attack.CardId);
+
+                    if (Match.BothCardsToPlayAreSet())
+                    {
+                        ProcessCards();
+                    }
+                }
+                break;
+            case PlayBlank:
+                {
+                    if (Match.PlayerHasSetCard(playerId))
+                        return;
+
+                    PlayBlank attack = (PlayBlank)message;
+                    Match.SetBlankCard(playerId);
 
                     if (Match.BothCardsToPlayAreSet())
                     {

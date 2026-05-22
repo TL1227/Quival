@@ -1,15 +1,10 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Client;
+using QuivalLogicEngine.Messages;
 
 namespace QuivalCombatTestWPF
 {
@@ -17,7 +12,7 @@ namespace QuivalCombatTestWPF
     {
         QuivalClient Client { get; set; }
         Control? SelectedCard { get; set; }
-        bool RoundMessageSent { get; set; }
+        private ClientGameState CurrentGameState { get; set; }
 
         int MaxSummonedCards = 5;
 
@@ -32,12 +27,91 @@ namespace QuivalCombatTestWPF
             CombatZone.PlayerZoneClicked += CombatZone_PlayerZoneClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
-
-            RoundMessageSent = false;
+            ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
         }
 
-
         #region StateUpdates
+
+        public void UpdateGameState(ClientGameState cgs)
+        {
+            CurrentGameState = cgs;
+            UpdateUIFromGameState();
+        }
+
+        public void UpdateUIFromGameState()
+        {
+            var gs = CurrentGameState;
+
+            CombatZone.UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id], Side.Player);
+            CombatZone.UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId], Side.Opponent);
+
+            PlayerResources.HealthPoints.Content = gs.PlayerState.HealthPoints;
+            OpponentResources.HealthPoints.Content = gs.OpponentHealthPoints;
+
+            PlayerResources.ManaPoints.Content = gs.PlayerState.ManaPoints;
+            OpponentResources.ManaPoints.Content = gs.OpponentManaPoints;
+
+            if (gs.OpponentBlockCard != null && 
+                gs.OpponentBlockCard is CreatureCard opponentBlocker)
+            {
+                OpponentBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(opponentBlocker));
+            }
+
+            if (gs.PlayerState.BlockingCreature != null && 
+                gs.PlayerState.BlockingCreature is CreatureCard playerBlocker)
+            {
+                PlayerBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(playerBlocker));
+            }
+
+            UpdateHand(gs.PlayerState.Hand);
+
+            string gameEvents = "";
+            foreach (var gameEvent in gs.GameEvents)
+                gameEvents += gameEvent + "\n";
+
+            GameEventLog.Text = gameEvents;
+
+            CastSpellButton.Content = "";
+
+            UnselectAll();
+
+            ResetHighlightColour();
+
+            MessageRecieved();
+
+            if (!PlayerCanMove())
+            {
+                Client.PlayCard(new BlankCard());
+            }
+        }
+
+        private bool PlayerHasCardsSummoned()
+        {
+            return CurrentGameState.BoardState.SummonedCreatures[CurrentGameState.PlayerState.Id].Count > 0;
+        }
+
+        private bool PlayerHasEnoughManaToPlayACard()
+        {
+            foreach (var card in CurrentGameState.PlayerState.Hand)
+            {
+                if (card.Cost <= CurrentGameState.PlayerState.ManaPoints)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool PlayerCanMove()
+        {
+            if (PlayerHasCardsSummoned())
+                return true;
+
+            if (PlayerHasEnoughManaToPlayACard())
+                return true;
+
+            return false;
+        }
+
         public void UpdateHand(List<Card> cards)
         {
             List<HandCard> hand = Mapper.MapToHandCards(cards);
@@ -46,25 +120,10 @@ namespace QuivalCombatTestWPF
             HandZone.SetHand(hand);
         }
 
-        public void UpdatePlayerHealth(int health)
-        {
-            PlayerResources.HealthPoints.Content = health;
-        }
-
-        public void UpdateOpponentHealth(int health)
-        {
-            OpponentResources.HealthPoints.Content = health;
-        }
-
         public void UpdateCombatZone(List<CreatureCard> playerCreatures, List<CreatureCard> opponentCreatures)
         {
             CombatZone.UpdateCombatZone(playerCreatures, Side.Player);
             CombatZone.UpdateCombatZone(opponentCreatures, Side.Opponent);
-
-            //unhighlight everything
-            PlayerBlockZone.SetHighlighted(false);
-            CombatZone.Highlight(false, Side.Player);
-            CombatZone.Highlight(false, Side.Opponent);
         }
 
         public void UnselectAll()
@@ -81,34 +140,26 @@ namespace QuivalCombatTestWPF
             SelectedCard = null;
         }
 
-        public void UpdatePlayerBlockZone(CreatureCard? card)
+        public void ResetHighlightColour()
         {
-            if (card != null)
-            {
-                BoardCard bc = Mapper.MapToBoardCard(card);
-                PlayerBlockZone.AddCardToBlockZone(bc);
-            }
-        }
-
-        public void UpdateOpponentBlockZone(CreatureCard? card)
-        {
-            if (card != null)
-            {
-                BoardCard bc = Mapper.MapToBoardCard(card);
-                OpponentBlockZone.AddCardToBlockZone(bc);
-            }
+            QuivalColour.ChangetoBlueHighlights();
         }
 
         #endregion
 
         #region Clicking
+        private void ClickBlocker_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
         private void CombatZone_PlayerZoneClicked(object? sender, EventArgs e)
         {
             if (SelectedCard != null && SelectedCard is HandCard hc)
             {
                 Client.PlayCard(hc.CardId);
                 QuivalColour.ChangetoPurpleHighlights();
-                SpellStreamCastButton.Content = "Summon";
+                CastSpellButton.Content = "Summon";
                 SelectedCard = null;
             }
         }
@@ -140,8 +191,10 @@ namespace QuivalCombatTestWPF
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
                 Client.PlayBlock(bc.CardId);
+
+                OpponentBlockZone.SetHighlighted(false);
                 QuivalColour.ChangetoPurpleHighlights();
-                SpellStreamCastButton.Content = "Block";
+                CastSpellButton.Content = "Block";
                 SelectedCard = null;
             }
         }
@@ -153,8 +206,10 @@ namespace QuivalCombatTestWPF
                 if (CombatZone.CardIsSummonedByPlayer(bc, Side.Player))
                 {
                     Client.PlayAttack(bc.CardId);
+
+                    PlayerBlockZone.SetHighlighted(false);
                     QuivalColour.ChangetoPurpleHighlights();
-                    SpellStreamCastButton.Content = "Attack";
+                    CastSpellButton.Content = "Attack";
                     SelectedCard = null;
                 }
             }
@@ -164,6 +219,13 @@ namespace QuivalCombatTestWPF
         {
             if (sender is HandCard card)
             {
+                //TODO: get this from some card lookup, not the client UI
+                int cost = int.Parse(card.CostContent.Content.ToString()!);
+                int mana = CurrentGameState.PlayerState.ManaPoints;
+
+                if (cost > mana)
+                    return;
+
                 UnselectAll();
 
                 if (CombatZone.GetNumberOfSummonedCards(Side.Player) < MaxSummonedCards)
@@ -179,12 +241,12 @@ namespace QuivalCombatTestWPF
 
         public void MessageSent()
         {
-            RoundMessageSent = true;
+            ClickBlocker.IsHitTestVisible = true;
         }
 
         public void MessageRecieved()
         {
-            RoundMessageSent = false;
+            ClickBlocker.IsHitTestVisible = false;
         }
     }
 }

@@ -26,6 +26,7 @@ namespace QuivalLogicEngine.Messages
                     "PlayCard" => JsonSerializer.Deserialize<PlayCard>(json),
                     "PlayAttack" => JsonSerializer.Deserialize<PlayAttack>(json),
                     "PlayBlock" => JsonSerializer.Deserialize<PlayBlock>(json),
+                    "PlayBlank" => JsonSerializer.Deserialize<PlayBlank>(json),
                     "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
                     _ => null
                 };
@@ -90,6 +91,11 @@ namespace QuivalLogicEngine.Messages
         {
             CardId = cardId;
         }
+    }
+
+    public class PlayBlank : Message
+    {
+        public override string Type => "PlayBlank";
     }
 
     public class GameStateUpdate : Message

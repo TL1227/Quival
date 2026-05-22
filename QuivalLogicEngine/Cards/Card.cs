@@ -18,6 +18,13 @@ public abstract class Card
 
 public class BlankCard : Card
 {
+    public int PlayerId { get; set; }
+
+    public BlankCard(int playerId)
+    {
+        PlayerId = playerId;
+    }
+
     public override List<ICardIntent> GetIntents()
     {
         return new List<ICardIntent>();

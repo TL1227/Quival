@@ -22,7 +22,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="GameEventLog" Grid.Row="2"/>
+        <TextBlock x:Name="GameEventLog" Grid.Row="2" TextWrapping="WrapWithOverflow"/>
 
         <local:PlayerResource x:Name="OpponentResources"/>
 
@@ -39,7 +39,7 @@
         <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
 
         <Button 
-            x:Name="SpellStreamCastButton" 
+            x:Name="CastSpellButton" 
             Margin="5"
             Width="110" Height="40"
             Grid.Row="2" Grid.Column="2" 
@@ -48,5 +48,7 @@
             Foreground="DarkBlue"
             >
         </Button>
+
+        <Canvas x:Name="ClickBlocker" Grid.Column="1" Grid.RowSpan="6" Background="Transparent" IsHitTestVisible="false"/>
     </Grid>
 </Window>
