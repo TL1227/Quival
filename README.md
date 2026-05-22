@@ -1,7 +1,6 @@
 # Quival
 A digital TCG where nobody goes first!
 
-## Overview
 Each player starts the game with 7 cards in hand and 20 life points.
 
 The game is split up into _Turns_ and _Rounds_.
@@ -42,13 +41,7 @@ Unlike some other games, health is persistent. _(NOTE: This might just persist d
 So for example if your 4/4 creature attacks and the opponent has a 2/2 in the block zone.
 You will kill their creature and have a 4/2 creature.
 
-## Resources (TODO: figure this out)
-In order to cast spells you will need something. I don't know what that something is yet. But you'll need it.
-That is not to imply, dear player, that you are currently lacking something. 
-You are fine the way you are.
-
-
-## Tosh's Notes
+# Tosh's Notes
 So this game is obviously about anticipation.
 There's two things I'm doing to try and make it feel less like guessing though.
 
@@ -75,18 +68,18 @@ The combat flow in general is probably what I want to test the most. Can you hav
 Who knows? 
 Let's find out!
 
-## Resource Ideas - NOTE: This is just a brain dump, only read if you're bored
+# Resource Ideas - NOTE: This is just a brain dump, only read if you're bored
 At first I liked the idea that each player would recieve the same amount of mana but in waves.
 So Turn 1 = 1 mana, Turn 2 = 2 Mana but it would tick down eventually.
 
-Round 1 : 1 Mana
-Round 2 : 2 Mana
-Round 3 : 3 Mana
-Round 4 : 4 Mana
-Round 5 : 3 Mana
-Round 6 : 2 Mana
-Round 7 : 1 Mana
-Round 8 : 2 Mana
+- Round 1 : 1 Mana
+- Round 2 : 2 Mana
+- Round 3 : 3 Mana
+- Round 4 : 4 Mana
+- Round 5 : 3 Mana
+- Round 6 : 2 Mana
+- Round 7 : 1 Mana
+- Round 8 : 2 Mana
 
 I like the idea of playing around the mana cycle, do you go all in on a spike? Conserve when the opponent might run low?
 You'd probably need a cap to stop people turtling until mana is no longer an issue.
@@ -103,20 +96,20 @@ You could even attach times of day. (Dawn, Noon, Midday, Midnight etc)
 
 So now you have 
 
-- Solar 4 : Lunar 1
-- Solar 3 : Lunar 2
-- Solar 2 : Lunar 3
-- Solar 1 : Lunar 4
-- Solar 2 : Lunar 3
-- Solar 3 : Lunar 2
+- ☀️ 4 : 🌙 1
+- ☀️ 3 : 🌙 2
+- ☀️ 2 : 🌙 3
+- ☀️ 1 : 🌙 4
+- ☀️ 2 : 🌙 3
+- ☀️ 3 : 🌙 2
 
 Now we're kind of getting into actual card identity and deck building restriction stuff right.
 I think we can all see the sort of blue/black type cards that would be Lunar cards and the green/white solar.
 
 It would even open up a design space of the idea of any one turn being Lunar dominant or Solar dominant that you could create card effects around.
 
-- Solar 1 : Lunar 4 is Lunar dominant
-- Solar 3 : Lunar 2 is Solar dominant
+- ☀️ 1 : 🌙 4 is Lunar dominant
+- ☀️ 3 : 🌙 2 is Solar dominant
 
 The only issue with this... it doesn't really restrict deck building, everyone would just use a mix.
 You could limit people to one mana source but that seems a bit boring and you'd basically create a "Solar goes first" situation when the game is supposed to be free of traditional turn taking.
@@ -130,12 +123,12 @@ It would also flavourwise be the domain of the humans and nature and such.
 To pull a deckbuilding rule out of my arse, how about you get to pick a max of 2 mana sources.
 So your 3 types are
 
-- Light - Solar/Earth
-- Dark - Lunar/Earth
-- Cosmic = Lunar/Solar
-- Solar
-- Earth
-- Lunar
+- Light  ☀️/🌎
+- Dark   🌙/🌎
+- Cosmic 🌙/☀️
+- Solar  ☀️
+- Earth  🌎
+- Lunar  🌙
 
 In order to give picking one mana source any kind of advantage my thought was that the amount of mana you can hold changes based on your choices.
 
@@ -147,17 +140,17 @@ You could even have a forecast section of the UI.
 
 **This maybe shit for game design but come on. The day/night cycle flavour is preaty neat right?**
 
-### Really going off the deep end...
+## Really going off the deep end...
 So 3 types is kind of... boring.
 We're already going with the kind of cosmic theme.
 Why not do planets instead! _(as well?)_
 
 So now you could have like 
 
-Mars    3-3-3-2-2-1-1-2-2 (strong start, tapers out)
-Earth   2-3-3-2-2-3-3-2-2 (grounded, consitent)
-Jupiter 1-2-3-4-3-2-1-2-3 (linear with big tops)
-Neptune 1-1-2-2-3-3-4-4-3 (real slow with big spike)
+- Mars    3-3-3-2-2-1-1-2-2 (strong start, tapers out)
+- Earth   2-3-3-2-2-3-3-2-2 (grounded, consitent)
+- Jupiter 1-2-3-4-3-2-1-2-3 (linear with big tops)
+- Neptune 1-1-2-2-3-3-4-4-3 (real slow with big spike)
 
 With something like this, you then would (maybe) get the kind of balance that the colour pie gives us.
 You can tap as many sources as you have cards for, but playing a full solar system deck might be kind of awkward.
