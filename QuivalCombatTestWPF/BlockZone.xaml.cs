@@ -29,14 +29,20 @@ namespace QuivalCombatTestWPF
 
         public void AddCardToBlockZone(BoardCard card)
         {
+            BlockArea.Children.Clear();
+
             BoardCard boardCard = new() { CardId = card.CardId };
             boardCard.CardBackground.Background = card.CardBackground.Background;
             boardCard.CardNameLabel.Content = card.CardNameLabel.Content;
             boardCard.AttackLabel.Content = card.AttackLabel.Content;
             boardCard.HealthLabel.Content = card.HealthLabel.Content;
 
-            BlockArea.Children.Clear();
             BlockArea.Children.Add(boardCard);
+        }
+
+        public void RemoveCardFromBlockZone()
+        {
+            BlockArea.Children.Clear();
         }
 
         public void SetHighlighted(bool value)

@@ -51,14 +51,20 @@ namespace QuivalCombatTestWPF
             PlayerResources.ManaPoints.Content = gs.PlayerState.ManaPoints;
             OpponentResources.ManaPoints.Content = gs.OpponentManaPoints;
 
-            if (gs.OpponentBlockCard != null && 
-                gs.OpponentBlockCard is CreatureCard opponentBlocker)
+            if (gs.OpponentBlockCard == null)
+            {
+                OpponentBlockZone.RemoveCardFromBlockZone();
+            }
+            else if (gs.OpponentBlockCard is CreatureCard opponentBlocker)
             {
                 OpponentBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(opponentBlocker));
             }
 
-            if (gs.PlayerState.BlockingCreature != null && 
-                gs.PlayerState.BlockingCreature is CreatureCard playerBlocker)
+            if (gs.PlayerState.BlockingCreature == null)
+            {
+                PlayerBlockZone.RemoveCardFromBlockZone();
+            }
+            else if (gs.PlayerState.BlockingCreature is CreatureCard playerBlocker)
             {
                 PlayerBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(playerBlocker));
             }
@@ -81,7 +87,9 @@ namespace QuivalCombatTestWPF
 
             if (!PlayerCanMove())
             {
-                Client.PlayCard(new BlankCard());
+                Client.PlayBlank();
+                CastSpellButton.Content = "No Actions";
+                SelectedCard = null;
             }
         }
 

@@ -52,5 +52,12 @@ namespace QuivalLogicEngine
             if (++ManaClockIndex >= ManaClock.Length)
                 ManaClockIndex = 0;
         }
+
+        public void ResetSummonedCreaturesActions()
+        {
+            foreach (var creatures in SummonedCreatures)
+                foreach(var creature in creatures)
+                    creature.HasActed = false;
+        }
     }
 }

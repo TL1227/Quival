@@ -45,4 +45,12 @@ public class Player
             Deck.RemoveAt(0);
         }
     }
+
+    public void ResetBlockingCreatureActions()
+    {
+        if (BlockingCreature != null)
+        {
+            BlockingCreature.HasActed = false;
+        }
+    }
 }

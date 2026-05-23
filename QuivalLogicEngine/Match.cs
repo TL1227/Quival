@@ -171,10 +171,22 @@ public class Match
         return MatchCards.SingleOrDefault(c => c.Id == cardId);
     }
 
+    //TODO: this probably doesn't need to return the round
     public int ProcessCards()
     {
         EventMessages.Clear();
         CardIntents.Clear();
+
+        //TODO: have this calculated in a loop
+        if (Players[0].CardToPlay is BlankCard &&
+            Players[1].CardToPlay is BlankCard)
+        {
+            EventMessage($"Both players out of moves!");
+            Players[0].CardToPlay = null;
+            Players[1].CardToPlay = null;
+            NextTurn();
+            return 1;
+        }
 
         EventMessage($"Round {RoundCount}");
 
@@ -190,6 +202,8 @@ public class Match
                     intent.PlayerId = player.Id;
 
                 CardIntents.AddRange(intents);
+
+                player.CardToPlay = null;
             }
         }
 
@@ -283,32 +297,34 @@ public class Match
             }
         }
 
-        foreach (var player in Players)
-        {
-            player.CardToPlay = null;
-
-        }
-
         RoundCount++;
 
         if (RoundCount > MaxRounds)
         {
-            TurnCount++;
-            Console.WriteLine($"[EVENT]: Starting Turn {TurnCount}");
-            //StartRoundStuff
-            //Draw Card
-            //ResetBlockers
-            //Maybe reset creature health?
-
-            foreach (var player in Players)
-            {
-                player.Mana += BoardState.GetCurrentMana();
-            }
-
-            BoardState.IncreaseManaClock();
+            NextTurn();
         }
 
         return RoundCount;
+    }
+
+    private void NextTurn()
+    {
+        TurnCount++;
+        RoundCount = 1;
+        EventMessage($"Starting Turn {TurnCount} Round {RoundCount}");
+
+        //StartRoundStuff
+        //Draw Card
+
+        foreach (var player in Players)
+        {
+            player.Mana += BoardState.GetCurrentMana();
+            player.ResetBlockingCreatureActions();
+            //TODO: draw card
+        }
+
+        BoardState.ResetSummonedCreaturesActions();
+        BoardState.IncreaseManaClock();
     }
 
     private void EventMessage(string message)

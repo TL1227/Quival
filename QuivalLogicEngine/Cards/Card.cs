@@ -7,6 +7,7 @@ namespace QuivalLogicEngine.Cards;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(CreatureCard), "creaturecard")]
 [JsonDerivedType(typeof(AttackCard), "attackcard")]
+[JsonDerivedType(typeof(BlankCard), "blankcard")]
 public abstract class Card
 {
     public int Id { get; set; }
@@ -35,6 +36,7 @@ public class CreatureCard : Card
 {
     public int Attack { get; set; }
     public int Health { get; set; }
+    public bool HasActed { get; set; }
 
     public CreatureCard(int id, int attack, int health, int cost)
     {
@@ -44,6 +46,7 @@ public class CreatureCard : Card
         Cost = cost;
         Attack = attack;
         Health = health;
+        HasActed = true;
     }
 
     public override List<ICardIntent> GetIntents()
