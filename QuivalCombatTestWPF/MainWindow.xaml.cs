@@ -83,6 +83,8 @@ namespace QuivalCombatTestWPF
 
             ResetHighlightColour();
 
+            MarkAllHaveActedCards();
+
             MessageRecieved();
 
             if (!PlayerCanMove())
@@ -93,9 +95,26 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        private bool PlayerHasCardsSummoned()
+        private void MarkAllHaveActedCards()
         {
-            return CurrentGameState.BoardState.SummonedCreatures[CurrentGameState.PlayerState.Id].Count > 0;
+            //check block zones
+
+            foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
+                if (bc.HasActed)
+                    bc.MarkAsActed();
+
+            foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
+                if (bc.HasActed)
+                    bc.MarkAsActed();
+        }
+
+        private bool SummonedCardsCantMove()
+        {
+            foreach (var creature in CurrentGameState.BoardState.SummonedCreatures[CurrentGameState.PlayerState.Id])
+                if (!creature.HasActed)
+                    return true;
+
+            return false;
         }
 
         private bool PlayerHasEnoughManaToPlayACard()
@@ -111,7 +130,7 @@ namespace QuivalCombatTestWPF
 
         public bool PlayerCanMove()
         {
-            if (PlayerHasCardsSummoned())
+            if (SummonedCardsCantMove())
                 return true;
 
             if (PlayerHasEnoughManaToPlayACard())

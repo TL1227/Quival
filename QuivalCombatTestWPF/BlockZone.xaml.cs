@@ -31,7 +31,7 @@ namespace QuivalCombatTestWPF
         {
             BlockArea.Children.Clear();
 
-            BoardCard boardCard = new() { CardId = card.CardId };
+            BoardCard boardCard = new() { CardId = card.CardId, HasActed = card.HasActed };
             boardCard.CardBackground.Background = card.CardBackground.Background;
             boardCard.CardNameLabel.Content = card.CardNameLabel.Content;
             boardCard.AttackLabel.Content = card.AttackLabel.Content;
@@ -61,7 +61,14 @@ namespace QuivalCombatTestWPF
 
         public void HandleClick(object obj, MouseButtonEventArgs args)
         {
-            ZoneClicked?.Invoke(obj, args);
+            if (obj is BoardCard bc && bc.HasActed)
+            {
+                return;
+            }
+            else
+            {
+                ZoneClicked?.Invoke(obj, args);
+            }
         }
     }
 }

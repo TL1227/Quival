@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace QuivalCombatTestWPF
 {
@@ -10,6 +11,12 @@ namespace QuivalCombatTestWPF
         public BoardCard()
         {
             InitializeComponent();
+        }
+
+        public void MarkAsActed()
+        {
+            Overlay.Background = Brushes.Black;
+            Overlay.Opacity = 0.5;
         }
     }
 }

@@ -92,14 +92,20 @@ namespace QuivalCombatTestWPF
 
         private void HandleClick(object obj, MouseButtonEventArgs args)
         {
-            switch (obj)
+            if (obj is BoardCard bc)
             {
-                case BoardCard:
+                if (bc.HasActed)
+                {
+                    return;
+                }
+                else
+                {
                     CardClicked?.Invoke(obj, args);
-                    break;
-                default:
-                    PlayerZoneClicked?.Invoke(obj, args);
-                    break;
+                }
+            }
+            else
+            {
+                PlayerZoneClicked?.Invoke(obj, args);
             }
         }
     }

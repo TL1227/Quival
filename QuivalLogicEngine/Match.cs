@@ -216,6 +216,7 @@ public class Match
         Blocks.AddRange(CardIntents.OfType<Block>().ToList());
         Attacks.AddRange(CardIntents.OfType<Attack>().ToList());
 
+        //Move to blockzone
         foreach (var block in Blocks)
         {
             var cardToBlock = GetCardFromId(block.CardId);
@@ -236,9 +237,12 @@ public class Match
                     BoardState.SummonedCreatures[block.PlayerId][index] = oldBlocker;
                     EventMessage($"Player {block.PlayerId} replaced {oldBlocker.Name} with {cc.Name}");
                 }
+
+                cc.HasActed = true;
             }
         }
 
+        //Summon card
         foreach (var summon in Summons)
         {
             if (BoardState.CreatureSlotFree(summon.PlayerId))
@@ -249,6 +253,8 @@ public class Match
                     BoardState.SummonCreature(summon.PlayerId, creature);
                     SuccessfulIntents.Add(summon);
                     EventMessage($"Player {summon.PlayerId} summoned {creature.Name}");
+
+                    creature.HasActed = true;
                 }
             }
             else
@@ -257,6 +263,7 @@ public class Match
             }
         }
 
+        //Attack
         foreach (var attack in Attacks)
         {
             var card = GetCardFromId(attack.CardId);
@@ -294,10 +301,15 @@ public class Match
                     otherPlayer.HealthPoints -= attackingCreature.Attack;
                     SuccessfulIntents.Add(new DamagePlayer(otherPlayer.Id, attackingCreature.Attack));
                 }
+
+                attackingCreature.HasActed = true;
             }
         }
 
         RoundCount++;
+
+        //TODO: I think that we should do the calculating which players can and can't move next turn here
+        //currently it's all being done client side which is stupid
 
         if (RoundCount > MaxRounds)
         {
@@ -315,6 +327,13 @@ public class Match
 
         //StartRoundStuff
         //Draw Card
+
+        //reset creature actions
+        foreach (var card in MatchCards)
+        {
+            if (card is CreatureCard cc)
+                cc.HasActed = false;
+        }
 
         foreach (var player in Players)
         {

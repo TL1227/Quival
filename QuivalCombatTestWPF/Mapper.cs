@@ -34,7 +34,8 @@ namespace QuivalCombatTestWPF
         {
             BoardCard bc = new()
             { 
-                CardId = card.Id
+                CardId = card.Id,
+                HasActed = card.HasActed
             };
 
             bc.CardNameLabel.Content = card.Name;
