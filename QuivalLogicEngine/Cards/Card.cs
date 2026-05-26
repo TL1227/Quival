@@ -4,23 +4,28 @@ using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
 [JsonDerivedType(typeof(CreatureCard), "creaturecard")]
 [JsonDerivedType(typeof(AttackCard), "attackcard")]
 [JsonDerivedType(typeof(BlankCard), "blankcard")]
+[JsonDerivedType(typeof(SpellCard), "spellcard")]
 public abstract class Card
 {
+    public string? UniqueId { get; set; }
     public int Id { get; set; }
+    public int PlayerId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int Cost { get; set; }
-    public abstract List<ICardIntent> GetIntents();
+    public List<Ability> Abilities { get; set; }
+    public virtual List<ICardIntent> GetIntents()
+    {
+
+    }
 }
 
 public class BlankCard : Card
 {
-    public int PlayerId { get; set; }
-
     public BlankCard(int playerId)
     {
         PlayerId = playerId;
@@ -58,8 +63,6 @@ public class CreatureCard : Card
 
 public class AttackCard : Card
 {
-    public int PlayerId { get; set; }
-
     public AttackCard(int playerId, int cardId)
     {
         Id = cardId;
@@ -81,8 +84,6 @@ public class AttackCard : Card
 
 public class BlockCard : Card
 {
-    public int PlayerId { get; set; }
-
     public BlockCard(int playerId, int cardId)
     {
         Id = cardId;
@@ -93,5 +94,12 @@ public class BlockCard : Card
     {
         List<ICardIntent> intents = [ new Block(PlayerId, Id) ];
         return intents;
+    }
+}
+public class SpellCard : Card
+{
+    public override List<ICardIntent> GetIntents()
+    {
+        return new List<ICardIntent>();
     }
 }

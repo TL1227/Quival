@@ -1,113 +1,130 @@
 {
   "Cards": [
     {
-      "UniqueID": "ALP001",
-      "Type": "spell",
+      "Type": "spellcard",
+      "UniqueId": "ALP001",
       "Name": "Slight of Hand",
-      "FlavorText": "Now you see it, now you don't!",
+      "Description": "Now you see it, now you don't!",
       "Cost": 2,
       "Attack": null,
       "Health": null,
-      "KeyWords": [],
       "Abilities": [
         {
-          "Triggers": [ "cast" ],
-          "Intents": [ "draw" ],
+          "Triggers": [ "Cast" ],
+          "Intents": [ "DrawCard" ],
           "Value": [ 1 ],
           "Conditionals": []
         }
       ]
     },
     {
-      "UniqueID": "ALP002",
-      "Type": "creature",
+      "Type": "creaturecard",
+      "UniqueId": "ALP002",
       "Name": "Keen Bean",
-      "FlavorText": "'I've heard of a runner bean but this is rediculous!' - Some Guy",
+      "Description": "'I've heard of a runner bean but this is rediculous!' - Some Guy",
       "Cost": 2,
       "Attack": 1,
       "Health": 1,
-      "KeyWords": [ "Rushdown" ],
       "Abilities": [
         {
-          "Triggers": [],
-          "Intents": [],
+          "Triggers": [ "Cast" ],
+          "Intents": [ "RushDown" ],
           "Value": [],
           "Conditionals": []
         }
       ]
     },
     {
-      "UniqueID": "ALP003",
-      "Type": "creature",
+      "Type": "creaturecard",
+      "UniqueId": "ALP003",
       "Name": "Desmond Future Knight",
-      "FlavorText": "",
+      "Description": "",
       "Cost": 2,
       "Attack": 2,
       "Health": 2,
-      "KeyWords": [],
       "Abilities": [
         {
           "Triggers": [ "Attack" ],
-          "Intents": [ "DamageBuff" ],
+          "Intents": [ "AttackBuff" ],
           "Target": [ "Self" ],
+          "Side": [],
           "Value": [ "1" ],
           "Conditionals": [ "round2" ]
         }
       ]
     },
     {
-      "UniqueID": "ALP004",
-      "Type": "Spell",
+      "Type": "spellcard",
+      "UniqueId": "ALP004",
       "Name": "Bubble Shield",
-      "FlavorText": "",
+      "Description": "",
       "Cost": 3,
       "Attack": null,
       "Health": null,
-      "KeyWords": [],
       "Abilities": [
         {
           "Triggers": [ "Cast" ],
           "Intents": [ "CreateDamageAbsorbToken" ],
-          "Target": [ "Player" ],
+          "Target": [ "" ],
+          "Side": [ "Player" ],
           "Value": [ "1" ],
           "Conditionals": []
         }
       ]
     },
     {
-      "UniqueID": "ALP005",
-      "Type": "Spell",
+      "Type": "spellcard",
+      "UniqueId": "ALP005",
       "Name": "Zap",
-      "FlavorText": "",
+      "Description": "",
       "Cost": 1,
       "Attack": null,
       "Health": null,
-      "KeyWords": [],
       "Abilities": [
         {
           "Triggers": [ "Cast" ],
-          "Intents": [ "Damage" ],
-          "Target": [ "Any" ],
+          "Intents": [ "DirectDamage" ],
+          "Target": [ "Damageable" ],
+          "Side": [ "Any" ],
           "Value": [ "2" ],
           "Conditionals": []
         }
       ]
     },
     {
-      "UniqueID": "ALP006",
-      "Type": "Spell",
+      "Type": "spellcard",
+      "UniqueId": "ALP006",
       "Name": "Cleansing Oasis",
-      "FlavorText": "",
+      "Description": "",
       "Cost": 3,
       "Attack": null,
       "Health": null,
-      "KeyWords": [],
       "Abilities": [
         {
           "Triggers": [ "Cast" ],
           "Intents": [ "Heal" ],
-          "Target": [ "AnyHealable" ],
+          "Target": [ "Damageable" ],
+          "Side": [ "Any" ],
           "Value": [ "2" ],
+          "Conditionals": []
+        }
+      ]
+    },
+    {
+      "Type": "spellcard",
+      "UniqueId": "ALP007",
+      "Name": "Call For Backup",
+      "Description": "",
+      "Cost": 4,
+      "Attack": null,
+      "Health": null,
+      "Abilities": [
+        {
+          "Triggers": [ "Cast" ],
+          "Intents": [ "RestoreAction" ],
+          "Target": [ "CanAct" ],
+          "Side": [ "Player" ],
+          "Value": [],
           "Conditionals": []
         }
       ]

@@ -33,6 +33,9 @@ public class Match
         RoundCount = 1;
         MatchCards = new();
         EventMessages = new();
+
+        //TEMP for testing
+        CardParser.ParseSomeCards("C:\\Users\\lavelle.t\\Projects\\Personal\\Quival\\cards.json");
     }
 
     public bool PlayerHasSetCard(int playerId)
