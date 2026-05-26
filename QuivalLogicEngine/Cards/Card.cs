@@ -20,7 +20,7 @@ public abstract class Card
     public List<Ability> Abilities { get; set; }
     public virtual List<ICardIntent> GetIntents()
     {
-
+        return new List<ICardIntent>();
     }
 }
 

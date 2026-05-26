@@ -8,6 +8,7 @@ namespace QuivalLogicEngine.Cards
     {
         public static void ParseSomeCards(string jsonPath)
         {
+            /*
             List<Card> cards = [];
             string thestring = File.ReadAllText(jsonPath);
             JsonDocument json = JsonDocument.Parse(thestring);
@@ -28,7 +29,7 @@ namespace QuivalLogicEngine.Cards
                     cards.Add(card);
                 }
             }
-
+            */
         }
     }
 }

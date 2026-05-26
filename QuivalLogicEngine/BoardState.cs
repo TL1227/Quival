@@ -1,9 +1,4 @@
 ﻿using QuivalLogicEngine.Cards;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QuivalLogicEngine
 {
@@ -13,7 +8,7 @@ namespace QuivalLogicEngine
         public List<int>[] BlockingCreatureIds { get; set; }
         public List<List<CreatureCard>> SummonedCreatures { get; set; }
 
-        public int[] ManaClock = [1, 2, 3, 2];
+        public int[] ManaClock = [2, 3, 4, 5];
         public int ManaClockIndex = 0;
 
         public BoardState() 
@@ -47,10 +42,11 @@ namespace QuivalLogicEngine
         {
             return ManaClock[ManaClockIndex];
         }
+
         public void IncreaseManaClock()
         {
             if (++ManaClockIndex >= ManaClock.Length)
-                ManaClockIndex = 0;
+                ManaClockIndex = ManaClock.Length - 1;
         }
 
         public void ResetSummonedCreaturesActions()

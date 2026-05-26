@@ -97,7 +97,12 @@ public class Match
         SetCardIds(deck);
         MatchCards.AddRange(deck);
 
-        Players.Add(new Player(id, deck));
+        Player player = new Player(id, deck)
+        {
+            Mana = 1
+        };
+
+        Players.Add(player);
     }
 
     public void SetCardToPlay(int playerId, int cardId)
@@ -328,10 +333,6 @@ public class Match
         RoundCount = 1;
         EventMessage($"Starting Turn {TurnCount} Round {RoundCount}");
 
-        //StartRoundStuff
-        //Draw Card
-
-        //reset creature actions
         foreach (var card in MatchCards)
         {
             if (card is CreatureCard cc)
@@ -341,11 +342,9 @@ public class Match
         foreach (var player in Players)
         {
             player.Mana += BoardState.GetCurrentMana();
-            player.ResetBlockingCreatureActions();
-            //TODO: draw card
+            player.DrawCard(1);
         }
 
-        BoardState.ResetSummonedCreaturesActions();
         BoardState.IncreaseManaClock();
     }
 

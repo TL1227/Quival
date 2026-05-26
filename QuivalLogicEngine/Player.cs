@@ -19,10 +19,11 @@ public class Player
     {
         Id = id;
         HealthPoints = 20;
-        Mana = 1;
+        Mana = 0;
         Deck = new(deck);
         Hand = new();
 
+        ShuffleDeck();
         GetStartingHand();
     }
 
@@ -35,6 +36,29 @@ public class Player
                 Hand.RemoveAt(i);
             }
         }
+    }
+
+    public void DrawCard(int number)
+    {
+        for (int i = 0; i < number; i++) 
+        {
+            Hand.Add(Deck[0]);
+            Deck.RemoveAt(0);
+        }
+    }
+
+    private void ShuffleDeck()
+    {
+        List<Card> shuffleList = new();
+        Random rnd = new();
+        while (Deck.Count() > 0)
+        {
+            int num = rnd.Next(0, Deck.Count());
+            shuffleList.Add(Deck[num]);
+            Deck.RemoveAt(num);
+        }
+
+        Deck = new(shuffleList);
     }
 
     private void GetStartingHand()
