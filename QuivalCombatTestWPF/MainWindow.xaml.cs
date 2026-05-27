@@ -76,7 +76,32 @@ namespace QuivalCombatTestWPF
 
             MyPlayerId ??= cgs.PlayerState.Id;
 
-            //ANIMATION
+            //MOVE TO BLOCK ANIMATION
+            List<List<BoardCard>> blockingCards = [new List<BoardCard>(), new List<BoardCard>()];
+            foreach (var eve in cgs.GameEvents)
+            {
+                if (eve is MoveToBlockZoneEvent bz)
+                {
+                    foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
+                        if (bc.CardId == bz.CreatureId)
+                            blockingCards[0].Add(bc);
+
+                    foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
+                        if (bc.CardId == bz.CreatureId)
+                            blockingCards[1].Add(bc);
+                }
+            }
+
+            for (int i = 0; i < blockingCards.Count; i++)
+            {
+                foreach (var attack in blockingCards[i])
+                {
+                    await attack.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
+                    //Thread.Sleep(500); //TODO: figure out a better pause later 
+                }
+            }
+
+            //ATTACK ANIMATION
             List<List<BoardCard>> attackingCards = [new List<BoardCard>(), new List<BoardCard>()];
             foreach (var eve in cgs.GameEvents)
             {
