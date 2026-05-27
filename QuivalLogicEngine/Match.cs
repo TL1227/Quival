@@ -11,7 +11,7 @@ public class Match
     private List<ICardIntent> CardIntents { get; set; }
     public List<ICardIntent> SuccessfulIntents { get; set; }
     private BoardState BoardState { get; set; }
-    private List<string> EventMessages { get; set; }
+    private List<EventMessage> EventMessages { get; set; }
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
 
@@ -189,14 +189,14 @@ public class Match
         if (Players[0].CardToPlay is BlankCard &&
             Players[1].CardToPlay is BlankCard)
         {
-            EventMessage($"Both players out of moves!");
+            EventMessage(new BothPlayersOutOfMovesEvent());
             Players[0].CardToPlay = null;
             Players[1].CardToPlay = null;
             NextTurn();
             return 1;
         }
 
-        EventMessage($"Round {RoundCount}");
+        EventMessage(new NewRound(RoundCount));
 
         foreach (var player in Players)
         {
@@ -237,13 +237,13 @@ public class Match
                 if (oldBlocker == null)
                 {
                     BoardState.SummonedCreatures[block.PlayerId].Remove(cc);
-                    EventMessage($"Player {block.PlayerId} moved {cc.Name} to the block zone");
+                    EventMessage(new MoveToBlockZoneEvent(block.PlayerId, cc.Id, cc.Name!));
                 }
                 else
                 {
                     int index = BoardState.SummonedCreatures[block.PlayerId].IndexOf(cc);
                     BoardState.SummonedCreatures[block.PlayerId][index] = oldBlocker;
-                    EventMessage($"Player {block.PlayerId} replaced {oldBlocker.Name} with {cc.Name}");
+                    EventMessage(new BlockSwapEvent(block.PlayerId, cc.Id, cc.Name!, oldBlocker.Id, oldBlocker.Name!));
                 }
 
                 cc.HasActed = true;
@@ -260,7 +260,7 @@ public class Match
                 {
                     BoardState.SummonCreature(summon.PlayerId, creature);
                     SuccessfulIntents.Add(summon);
-                    EventMessage($"Player {summon.PlayerId} summoned {creature.Name}");
+                    EventMessage(new SummonEvent(summon.PlayerId, creature.Id, creature.Name!));
 
                     creature.HasActed = true;
                 }
@@ -278,14 +278,14 @@ public class Match
 
             if (card != null && card is CreatureCard attackingCreature)
             {
-                EventMessage($"Player {attack.PlayerId}'s {card.Name} attacks for {attackingCreature.Attack}");
+                EventMessage(new AttackEvent(attack.PlayerId, card.Id, card.Name!));
 
                 Player otherPlayer = GetOpponent(attack.PlayerId);
 
                 if (otherPlayer.BlockingCreature != null)
                 {
                     var blockingCreature = otherPlayer.BlockingCreature;
-                    EventMessage($"{blockingCreature.Name} blocks them");
+                    Console.WriteLine($"{blockingCreature.Name} blocks them");
 
                     blockingCreature.Health -= attackingCreature.Attack;
                     attackingCreature.Health -= blockingCreature.Attack;
@@ -293,14 +293,14 @@ public class Match
                     if (blockingCreature.Health <= 0)
                     {
                         SuccessfulIntents.Add(new CreatureDeath() { PlayerId = otherPlayer.Id, CardId = blockingCreature!.Id });
-                        EventMessage($"{blockingCreature.Name} died");
+                        EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
                         otherPlayer.BlockingCreature = null;
                     }
 
                     if (attackingCreature.Health <= 0)
                     {
                         SuccessfulIntents.Add(new CreatureDeath() { PlayerId = attack.PlayerId, CardId = attackingCreature.Id });
-                        EventMessage($"{attackingCreature.Name} died");
+                        EventMessage(new CreatureDeathEvent(attackingCreature.Id, attackingCreature.Name!));
                         BoardState.SummonedCreatures[attack.PlayerId].Remove(attackingCreature);
                     }
                 }
@@ -331,7 +331,7 @@ public class Match
     {
         TurnCount++;
         RoundCount = 1;
-        EventMessage($"Starting Turn {TurnCount} Round {RoundCount}");
+        EventMessage(new NewTurn(TurnCount, RoundCount));
 
         foreach (var card in MatchCards)
         {
@@ -348,9 +348,9 @@ public class Match
         BoardState.IncreaseManaClock();
     }
 
-    private void EventMessage(string message)
+    private void EventMessage(EventMessage message)
     {
-        Console.WriteLine(message);
+        Console.WriteLine(message.GetString());
         EventMessages.Add(message);
     }
 }

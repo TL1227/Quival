@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "QuivalCombatTestWPF": {
+      "commandName": "Project",
+      "commandLineArgs": "--connect"
+    }
+  }
+}

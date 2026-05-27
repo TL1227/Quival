@@ -1,7 +1,6 @@
 ﻿using QuivalLogicEngine;
 using QuivalLogicEngine.Cards;
-using QuivalLogicEngine.Client;
-using QuivalLogicEngine.Messages;
+using QuivalServer;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -52,11 +51,11 @@ internal class Program
             for (int i = 0; i < 4; i++)
             {
                 Decks[d].Add(new CreatureCard(0, 1, 1, 1) { Name = "Token" });
-                Decks[d].Add(new CreatureCard(0, 1, 3, 2) { Name = "Defender" });
+                Decks[d].Add(new CreatureCard(0, 1, 4, 2) { Name = "Defender" });
                 Decks[d].Add(new CreatureCard(0, 2, 2, 2) { Name = "Desmond" });
                 Decks[d].Add(new CreatureCard(0, 3, 1, 2) { Name = "Aggression" });
-                Decks[d].Add(new CreatureCard(0, 4, 4, 3) { Name = "BFG" });
-                Decks[d].Add(new CreatureCard(0, 0, 5, 5) { Name = "The Wall" });
+                Decks[d].Add(new CreatureCard(0, 2, 4, 3) { Name = "BFG" });
+                Decks[d].Add(new CreatureCard(0, 0, 5, 4) { Name = "The Wall" });
             }
 
         while (true)

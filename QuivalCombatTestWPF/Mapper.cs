@@ -30,12 +30,13 @@ namespace QuivalCombatTestWPF
             return result;
         }
 
-        public static BoardCard MapToBoardCard(CreatureCard card)
+        public static BoardCard MapToBoardCard(CreatureCard card, Side side)
         {
             BoardCard bc = new()
             { 
                 CardId = card.Id,
-                HasActed = card.HasActed
+                HasActed = card.HasActed,
+                Side = side,
             };
 
             bc.CardNameLabel.Content = card.Name;

@@ -21,6 +21,8 @@ namespace QuivalCombatTestWPF
     {
         public event EventHandler ZoneClicked;
 
+        public Side Side;
+
         public BlockZone()
         {
             InitializeComponent();
@@ -31,7 +33,7 @@ namespace QuivalCombatTestWPF
         {
             BlockArea.Children.Clear();
 
-            BoardCard boardCard = new() { CardId = card.CardId, HasActed = card.HasActed };
+            BoardCard boardCard = new() { CardId = card.CardId, HasActed = card.HasActed, Side = Side };
             boardCard.CardBackground.Background = card.CardBackground.Background;
             boardCard.CardNameLabel.Content = card.CardNameLabel.Content;
             boardCard.AttackLabel.Content = card.AttackLabel.Content;

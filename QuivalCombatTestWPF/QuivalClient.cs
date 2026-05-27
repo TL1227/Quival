@@ -5,7 +5,7 @@ using System.Windows;
 
 using System.Text.Json;
 using QuivalLogicEngine.Cards;
-using QuivalLogicEngine.Messages;
+using QuivalServer;
 using QuivalLogicEngine.Client;
 
 namespace QuivalCombatTestWPF

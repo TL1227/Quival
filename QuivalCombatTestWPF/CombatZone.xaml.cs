@@ -2,9 +2,11 @@
 using QuivalLogicEngine.Cards;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
@@ -60,7 +62,7 @@ namespace QuivalCombatTestWPF
             int i = 0;
             foreach (var card in cards)
             {
-                var boardCard = Mapper.MapToBoardCard(card);
+                var boardCard = Mapper.MapToBoardCard(card, side);
                 boardCard.MouseLeftButtonDown += HandleClick;
 
                 Grid.SetRow(boardCard, 0);

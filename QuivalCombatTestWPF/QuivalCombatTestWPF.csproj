@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QuivalLogicEngine\QuivalLogicEngine.csproj" />
+    <ProjectReference Include="..\QuivalServer\QuivalServer.csproj" />
   </ItemGroup>
 
 </Project>

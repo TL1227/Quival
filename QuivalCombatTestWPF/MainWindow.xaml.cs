@@ -1,10 +1,12 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
-using QuivalLogicEngine.Messages;
+using QuivalServer;
 
 namespace QuivalCombatTestWPF
 {
@@ -16,11 +18,46 @@ namespace QuivalCombatTestWPF
 
         int MaxSummonedCards = 5;
 
+        public int? MyPlayerId { get; set; } = null;
+
         public MainWindow()
         {
             InitializeComponent();
-            Client = new QuivalClient(this);
-            Client.ConnectToServer();
+
+            if (Environment.GetCommandLineArgs().Contains("--animation-test"))
+            {
+                ClientGameState cgs = new ClientGameState();
+                cgs.BoardState = new();
+                cgs.GameEvents = new();
+
+                cgs.BoardState.SummonedCreatures[0] = new()
+                {
+                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
+                };
+
+                cgs.BoardState.SummonedCreatures[1] = new()
+                {
+                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
+                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
+                };
+
+                UpdateGameState(cgs);
+            }
+            else
+            {
+                Client = new QuivalClient(this);
+                Client.ConnectToServer();
+            }
+
+            PlayerBlockZone.Side = Side.Player;
+            OpponentBlockZone.Side = Side.Opponent;
 
             HandZone.CardClicked += HandZone_CardClicked;
             CombatZone.CardClicked += CombatZone_CardClicked;
@@ -28,14 +65,48 @@ namespace QuivalCombatTestWPF
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
+
         }
 
         #region StateUpdates
 
-        public void UpdateGameState(ClientGameState cgs)
+        public async void UpdateGameState(ClientGameState cgs)
         {
             CurrentGameState = cgs;
+
+            MyPlayerId ??= cgs.PlayerState.Id;
+
+            //ANIMATION
+            List<List<BoardCard>> attackingCards = [new List<BoardCard>(), new List<BoardCard>()];
+            foreach (var eve in cgs.GameEvents)
+            {
+                if (eve is AttackEvent ae)
+                {
+                    foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
+                        if (bc.CardId == ae.CreatureId)
+                            attackingCards[0].Add(bc);
+
+                    foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
+                        if (bc.CardId == ae.CreatureId)
+                            attackingCards[1].Add(bc);
+                }
+            }
+
+            for (int i = 0; i < attackingCards.Count; i++)
+            {
+                foreach (var attack in attackingCards[i])
+                {
+                    await attack.AnimateAttack(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
+                    //Thread.Sleep(500); //TODO: figure out a better pause later 
+                }
+            }
+
             UpdateUIFromGameState();
+        }
+
+        private async void HandleAttackAnimation()
+        {
+
         }
 
         public void UpdateUIFromGameState()
@@ -57,7 +128,7 @@ namespace QuivalCombatTestWPF
             }
             else if (gs.OpponentBlockCard is CreatureCard opponentBlocker)
             {
-                OpponentBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(opponentBlocker));
+                OpponentBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(opponentBlocker, OpponentBlockZone.Side));
             }
 
             if (gs.PlayerState.BlockingCreature == null)
@@ -66,14 +137,14 @@ namespace QuivalCombatTestWPF
             }
             else if (gs.PlayerState.BlockingCreature is CreatureCard playerBlocker)
             {
-                PlayerBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(playerBlocker));
+                PlayerBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(playerBlocker, PlayerBlockZone.Side));
             }
 
             UpdateHand(gs.PlayerState.Hand);
 
             string gameEvents = "";
             foreach (var gameEvent in gs.GameEvents)
-                gameEvents += gameEvent + "\n";
+                gameEvents += gameEvent.GetString() + "\n";
 
             GameEventLog.Text = gameEvents;
 
