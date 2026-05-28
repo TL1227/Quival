@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="QuivalCombatTestWPF.Counter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCombatTestWPF"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="TurnCounter">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label FontSize="60" 
+                   Foreground="CadetBlue" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"
+                   Content="TURN">
+            </Label>
+
+            <Label x:Name="TurnLabel"
+                   FontSize="60" 
+                   Foreground="CadetBlue" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"
+                   Content="0"
+                   Grid.Column="1">
+            </Label>
+        </Grid>
+        
+        <Grid x:Name="RoundCounter" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <local:RoundLabel x:Name="Round1" Grid.Column="0"></local:RoundLabel>
+            <local:RoundLabel x:Name="Round2" Grid.Column="1"></local:RoundLabel>
+            <local:RoundLabel x:Name="Round3" Grid.Column="2"></local:RoundLabel>
+            <local:RoundLabel x:Name="Round4" Grid.Column="3"></local:RoundLabel>
+            <local:RoundLabel x:Name="Round5" Grid.Column="4"></local:RoundLabel>
+        </Grid>
+        
+    </Grid>
+</UserControl>

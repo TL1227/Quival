@@ -16,8 +16,11 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
+        #region Animation
         public Task AnimateAttack(Visual visual, Visual opponentsBZ, Visual playersBZ)
         {
+            RemoveHighlight();
+
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
 
             Point end = (Side == Side.Player) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
@@ -45,6 +48,8 @@ namespace QuivalCombatTestWPF
 
         public Task AnimateMoveToBlockZone(Visual visual, Visual opponentsBZ, Visual playersBZ)
         {
+            RemoveHighlight();
+
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
 
             Point end = (Side == Side.Opponent) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
@@ -70,12 +75,83 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
+        public Task AnimateReturnFromBlockZone(Visual visual, Visual opponentsBZ, Visual playersBZ, Visual cardToSwapWith)
+        {
+            RemoveHighlight();
 
+            Point start = (Side == Side.Opponent) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
+                : playersBZ.TransformToVisual(visual).Transform(new Point(0, 0));
+
+            Point end = cardToSwapWith.TransformToVisual(visual).Transform(new Point(0, 0));
+
+            double deltaX = end.X - start.X;
+            double deltaY = end.Y - start.Y;
+
+            TranslateTransform transform = new();
+            RenderTransform = transform;
+
+            DoubleAnimation xAnim = new() { To = deltaX, Duration = TimeSpan.FromSeconds(0.4)};
+            xAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
+            DoubleAnimation yAnim = new() { To = deltaY, Duration = TimeSpan.FromSeconds(0.4)};
+            yAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
+
+            TaskCompletionSource tsc = new();
+            yAnim.Completed += (_, _) => tsc.SetResult();
+
+            transform.BeginAnimation(TranslateTransform.XProperty, xAnim);
+            transform.BeginAnimation(TranslateTransform.YProperty, yAnim);
+
+            return tsc.Task;
+        }
+
+        public Task AnimateDeath()
+        {
+            RemoveHighlight();
+            MarkRed();
+
+            var tcs = new TaskCompletionSource();
+
+            var animation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromMilliseconds(1000),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn }
+            };
+
+            animation.Completed += (_, _) =>
+            {
+                MarkAsInvisible();
+                tcs.SetResult();
+            };
+
+            BeginAnimation(UIElement.OpacityProperty, animation);
+
+            return tcs.Task;
+        }
+        #endregion
 
         public void MarkAsActed()
         {
             Overlay.Background = Brushes.Black;
             Overlay.Opacity = 0.5;
+        }
+
+        public void MarkRed()
+        {
+            Overlay.Background = Brushes.Red;
+            Overlay.Opacity = 0.6;
+        }
+
+        public void RemoveHighlight()
+        {
+            Overlay.Background = Brushes.Transparent;
+            Overlay.Opacity = 0.0;
+        }
+
+        public void MarkAsInvisible()
+        {
+            Opacity = 0.0;
         }
     }
 }

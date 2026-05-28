@@ -76,45 +76,93 @@ namespace QuivalCombatTestWPF
 
             MyPlayerId ??= cgs.PlayerState.Id;
 
-            //MOVE TO BLOCK ANIMATION
-            List<List<BoardCard>> blockingCards = [new List<BoardCard>(), new List<BoardCard>()];
-            foreach (var eve in cgs.GameEvents)
-            {
-                if (eve is MoveToBlockZoneEvent bz)
-                {
-                    foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
-                        if (bc.CardId == bz.CreatureId)
-                            blockingCards[0].Add(bc);
+            //ANIMATION
+            var blockEvents = cgs.GameEvents.OfType<MoveToBlockZoneEvent>().ToList();
+            await PlayBlockAnimations(blockEvents);
 
-                    foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
-                        if (bc.CardId == bz.CreatureId)
-                            blockingCards[1].Add(bc);
+            var blockSwapEvents = cgs.GameEvents.OfType<BlockSwapEvent>().ToList();
+            await PlayBlockSwapAnimations(blockSwapEvents);
+
+            var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList();
+            await PlayAttackAnimations(attackEvents);
+
+            var creatureDeathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
+            await PlayDeathAnimations(creatureDeathEvents);
+
+            UpdateUIFromGameState();
+        }
+
+        private async Task PlayBlockSwapAnimations(List<BlockSwapEvent> blockSwapEvents)
+        {
+            List<Task> tasks = new();
+            var playerBlockSwap = blockSwapEvents.Where(b => b.PlayerId == MyPlayerId).ToList();
+            foreach (var swap in playerBlockSwap)
+            {
+                var creature = CombatZone.GetBoardCard(swap.CreatureId);
+                var oldCreature = PlayerBlockZone.GetCardFromBlockZone();
+
+                if (creature != null && oldCreature != null)
+                {
+                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
+                    tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, creature));
                 }
+            }
+            await Task.WhenAll(tasks);
+
+            tasks.Clear();
+            var opponentBlockSwap = blockSwapEvents.Where(b => b.PlayerId != MyPlayerId).ToList();
+            foreach (var swap in opponentBlockSwap)
+            {
+                var creature = CombatZone.GetBoardCard(swap.CreatureId);
+                var oldCreature = OpponentBlockZone.GetCardFromBlockZone();
+
+                if (creature != null && oldCreature != null)
+                {
+                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
+                    tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, creature));
+                }
+            }
+            await Task.WhenAll(tasks);
+        }
+
+        private async Task PlayBlockAnimations(List<MoveToBlockZoneEvent> blockEvents)
+        {
+            List<List<BoardCard>> blockingCards = [new List<BoardCard>(), new List<BoardCard>()];
+
+            foreach (var eve in blockEvents)
+            {
+                foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
+                    if (bc.CardId == eve.CreatureId)
+                        blockingCards[0].Add(bc);
+
+                foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
+                    if (bc.CardId == eve.CreatureId)
+                        blockingCards[1].Add(bc);
             }
 
             for (int i = 0; i < blockingCards.Count; i++)
             {
-                foreach (var attack in blockingCards[i])
+                foreach (var block in blockingCards[i])
                 {
-                    await attack.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
-                    //Thread.Sleep(500); //TODO: figure out a better pause later 
+                    await block.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
                 }
             }
+        }
 
+        private async Task PlayAttackAnimations(List<AttackEvent> attackEvents)
+        {
             //ATTACK ANIMATION
             List<List<BoardCard>> attackingCards = [new List<BoardCard>(), new List<BoardCard>()];
-            foreach (var eve in cgs.GameEvents)
-            {
-                if (eve is AttackEvent ae)
-                {
-                    foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
-                        if (bc.CardId == ae.CreatureId)
-                            attackingCards[0].Add(bc);
 
-                    foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
-                        if (bc.CardId == ae.CreatureId)
-                            attackingCards[1].Add(bc);
-                }
+            foreach (var eve in attackEvents)
+            {
+                foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
+                    if (bc.CardId == eve.CreatureId)
+                        attackingCards[0].Add(bc);
+
+                foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
+                    if (bc.CardId == eve.CreatureId)
+                        attackingCards[1].Add(bc);
             }
 
             for (int i = 0; i < attackingCards.Count; i++)
@@ -122,16 +170,21 @@ namespace QuivalCombatTestWPF
                 foreach (var attack in attackingCards[i])
                 {
                     await attack.AnimateAttack(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
-                    //Thread.Sleep(500); //TODO: figure out a better pause later 
                 }
             }
-
-            UpdateUIFromGameState();
         }
-
-        private async void HandleAttackAnimation()
+        private async Task PlayDeathAnimations(List<CreatureDeathEvent> deathEvents)
         {
+            List<Task> tasks = new();
+            foreach (var eve in deathEvents)
+            {
+                var card = GetBoardCard(eve.CreatureId);
 
+                if (card != null)
+                    tasks.Add(card.AnimateDeath());
+            }
+
+            await Task.WhenAll(tasks);
         }
 
         public void UpdateUIFromGameState()
@@ -174,6 +227,8 @@ namespace QuivalCombatTestWPF
             GameEventLog.Text = gameEvents;
 
             CastSpellButton.Content = "";
+
+            Counter.RoundCounter.
 
             UnselectAll();
 
@@ -370,6 +425,25 @@ namespace QuivalCombatTestWPF
         public void MessageRecieved()
         {
             ClickBlocker.IsHitTestVisible = false;
+        }
+
+        public BoardCard? GetBoardCard(int cardId)
+        {
+            UIElementCollection[] cardsGroup =
+            [
+                PlayerBlockZone.BlockArea.Children,
+                OpponentBlockZone.BlockArea.Children,
+                CombatZone.PlayerCombatZone.Children,
+                CombatZone.OpponentCombatZone.Children,
+            ];
+
+            foreach (var cards in cardsGroup)
+                foreach (var card in cards)
+                    if (card is BoardCard boardCard)
+                        if (boardCard != null && boardCard.CardId == cardId)
+                            return boardCard;
+
+            return null;
         }
     }
 }

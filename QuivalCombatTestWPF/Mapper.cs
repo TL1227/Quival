@@ -41,8 +41,11 @@ namespace QuivalCombatTestWPF
 
             bc.CardNameLabel.Content = card.Name;
             bc.AttackLabel.Content = card.Attack;
-            bc.HealthLabel.Content = card.Health;
+            bc.HealthLabel.Content = card.CurrentHealth;
             bc.CardBackground.Background = GetColor(card.Attack);
+
+            if(card.CurrentHealth < card.Health )
+                bc.HealthLabel.Foreground = Brushes.Red;
 
             return bc;
         }

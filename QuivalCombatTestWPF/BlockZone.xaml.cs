@@ -33,13 +33,15 @@ namespace QuivalCombatTestWPF
         {
             BlockArea.Children.Clear();
 
+            /*
             BoardCard boardCard = new() { CardId = card.CardId, HasActed = card.HasActed, Side = Side };
             boardCard.CardBackground.Background = card.CardBackground.Background;
             boardCard.CardNameLabel.Content = card.CardNameLabel.Content;
             boardCard.AttackLabel.Content = card.AttackLabel.Content;
             boardCard.HealthLabel.Content = card.HealthLabel.Content;
+            */
 
-            BlockArea.Children.Add(boardCard);
+            BlockArea.Children.Add(card);
         }
 
         public void RemoveCardFromBlockZone()
@@ -47,12 +49,17 @@ namespace QuivalCombatTestWPF
             BlockArea.Children.Clear();
         }
 
+        public BoardCard? GetCardFromBlockZone()
+        {
+            return (BoardCard)BlockArea.Children[0] ?? null;
+        }
+
         public void SetHighlighted(bool value)
         {
             if (value)
             {
                 BlockArea.Background = QuivalColour.HighlightColour;
-                BlockArea.Opacity = 0.5;
+                BlockArea.Opacity = 1.0;
             }
             else
             {

@@ -41,6 +41,7 @@ public class CreatureCard : Card
 {
     public int Attack { get; set; }
     public int Health { get; set; }
+    public int CurrentHealth { get; set; }
     public bool HasActed { get; set; }
 
     public CreatureCard(int id, int attack, int health, int cost)
@@ -52,6 +53,7 @@ public class CreatureCard : Card
         Attack = attack;
         Health = health;
         HasActed = true;
+        CurrentHealth = Health;
     }
 
     public override List<ICardIntent> GetIntents()

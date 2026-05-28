@@ -80,6 +80,25 @@ namespace QuivalCombatTestWPF
             return false;
         }
 
+        public bool CardIsSummonedByPlayer(int cardId, Side side)
+        {
+            foreach (BoardCard child in CombatZones[(int)side].Children)
+                if (child.CardId == cardId)
+                    return true;
+
+            return false;
+        }
+
+        public BoardCard? GetBoardCard(int cardId)
+        {
+            foreach (var zone in CombatZones)
+                foreach (BoardCard child in zone.Children)
+                    if (child.CardId == cardId)
+                        return child;
+
+            return null;
+        }
+
         public int GetNumberOfSummonedCards(Side side)
         {
             return CombatZones[(int)side].Children.Count;

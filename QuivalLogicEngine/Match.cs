@@ -287,17 +287,17 @@ public class Match
                     var blockingCreature = otherPlayer.BlockingCreature;
                     Console.WriteLine($"{blockingCreature.Name} blocks them");
 
-                    blockingCreature.Health -= attackingCreature.Attack;
-                    attackingCreature.Health -= blockingCreature.Attack;
+                    blockingCreature.CurrentHealth -= attackingCreature.Attack;
+                    attackingCreature.CurrentHealth -= blockingCreature.Attack;
 
-                    if (blockingCreature.Health <= 0)
+                    if (blockingCreature.CurrentHealth <= 0)
                     {
                         SuccessfulIntents.Add(new CreatureDeath() { PlayerId = otherPlayer.Id, CardId = blockingCreature!.Id });
                         EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
                         otherPlayer.BlockingCreature = null;
                     }
 
-                    if (attackingCreature.Health <= 0)
+                    if (attackingCreature.CurrentHealth <= 0)
                     {
                         SuccessfulIntents.Add(new CreatureDeath() { PlayerId = attack.PlayerId, CardId = attackingCreature.Id });
                         EventMessage(new CreatureDeathEvent(attackingCreature.Id, attackingCreature.Name!));
