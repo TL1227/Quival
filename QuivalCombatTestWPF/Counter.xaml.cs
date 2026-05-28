@@ -21,25 +21,28 @@ namespace QuivalCombatTestWPF
     public partial class Counter : UserControl
     {
         int[] Rounds = [1,2,3,4,5];
-        Label[] Labels;
+        RoundLabel[] Labels;
 
         public Counter()
         {
             InitializeComponent();
 
-            Labels =
-            [
-                Round1.RoundNumberLabel,
-                Round2.RoundNumberLabel,
-                Round3.RoundNumberLabel,
-                Round4.RoundNumberLabel,
-                Round5.RoundNumberLabel
-            ];
+            Labels = [ Round1, Round2, Round3, Round4, Round5 ];
 
             for (int i = 0; i < Labels.Length; i++)
             {
-                Labels[i].Content = i + 1;
+                Labels[i].RoundNumberLabel.Content = i + 1;
             }
+        }
+
+        public void HiglightRound(int round)
+        {
+            foreach (var lab in Labels)
+            {
+                lab.UnHighlightRound();
+            }
+
+            Labels[round - 1].HighlightRound();
         }
     }
 }

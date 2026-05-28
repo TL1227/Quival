@@ -228,7 +228,8 @@ namespace QuivalCombatTestWPF
 
             CastSpellButton.Content = "";
 
-            Counter.RoundCounter.
+            Counter.HiglightRound(gs.RoundCount);
+            Counter.TurnLabel.Content = gs.TurnCount.ToString();
 
             UnselectAll();
 

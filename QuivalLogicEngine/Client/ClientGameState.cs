@@ -15,5 +15,7 @@ namespace QuivalLogicEngine.Client
         public Card? OpponentBlockCard { get; set; }
         public List<ICardIntent> CardIntents { get; set; }
         public List<EventMessage> GameEvents { get; set; }
+        public int TurnCount { get; set; }
+        public int RoundCount { get; set; }
     }
 }

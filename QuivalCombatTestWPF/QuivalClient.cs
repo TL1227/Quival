@@ -1,12 +1,8 @@
 ﻿using System.IO;
 using System.Text;
 using System.Net.Sockets;
-using System.Windows;
-
 using System.Text.Json;
-using QuivalLogicEngine.Cards;
 using QuivalServer;
-using QuivalLogicEngine.Client;
 
 namespace QuivalCombatTestWPF
 {

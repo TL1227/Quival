@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Label FontSize="60" 
+            <Label FontSize="40" 
                    Foreground="CadetBlue" 
                    HorizontalAlignment="Center" 
                    VerticalAlignment="Center"
@@ -27,7 +27,7 @@
             </Label>
 
             <Label x:Name="TurnLabel"
-                   FontSize="60" 
+                   FontSize="40" 
                    Foreground="CadetBlue" 
                    HorizontalAlignment="Center" 
                    VerticalAlignment="Center"

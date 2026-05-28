@@ -61,6 +61,8 @@ public class Match
             PlayerState = ps,
             BoardState = BoardState,
             CardIntents = CardIntents,
+            TurnCount= TurnCount,
+            RoundCount= RoundCount,
             GameEvents = EventMessages
         };
 
@@ -331,7 +333,7 @@ public class Match
     {
         TurnCount++;
         RoundCount = 1;
-        EventMessage(new NewTurn(TurnCount, RoundCount));
+        EventMessage(new NewTurn(TurnCount, RoundCount)); //TODO: do we need this?
 
         foreach (var card in MatchCards)
         {
