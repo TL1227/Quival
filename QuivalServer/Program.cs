@@ -46,17 +46,40 @@ internal class Program
 
         Decks = [new List<Card>(), new List<Card>()];
 
+        var json = File.ReadAllText("..\\..\\..\\..\\QuivalCards.json");
+        if (json == null)
+        {
+            Console.WriteLine("Can't find QuivalCards.json!");
+            return;
+        }
+
+        Set currentSet = JsonSerializer.Deserialize<Set>(json)!;
+
         //add 4 copies of each card for each deck
         for (int d = 0; d < 2; d++)
-            for (int i = 0; i < 4; i++)
-            {
-                Decks[d].Add(new CreatureCard(0, 1, 1, 1) { Name = "Token" });
-                Decks[d].Add(new CreatureCard(0, 1, 4, 2) { Name = "Defender" });
-                Decks[d].Add(new CreatureCard(0, 2, 2, 2) { Name = "Desmond" });
-                Decks[d].Add(new CreatureCard(0, 3, 1, 2) { Name = "Aggression" });
-                Decks[d].Add(new CreatureCard(0, 2, 4, 3) { Name = "BFG" });
-                Decks[d].Add(new CreatureCard(0, 0, 5, 4) { Name = "The Wall" });
-            }
+            foreach(var card in currentSet.Cards)
+                for (int i = 0; i < 4; i++)
+                {
+                    if (card is CreatureCard cc)
+                    {
+                        var j = JsonSerializer.Serialize(cc);
+                        Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
+                    }
+                    else if (card is SpellCard sc)
+                    {
+                        var j = JsonSerializer.Serialize(sc);
+                        Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
+                    }
+
+                    /*
+                    Decks[d].Add(new CreatureCard(1, 1, 1) { Name = "Token" });
+                    Decks[d].Add(new CreatureCard(1, 4, 2) { Name = "Defender" });
+                    Decks[d].Add(new CreatureCard(2, 2, 2) { Name = "Desmond" });
+                    Decks[d].Add(new CreatureCard(3, 1, 2) { Name = "Aggression" });
+                    Decks[d].Add(new CreatureCard(2, 4, 3) { Name = "BFG" });
+                    Decks[d].Add(new CreatureCard(0, 5, 4) { Name = "The Wall" });
+                    */
+                }
 
         while (true)
         {

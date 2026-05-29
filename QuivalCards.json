@@ -1,0 +1,139 @@
+{
+  "Name": "Alpha",
+  "SetCode": "ALP",
+  "Cards": [
+    {
+      "Type": "creaturecard",
+      "Attack": 2,
+      "Health": 2,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 1,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Desmond Future Knight",
+      "Description": "\u0022One of these days Samson, I\u0027ll be a knight. Just gotta muck out the stable first!\u0022 - Desmond",
+      "Cost": 2,
+      "Abilities": []
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 1,
+      "Health": 1,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 2,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Token",
+      "Description": null,
+      "Cost": 1,
+      "Abilities": []
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 1,
+      "Health": 4,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 3,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Defender",
+      "Description": "\u0022I\u0027m gonna block your ass!\u0022 - Defender",
+      "Cost": 2,
+      "Abilities": []
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 3,
+      "Health": 1,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 4,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Aggression",
+      "Description": "\u0022GRAAAAAAAAAAAAHHHHH\u0022 - Aggression",
+      "Cost": 2,
+      "Abilities": []
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 2,
+      "Health": 4,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 5,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "BFG",
+      "Description": "\u0022The \u0027F\u0027 don\u0027t stand for friendly mate\u0022 - BFG",
+      "Cost": 2,
+      "Abilities": [
+        {
+          "Trigger": 1,
+          "Actions": [
+            {
+              "Intent": 1,
+              "TargetType": 1,
+              "Side": 0,
+              "Value": 2,
+              "Conditionals": [
+                3
+              ]
+            }
+          ],
+          "ChoiceType": 0,
+          "ChoiceNumber": 0
+        }
+      ]
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 3,
+      "Health": 1,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SetCode": "ALP",
+      "UniqueId": 6,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "The Wall",
+      "Description": "",
+      "Cost": 2,
+      "Abilities": []
+    },
+    {
+      "Type": "spellcard",
+      "SetCode": "ALP",
+      "UniqueId": 7,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Zap",
+      "Description": "",
+      "Cost": 1,
+      "Abilities": [
+        {
+          "Trigger": 2,
+          "Actions": [
+            {
+              "Intent": 3,
+              "TargetType": 2,
+              "Side": 1,
+              "Value": 2,
+              "Conditionals": []
+            }
+          ],
+          "ChoiceType": 0,
+          "ChoiceNumber": 0
+        }
+      ]
+    }
+  ]
+}

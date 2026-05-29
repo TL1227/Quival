@@ -226,6 +226,28 @@ public class Match
         Blocks.AddRange(CardIntents.OfType<Block>().ToList());
         Attacks.AddRange(CardIntents.OfType<Attack>().ToList());
 
+        //Summon card
+        foreach (var summon in Summons)
+        {
+            if (BoardState.CreatureSlotFree(summon.PlayerId))
+            {
+                var card = GetCardFromId(summon.CardId);
+                if (card != null && card is CreatureCard creature) 
+                {
+                    BoardState.SummonCreature(summon.PlayerId, creature);
+                    SuccessfulIntents.Add(summon);
+                    EventMessage(new SummonEvent(summon.PlayerId, creature.Id, creature.Name!));
+
+                    creature.HasActed = true;
+                    creature.CurrentHealth = creature.Health;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[ERROR]: Not enough room on {summon.PlayerId} board for {summon.CardId}");
+            }
+        }
+
         //Move to blockzone
         foreach (var block in Blocks)
         {
@@ -249,27 +271,6 @@ public class Match
                 }
 
                 cc.HasActed = true;
-            }
-        }
-
-        //Summon card
-        foreach (var summon in Summons)
-        {
-            if (BoardState.CreatureSlotFree(summon.PlayerId))
-            {
-                var card = GetCardFromId(summon.CardId);
-                if (card != null && card is CreatureCard creature) 
-                {
-                    BoardState.SummonCreature(summon.PlayerId, creature);
-                    SuccessfulIntents.Add(summon);
-                    EventMessage(new SummonEvent(summon.PlayerId, creature.Id, creature.Name!));
-
-                    creature.HasActed = true;
-                }
-            }
-            else
-            {
-                Console.WriteLine($"[ERROR]: Not enough room on {summon.PlayerId} board for {summon.CardId}");
             }
         }
 

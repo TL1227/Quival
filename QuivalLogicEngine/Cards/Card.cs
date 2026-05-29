@@ -4,6 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards;
 
+public class Set
+{
+    public string Name { get; set; }
+    public string SetCode { get; set; }
+    public List<Card> Cards {  get; set; }
+}
+
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
 [JsonDerivedType(typeof(CreatureCard), "creaturecard")]
 [JsonDerivedType(typeof(AttackCard), "attackcard")]
@@ -11,13 +18,15 @@ namespace QuivalLogicEngine.Cards;
 [JsonDerivedType(typeof(SpellCard), "spellcard")]
 public abstract class Card
 {
-    public string? UniqueId { get; set; }
+    public string? SetCode { get; set; }
+    public int UniqueId { get; set; }
     public int Id { get; set; }
     public int PlayerId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int Cost { get; set; }
-    public List<Ability> Abilities { get; set; }
+    public List<Ability> Abilities { get; set; } = new();
+
     public virtual List<ICardIntent> GetIntents()
     {
         return new List<ICardIntent>();
@@ -44,9 +53,23 @@ public class CreatureCard : Card
     public int CurrentHealth { get; set; }
     public bool HasActed { get; set; }
 
-    public CreatureCard(int id, int attack, int health, int cost)
+    public CreatureCard() { }
+
+    public CreatureCard(CreatureCard other) 
     {
-        Id = id;
+        Id = 0;
+        Name = other.Name;
+        Description = other.Description;
+        Cost = other.Cost;
+        Attack = other.Attack;
+        Health = other.Health;
+        HasActed = true;
+        CurrentHealth = Health;
+    }
+
+    public CreatureCard(int attack, int health, int cost)
+    {
+        Id = 0;
         Name = "";
         Description = "";
         Cost = cost;
@@ -98,6 +121,7 @@ public class BlockCard : Card
         return intents;
     }
 }
+
 public class SpellCard : Card
 {
     public override List<ICardIntent> GetIntents()
