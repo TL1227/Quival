@@ -1,92 +1,120 @@
-﻿using QuivalLogicEngine; using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine; 
+using QuivalLogicEngine.Cards;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LogicEngineConsole
 {
     internal class Program
     {
-        public static int PLAYER_1 = 0;
-        public static int PLAYER_2 = 1;
-
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting match");
-
-            Match match = new();
-
-            Console.WriteLine("Sending player decks");
-
-            List <Card> TheDeck =
+            List<Card> cards =
             [
-                new CreatureCard(0, 1, 1, 3),
-                new CreatureCard(0, 1, 1, 3),
-                new CreatureCard(0, 2, 2, 3),
-                new CreatureCard(0, 2, 3, 3),
-                new CreatureCard(0, 3, 1, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 4, 2, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 2, 4, 3)
+                new CreatureCard(){
+                    Name = "Desmond Future Knight",
+                    Description = "\"One of these days Samson, I'll be a knight. Just gotta muck out the stable first!\" - Desmond",
+                    Cost = 2,
+                    Attack = 2,
+                    Health = 2,
+                },
+                new CreatureCard(){
+                    Name = "Token",
+                    Cost = 1,
+                    Attack = 1,
+                    Health = 1,
+                },
+                new CreatureCard(){
+                    Name = "Defender",
+                    Description = "\"I'm gonna block your ass!\" - Defender",
+                    Cost = 2,
+                    Attack = 1,
+                    Health = 4,
+                },
+                new CreatureCard(){
+                    Name = "Aggression",
+                    Description = "\"GRAAAAAAAAAAAAHHHHH\" - Aggression",
+                    Cost = 2,
+                    Attack = 3,
+                    Health = 1,
+                },
+                new CreatureCard(){
+                    Name = "BFG",
+                    Description = "\"The 'F' don't stand for friendly mate\" - BFG",
+                    Cost = 2,
+                    Attack = 2,
+                    Health = 4,
+                    Abilities =
+                    {
+                        new Ability()
+                        {
+                            Trigger = Trigger.Attack,
+                            Actions =
+                            {
+                                new CardAction()
+                                {
+                                    Intent = Intent.AttackBuff,
+                                    TargetType = TargetType.Self,
+                                    Value = 2,
+                                    Conditionals =
+                                    {
+                                        Conditional.Round3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                new CreatureCard(){
+                    Name = "The Wall",
+                    Description = "",
+                    Cost = 2,
+                    Attack = 3,
+                    Health = 1,
+                },
+                new SpellCard()
+                {
+                    Name = "Zap",
+                    Description = "",
+                    Cost = 1,
+                    Abilities =
+                    {
+                        new Ability()
+                        {
+                            Trigger = Trigger.Cast,
+                            Actions =
+                            {
+                                new CardAction()
+                                {
+                                    Intent = Intent.DirectDamage,
+                                    TargetType = TargetType.Damageable,
+                                    Side = Side.Any,
+                                    Value = 2,
+                                }
+                            }
+                        }
+                    }
+                },
             ];
 
-            List <Card> TheOtherDeck =
-            [
-                new CreatureCard(0, 1, 1, 3),
-                new CreatureCard(0, 1, 1, 3),
-                new CreatureCard(0, 2, 2, 3),
-                new CreatureCard(0, 2, 3, 3),
-                new CreatureCard(0, 3, 1, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 4, 2, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 2, 4, 3),
-                new CreatureCard(0, 2, 4, 3)
-            ];
-
-            match.SetPlayer(PLAYER_1, TheDeck);
-            match.SetPlayer(PLAYER_2, TheOtherDeck);
-
-            List<List<Card>> PlayerHands = new() { new (), new() };
-
-            Console.WriteLine("Fetching player's opening hands");
-
-            for (int i = 0; i < 2; i++)
-                PlayerHands[i] = match.GetPlayerHand(i);
-
-            int round = 0;
-            for (int i = 0; i < 5; i++)
+            Set set = new Set()
             {
-                match.SetCardToPlay(PLAYER_1, PlayerHands[PLAYER_1][i].Id);
-                match.SetCardToPlay(PLAYER_2, PlayerHands[PLAYER_2][i].Id);
+                Name = "Alpha",
+                SetCode = "ALP",
+                Cards = cards
+            };
 
-                if (match.BothCardsToPlayAreSet())
-                {
-                    round = match.ProcessCards();
-                }
-
-                foreach (var action in match.SuccessfulIntents)
-                {
-                    //Return these actions to the client for animation and such
-                }
-                match.SuccessfulIntents.Clear();
+            int IdCounter = 1;
+            foreach (Card card in cards)
+            {
+                card.UniqueId = IdCounter++;
+                card.SetCode = set.SetCode;
             }
 
-
-            match.SetCardToAttack(PLAYER_1, 1);
-            match.SetCardToAttack(PLAYER_2, 13);
-
-            if (match.BothCardsToPlayAreSet())
-            {
-                round = match.ProcessCards();
-            }
-
-            foreach (var action in match.SuccessfulIntents)
-            {
-                //Return these actions to the client for animation and such
-            }
-            match.SuccessfulIntents.Clear();
-
-            Console.WriteLine("Next Turn...");
+            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true, };
+            string json = JsonSerializer.Serialize(set, options);
+            Console.WriteLine(json);
+            File.WriteAllText("..\\..\\..\\..\\QuivalCards.json", json);
         }
     }
 }

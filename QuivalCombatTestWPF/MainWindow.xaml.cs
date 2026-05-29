@@ -24,37 +24,8 @@ namespace QuivalCombatTestWPF
         {
             InitializeComponent();
 
-            if (Environment.GetCommandLineArgs().Contains("--animation-test"))
-            {
-                ClientGameState cgs = new ClientGameState();
-                cgs.BoardState = new();
-                cgs.GameEvents = new();
-
-                cgs.BoardState.SummonedCreatures[0] = new()
-                {
-                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 3, 3, 1){ Name = "Animation Test" },
-                };
-
-                cgs.BoardState.SummonedCreatures[1] = new()
-                {
-                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
-                    new CreatureCard(1, 2, 3, 1){ Name = "Animation Test" },
-                };
-
-                UpdateGameState(cgs);
-            }
-            else
-            {
-                Client = new QuivalClient(this);
-                Client.ConnectToServer();
-            }
+            Client = new QuivalClient(this);
+            Client.ConnectToServer();
 
             PlayerBlockZone.Side = Side.Player;
             OpponentBlockZone.Side = Side.Opponent;
@@ -228,7 +199,7 @@ namespace QuivalCombatTestWPF
 
             CastSpellButton.Content = "";
 
-            Counter.RoundCounter.
+            //Counter.RoundCounter.
 
             UnselectAll();
 

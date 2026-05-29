@@ -2,13 +2,15 @@
 {
     public enum Trigger
     {
+        None,
         Attack,
         Cast,
-        Activate //This is what we'll use to say that an ability can be triggered by the player as an action
+        PlayerActivate //This is what we'll use to say that an ability can be triggered by the player as an action
     }
 
     public enum Intent
     {
+        None,
         AttackBuff,
         DamageAbsorbToken,
         DirectDamage,
@@ -19,6 +21,7 @@
 
     public enum Conditional
     {
+        None,
         Round1,
         Round2,
         Round3,
@@ -26,8 +29,9 @@
         Round5,
     }
 
-    public enum Target
+    public enum TargetType
     {
+        None,
         Self, //as in the card the ability belongs to
         Damageable, //so creatures, players. This should futureproof if we have some other card type that gets given health somehow
         CanAct, //so something that can take an action, currently this is creatures
@@ -37,18 +41,34 @@
 
     public enum Side
     {
+        None,
         Any,
         Opponent,
         Player,
     }
 
+    public enum ChoiceType
+    {
+        None,
+        And,
+        Or,
+        PickNumber
+    }
+
     public class Ability
     {
-        public List<Trigger> Triggers { get; set; }
-        public List<Intent> Intents { get; set; }
-        public List<Target> Targets { get; set; }
-        public List<Side> Sides { get; set; }
-        public List<int> Values { get; set; }
-        public List<Conditional> Conditionals { get; set; }
+        public Trigger Trigger { get; set; }
+        public List<CardAction> Actions { get; set; } = new();
+        public ChoiceType ChoiceType { get; set; }
+        public int ChoiceNumber { get; set; }
+    }
+
+    public class CardAction
+    {
+        public Intent Intent { get; set; }
+        public TargetType TargetType { get; set; }
+        public Side Side { get; set; }
+        public int Value { get; set; }
+        public List<Conditional> Conditionals { get; set; } = new();
     }
 }
