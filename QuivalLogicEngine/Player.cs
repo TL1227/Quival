@@ -1,5 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
-using System.Runtime.CompilerServices;
+using QuivalLogicEngine.Turns;
 
 namespace QuivalLogicEngine;
 
@@ -12,6 +12,7 @@ public class Player
     public List<Card> Deck { get; set; }
 
     public Card? CardToPlay { get; set; }
+    public QuivalTurn? SubmittedTurn { get; set; }
 
     public CreatureCard? BlockingCreature { get; set; }
 

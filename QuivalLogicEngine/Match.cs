@@ -1,7 +1,7 @@
 ﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.States;
-using System.Runtime.CompilerServices;
+using QuivalLogicEngine.Turns;
 
 namespace QuivalLogicEngine;
 
@@ -124,38 +124,31 @@ public class Match
         }
     }
 
-    public void SetCardToAttack(int playerId, int cardId)
+    public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        //TODO: maybe check this ID exists on the board first
-        var card = GetCardFromId(cardId);
+        var card = GetCardFromId(turn.CardToPlayId);
         if (card != null)
         {
-            Players[playerId].CardToPlay = new AttackCard(playerId, cardId);
+            if (card.Cost <= Players[playerId].Mana)
+            {
+                Players[playerId].SubmittedTurn = turn;
+                Players[playerId].Hand.Remove(card);
+            }
+            else
+            {
+                //TODO: send some kind of message back to client about not having enough mana?
+            }
         }
     }
 
-    public void SetCardToBlock(int playerId, int cardId)
-    {
-        var card = GetCardFromId(cardId);
-        if (card != null)
-        {
-            Players[playerId].CardToPlay = new BlockCard(playerId, cardId);
-        }
-    }
-
-    public void SetBlankCard(int playerId)
-    {
-        Players[playerId].CardToPlay = new BlankCard(playerId);
-    }
-
-    public bool BothCardsToPlayAreSet()
+    public bool BothPlayersHaveSubmittedTurns()
     {
         if (OnePlayerMode)
             return true;
 
         foreach (var player in Players)
         {
-            if (player.CardToPlay == null)
+            if (player.SubmittedTurn == null)
                 return false;
         }
 
@@ -181,24 +174,43 @@ public class Match
         return MatchCards.SingleOrDefault(c => c.Id == cardId);
     }
 
-    //TODO: this probably doesn't need to return the round
-    public int ProcessCards()
+    public void ProcessCards()
     {
         EventMessages.Clear();
         CardIntents.Clear();
 
-        //TODO: have this calculated in a loop
-        if (Players[0].CardToPlay is BlankCard &&
-            Players[1].CardToPlay is BlankCard)
+        if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
+            return;
+
+        if (Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
+                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn)
         {
             EventMessage(new BothPlayersOutOfMovesEvent());
-            Players[0].CardToPlay = null;
-            Players[1].CardToPlay = null;
+            Players[0].SubmittedTurn = null;
+            Players[1].SubmittedTurn = null;
             NextTurn();
-            return 1;
+            return;
         }
 
         EventMessage(new NewRound(RoundCount));
+
+
+        //Cast
+        foreach (var player in Players)
+        {
+            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
+                return;
+
+            Card? card = GetCardFromId(player.SubmittedTurn!.CardToPlayId);
+            if (card != null)
+            {
+                var abilities = card.Abilities.Where(a => a.Trigger == Trigger.Cast);
+                foreach (var ability in abilities)
+                {
+
+                }
+            }
+        }
 
         foreach (var player in Players)
         {
@@ -326,8 +338,6 @@ public class Match
         {
             NextTurn();
         }
-
-        return RoundCount;
     }
 
     private void NextTurn()
