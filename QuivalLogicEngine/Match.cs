@@ -9,7 +9,7 @@ public class Match
 {
     private List<Player> Players { get; set; }
     private List<ICardIntent> CardIntents { get; set; }
-    public List<ICardIntent> SuccessfulIntents { get; set; }
+    //public List<ICardIntent> SuccessfulIntents { get; set; }
     private BoardState BoardState { get; set; }
     private List<EventMessage> EventMessages { get; set; }
     private int TurnCount { get; set; }
@@ -27,7 +27,6 @@ public class Match
     {
         Players = new();
         CardIntents = new();
-        SuccessfulIntents = new();
         BoardState = new();
         TurnCount = 1;
         RoundCount = 1;
@@ -174,6 +173,12 @@ public class Match
         return MatchCards.SingleOrDefault(c => c.Id == cardId);
     }
 
+    private bool BothPlayersHaveEndedTheirTurn()
+    {
+        return Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
+                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn;
+    }
+
     public void ProcessCards()
     {
         EventMessages.Clear();
@@ -182,8 +187,7 @@ public class Match
         if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
             return;
 
-        if (Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
-                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn)
+        if (BothPlayersHaveEndedTheirTurn())
         {
             EventMessage(new BothPlayersOutOfMovesEvent());
             Players[0].SubmittedTurn = null;
@@ -194,140 +198,14 @@ public class Match
 
         EventMessage(new NewRound(RoundCount));
 
-
-        //Cast
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
-                return;
-
-            Card? card = GetCardFromId(player.SubmittedTurn!.CardToPlayId);
-            if (card != null)
-            {
-                var abilities = card.Abilities.Where(a => a.Trigger == Trigger.Cast);
-                foreach (var ability in abilities)
-                {
-
-                }
-            }
+           player.CardToPlay = GetCardFromId(player.SubmittedTurn!.CardToPlayId);
         }
 
-        foreach (var player in Players)
-        {
-            if (player.CardToPlay != null)
-            {
-                player.Mana -= player.CardToPlay.Cost;
-
-                var intents = player.CardToPlay.GetIntents();
-
-                foreach (var intent in intents)
-                    intent.PlayerId = player.Id;
-
-                CardIntents.AddRange(intents);
-
-                player.CardToPlay = null;
-            }
-        }
-
-        List<Summon> Summons = new();
-        List<Block> Blocks = new();
-        List<Attack> Attacks = new();
-        List<DamageMultiply> DamageMultiplies = new();
-
-        Summons.AddRange(CardIntents.OfType<Summon>().ToList());
-        Blocks.AddRange(CardIntents.OfType<Block>().ToList());
-        Attacks.AddRange(CardIntents.OfType<Attack>().ToList());
-
-        //Summon card
-        foreach (var summon in Summons)
-        {
-            if (BoardState.CreatureSlotFree(summon.PlayerId))
-            {
-                var card = GetCardFromId(summon.CardId);
-                if (card != null && card is CreatureCard creature) 
-                {
-                    BoardState.SummonCreature(summon.PlayerId, creature);
-                    SuccessfulIntents.Add(summon);
-                    EventMessage(new SummonEvent(summon.PlayerId, creature.Id, creature.Name!));
-
-                    creature.HasActed = true;
-                    creature.CurrentHealth = creature.Health;
-                }
-            }
-            else
-            {
-                Console.WriteLine($"[ERROR]: Not enough room on {summon.PlayerId} board for {summon.CardId}");
-            }
-        }
-
-        //Move to blockzone
-        foreach (var block in Blocks)
-        {
-            var cardToBlock = GetCardFromId(block.CardId);
-
-            if (cardToBlock != null && cardToBlock is CreatureCard cc)
-            {
-                CreatureCard? oldBlocker = Players[block.PlayerId].BlockingCreature!;
-                Players[block.PlayerId].BlockingCreature = cc;
-
-                if (oldBlocker == null)
-                {
-                    BoardState.SummonedCreatures[block.PlayerId].Remove(cc);
-                    EventMessage(new MoveToBlockZoneEvent(block.PlayerId, cc.Id, cc.Name!));
-                }
-                else
-                {
-                    int index = BoardState.SummonedCreatures[block.PlayerId].IndexOf(cc);
-                    BoardState.SummonedCreatures[block.PlayerId][index] = oldBlocker;
-                    EventMessage(new BlockSwapEvent(block.PlayerId, cc.Id, cc.Name!, oldBlocker.Id, oldBlocker.Name!));
-                }
-
-                cc.HasActed = true;
-            }
-        }
-
-        //Attack
-        foreach (var attack in Attacks)
-        {
-            var card = GetCardFromId(attack.CardId);
-
-            if (card != null && card is CreatureCard attackingCreature)
-            {
-                EventMessage(new AttackEvent(attack.PlayerId, card.Id, card.Name!));
-
-                Player otherPlayer = GetOpponent(attack.PlayerId);
-
-                if (otherPlayer.BlockingCreature != null)
-                {
-                    var blockingCreature = otherPlayer.BlockingCreature;
-                    Console.WriteLine($"{blockingCreature.Name} blocks them");
-
-                    blockingCreature.CurrentHealth -= attackingCreature.Attack;
-                    attackingCreature.CurrentHealth -= blockingCreature.Attack;
-
-                    if (blockingCreature.CurrentHealth <= 0)
-                    {
-                        SuccessfulIntents.Add(new CreatureDeath() { PlayerId = otherPlayer.Id, CardId = blockingCreature!.Id });
-                        EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
-                        otherPlayer.BlockingCreature = null;
-                    }
-
-                    if (attackingCreature.CurrentHealth <= 0)
-                    {
-                        SuccessfulIntents.Add(new CreatureDeath() { PlayerId = attack.PlayerId, CardId = attackingCreature.Id });
-                        EventMessage(new CreatureDeathEvent(attackingCreature.Id, attackingCreature.Name!));
-                        BoardState.SummonedCreatures[attack.PlayerId].Remove(attackingCreature);
-                    }
-                }
-                else
-                {
-                    otherPlayer.HealthPoints -= attackingCreature.Attack;
-                    SuccessfulIntents.Add(new DamagePlayer(otherPlayer.Id, attackingCreature.Attack));
-                }
-
-                attackingCreature.HasActed = true;
-            }
-        }
+        ProcessCasts();
+        ProcessMoveToBlockZone();
+        ProcessAttacks();
 
         RoundCount++;
 
@@ -337,6 +215,127 @@ public class Match
         if (RoundCount > MaxRounds)
         {
             NextTurn();
+        }
+    }
+
+    private void ProcessCasts()
+    {
+        foreach (var player in Players)
+        {
+            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
+                continue;
+
+            if (player.CardToPlay != null)
+            {
+                player.Mana -= player.CardToPlay.Cost;
+
+                if (player.CardToPlay is CreatureCard creature) 
+                {
+                    if (BoardState.CreatureSlotFree(creature.PlayerId))
+                    {
+                        BoardState.SummonCreature(creature.PlayerId, creature);
+
+                        EventMessage(new SummonEvent(creature.PlayerId, creature.Id, creature.Name!));
+
+                        creature.HasActed = true;
+                        creature.CurrentHealth = creature.Health;
+
+                        ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[ERROR]: Not enough room on {creature.PlayerId} board for {creature.Id}");
+                    }
+                }
+            }
+        }
+    }
+    
+    private void ProcessAttacks()
+    {
+        foreach (var player in Players)
+        {
+            if (player.SubmittedTurn!.TurnType != TurnType.Attack)
+                continue;
+
+            Player otherPlayer = GetOpponent(player.Id);
+
+            if (player.CardToPlay is CreatureCard attackingCreature)
+            {
+                ProcessTriggeredAbilities(player.CardToPlay, Trigger.Attack);
+
+                if (otherPlayer.BlockingCreature == null)
+                {
+                    otherPlayer.HealthPoints -= attackingCreature.Attack;
+                    EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
+                }
+                else
+                {
+                    var blockingCreature = otherPlayer.BlockingCreature;
+
+                    blockingCreature.CurrentHealth -= attackingCreature.Attack;
+                    if (blockingCreature.CurrentHealth <= 0)
+                    {
+                        EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
+                        otherPlayer.BlockingCreature = null;
+                    }
+
+                    attackingCreature.CurrentHealth -= blockingCreature.Attack;
+                    if (attackingCreature.CurrentHealth <= 0)
+                    {
+                        EventMessage(new CreatureDeathEvent(attackingCreature.Id, attackingCreature.Name!));
+                        BoardState.SummonedCreatures[player.Id].Remove(attackingCreature);
+                    }
+                }
+                attackingCreature.HasActed = true;
+
+                //Possible after damage trigger could go here
+            }
+        }
+    }
+
+    private void ProcessMoveToBlockZone()
+    {
+        foreach (var player in Players)
+        {
+            if (player.SubmittedTurn!.TurnType != TurnType.MoveToBlock)
+                continue;
+
+            if (player.CardToPlay is CreatureCard newBlocker)
+            {
+                if (player.BlockingCreature == null)
+                {
+                    player.BlockingCreature = newBlocker;
+                    BoardState.SummonedCreatures[player.Id].Remove(newBlocker);
+
+                    EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
+
+                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.MoveToBlockZone);
+                }
+                else
+                {
+                    int index = BoardState.SummonedCreatures[player.Id].IndexOf(player.BlockingCreature);
+                    BoardState.SummonedCreatures[player.Id][index] = player.BlockingCreature;
+                    var oldBlocker = player.BlockingCreature;
+
+                    player.BlockingCreature = newBlocker;
+                    BoardState.SummonedCreatures[player.Id].Remove(newBlocker);
+
+                    EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
+
+                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.BlockSwap);
+                }
+            }
+        }
+    }
+
+    private void ProcessTriggeredAbilities(Card card, Trigger trigger)
+    {
+        var abilities = card.Abilities.Where(a => a.Trigger == trigger);
+        
+        foreach (var ability in abilities)
+        {
+            //process
         }
     }
 

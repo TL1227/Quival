@@ -6,7 +6,8 @@
         Attack,
         Cast,
         PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
-        MoveToBlockZone
+        MoveToBlockZone,
+        BlockSwap
     }
 
     public enum Intent
