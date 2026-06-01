@@ -1,5 +1,6 @@
 ﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
+using QuivalLogicEngine.Turns;
 using System.Text.Json;
 
 namespace QuivalServer;
@@ -28,6 +29,7 @@ public abstract class Message
                 "PlayBlock" => JsonSerializer.Deserialize<PlayBlock>(json),
                 "PlayBlank" => JsonSerializer.Deserialize<PlayBlank>(json),
                 "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
+                "SubmitTurn" => JsonSerializer.Deserialize<SubmitTurn>(json),
                 _ => null
             };
 
@@ -102,4 +104,10 @@ public class GameStateUpdate : Message
 {
     public override string Type => "GameStateUpdate";
     public required ClientGameState GameState { get; set; }
+}
+
+public class SubmitTurn : Message
+{
+    public override string Type => "SubmitTurn";
+    public required QuivalTurn Turn { get; set; }
 }

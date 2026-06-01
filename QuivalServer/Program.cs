@@ -185,57 +185,15 @@ internal class Program
 
         switch (message)
         {
-            case PlayCard:
+            case SubmitTurn:
                 {
                     if (Match.PlayerHasSetCard(playerId))
                         return;
 
-                    PlayCard playCard = (PlayCard)message;
-                    Match.SetCardToPlay(playerId, playCard.CardId);
+                    SubmitTurn submitTurn = (SubmitTurn)message;
+                    Match.SubmitTurn(playerId, submitTurn.Turn);
 
-                    if (Match.BothCardsToPlayAreSet())
-                    {
-                        ProcessCards();
-                    }
-                }
-                break;
-            case PlayAttack:
-                {
-                    if (Match.PlayerHasSetCard(playerId))
-                        return;
-
-                    PlayAttack attack = (PlayAttack)message;
-                    Match.SetCardToAttack(playerId, attack.CardId);
-
-                    if (Match.BothCardsToPlayAreSet())
-                    {
-                        ProcessCards();
-                    }
-                }
-                break;
-            case PlayBlock:
-                {
-                    if (Match.PlayerHasSetCard(playerId))
-                        return;
-
-                    PlayBlock attack = (PlayBlock)message;
-                    Match.SetCardToBlock(playerId, attack.CardId);
-
-                    if (Match.BothCardsToPlayAreSet())
-                    {
-                        ProcessCards();
-                    }
-                }
-                break;
-            case PlayBlank:
-                {
-                    if (Match.PlayerHasSetCard(playerId))
-                        return;
-
-                    PlayBlank attack = (PlayBlank)message;
-                    Match.SetBlankCard(playerId);
-
-                    if (Match.BothCardsToPlayAreSet())
+                    if (Match.BothPlayersHaveSubmittedTurns())
                     {
                         ProcessCards();
                     }

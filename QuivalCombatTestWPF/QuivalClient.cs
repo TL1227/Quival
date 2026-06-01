@@ -3,6 +3,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Text.Json;
 using QuivalServer;
+using QuivalLogicEngine.Turns;
 
 namespace QuivalCombatTestWPF
 {
@@ -145,10 +146,17 @@ namespace QuivalCombatTestWPF
             PlayBlock blockCard = new(cardId);
             _ = SendMessageAsync(blockCard);
         }
+
         public void PlayBlank()
         {
             PlayBlank blankCard = new();
             _ = SendMessageAsync(blankCard);
+        }
+
+        public void SubmitTurn(QuivalTurn turn)
+        {
+            SubmitTurn submitTurn = new(){Turn = turn};
+            _ = SendMessageAsync(submitTurn);
         }
     }
 }
