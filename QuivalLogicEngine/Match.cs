@@ -37,9 +37,9 @@ public class Match
         CardParser.ParseSomeCards("C:\\Users\\lavelle.t\\Projects\\Personal\\Quival\\cards.json");
     }
 
-    public bool PlayerHasSetCard(int playerId)
+    public bool PlayerHasSetTurn(int playerId)
     {
-        return Players[playerId].CardToPlay != null;
+        return Players[playerId].SubmittedTurn != null;
     }
 
     public ClientGameState GetGameState(int playerId)
@@ -106,36 +106,44 @@ public class Match
         Players.Add(player);
     }
 
-    public void SetCardToPlay(int playerId, int cardId)
-    {
-        var card = GetCardFromId(cardId);
-        if (card != null)
-        {
-            if (card.Cost <= Players[playerId].Mana)
-            {
-                Players[playerId].CardToPlay = card;
-                Players[playerId].Hand.Remove(card);
-            }
-            else
-            {
-                //TODO: send some kind of message back to client about not having enough mana?
-            }
-        }
-    }
-
     public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        var card = GetCardFromId(turn.CardToPlayId);
-        if (card != null)
+        if (turn.TurnType == TurnType.EndTurn)
         {
-            if (card.Cost <= Players[playerId].Mana)
+            Players[playerId].SubmittedTurn = turn;
+        }
+        else if (turn.TurnType == TurnType.Cast)
+        {
+            var card = GetCardFromId(turn.CardToPlayId);
+
+            if (card != null)
             {
-                Players[playerId].SubmittedTurn = turn;
-                Players[playerId].Hand.Remove(card);
+                if (card.Cost <= Players[playerId].Mana)
+                {
+                    Players[playerId].SubmittedTurn = turn;
+                    Players[playerId].Hand.Remove(card);
+                }
+                else
+                {
+                    Console.WriteLine($"player {playerId} doesn't have enough mana for {turn.CardToPlayId}");
+                    Console.WriteLine($"they have {Players[playerId].Mana} and need {card.Cost}");
+                }
             }
             else
             {
-                //TODO: send some kind of message back to client about not having enough mana?
+                Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
+            }
+        }
+        else
+        {
+            var card = GetCardFromId(turn.CardToPlayId);
+            if (card != null)
+            {
+                Players[playerId].SubmittedTurn = turn;
+            }
+            else
+            {
+                Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
             }
         }
     }
@@ -148,15 +156,13 @@ public class Match
         foreach (var player in Players)
         {
             if (player.SubmittedTurn == null)
+            {
+                Console.WriteLine($"player {player.Id} hasn't submitted a turn!");
                 return false;
+            }
         }
 
         return true;
-    }
-
-    public List<Card> GetPlayerHand(int id)
-    {
-        return Players[id].Hand;
     }
 
     public void SetCardIds(List<Card> deck)
@@ -181,11 +187,15 @@ public class Match
 
     public void ProcessCards()
     {
+        Console.WriteLine("Processing submitted Turns!");
+        
         EventMessages.Clear();
         CardIntents.Clear();
 
         if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
+        {
             return;
+        }
 
         if (BothPlayersHaveEndedTheirTurn())
         {
@@ -207,7 +217,12 @@ public class Match
         ProcessMoveToBlockZone();
         ProcessAttacks();
 
+        //round end
         RoundCount++;
+        foreach (var player in Players)
+        {
+            player.SubmittedTurn = null;
+        }
 
         //TODO: I think that we should do the calculating which players can and can't move next turn here
         //currently it's all being done client side which is stupid
@@ -231,11 +246,11 @@ public class Match
 
                 if (player.CardToPlay is CreatureCard creature) 
                 {
-                    if (BoardState.CreatureSlotFree(creature.PlayerId))
+                    if (BoardState.CreatureSlotFree(player.Id))
                     {
-                        BoardState.SummonCreature(creature.PlayerId, creature);
+                        BoardState.SummonCreature(player.Id, creature);
 
-                        EventMessage(new SummonEvent(creature.PlayerId, creature.Id, creature.Name!));
+                        EventMessage(new SummonEvent(player.Id, creature.Id, creature.Name!));
 
                         creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
@@ -264,10 +279,11 @@ public class Match
             {
                 ProcessTriggeredAbilities(player.CardToPlay, Trigger.Attack);
 
+                EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
+
                 if (otherPlayer.BlockingCreature == null)
                 {
                     otherPlayer.HealthPoints -= attackingCreature.Attack;
-                    EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
                 }
                 else
                 {
@@ -314,10 +330,10 @@ public class Match
                 }
                 else
                 {
-                    int index = BoardState.SummonedCreatures[player.Id].IndexOf(player.BlockingCreature);
+                    int index = BoardState.SummonedCreatures[player.Id].IndexOf(newBlocker);
                     BoardState.SummonedCreatures[player.Id][index] = player.BlockingCreature;
-                    var oldBlocker = player.BlockingCreature;
 
+                    var oldBlocker = player.BlockingCreature;
                     player.BlockingCreature = newBlocker;
                     BoardState.SummonedCreatures[player.Id].Remove(newBlocker);
 

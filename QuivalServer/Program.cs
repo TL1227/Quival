@@ -67,18 +67,10 @@ internal class Program
                     }
                     else if (card is SpellCard sc)
                     {
+                        continue; //TODO: just while we work on creatures
                         var j = JsonSerializer.Serialize(sc);
                         Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
                     }
-
-                    /*
-                    Decks[d].Add(new CreatureCard(1, 1, 1) { Name = "Token" });
-                    Decks[d].Add(new CreatureCard(1, 4, 2) { Name = "Defender" });
-                    Decks[d].Add(new CreatureCard(2, 2, 2) { Name = "Desmond" });
-                    Decks[d].Add(new CreatureCard(3, 1, 2) { Name = "Aggression" });
-                    Decks[d].Add(new CreatureCard(2, 4, 3) { Name = "BFG" });
-                    Decks[d].Add(new CreatureCard(0, 5, 4) { Name = "The Wall" });
-                    */
                 }
 
         while (true)
@@ -181,25 +173,30 @@ internal class Program
 
     static void HandleMessage(Message message, int playerId, StreamWriter writer)
     {
-        Console.WriteLine($"Message from player {playerId}");
-
         switch (message)
         {
             case SubmitTurn:
                 {
-                    if (Match.PlayerHasSetCard(playerId))
-                        return;
-
                     SubmitTurn submitTurn = (SubmitTurn)message;
+                    Console.WriteLine($"Player {playerId} submitting {submitTurn.Turn.TurnType}");
+
+                    if (Match.PlayerHasSetTurn(playerId))
+                    {
+                        Console.WriteLine($"Player {playerId} already has turn set");
+                        return;
+                    }
+
                     Match.SubmitTurn(playerId, submitTurn.Turn);
 
                     if (Match.BothPlayersHaveSubmittedTurns())
                     {
+                        Console.WriteLine($"Both players have submitted turns");
                         ProcessCards();
                     }
                 }
                 break;
             default:
+                    Console.WriteLine($"Unknown message from player {playerId}");
                 break;
         }
     }

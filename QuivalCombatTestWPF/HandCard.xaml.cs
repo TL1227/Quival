@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
-    /// <summary>
-    /// Interaction logic for HandCard.xaml
-    /// </summary>
     public partial class HandCard : UserControl
     {
         public int CardId { get; set; }

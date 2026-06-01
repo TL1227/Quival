@@ -129,30 +129,6 @@ namespace QuivalCombatTestWPF
             return null;
         }
 
-        public void PlayCard(int cardId)
-        {
-            PlayCard playCard = new(cardId);
-            _ = SendMessageAsync(playCard);
-        }
-
-        public void PlayAttack(int cardId)
-        {
-            PlayAttack attackCard = new(cardId);
-            _ = SendMessageAsync(attackCard);
-        }
-
-        public void PlayBlock(int cardId)
-        {
-            PlayBlock blockCard = new(cardId);
-            _ = SendMessageAsync(blockCard);
-        }
-
-        public void PlayBlank()
-        {
-            PlayBlank blankCard = new();
-            _ = SendMessageAsync(blankCard);
-        }
-
         public void SubmitTurn(QuivalTurn turn)
         {
             SubmitTurn submitTurn = new(){Turn = turn};

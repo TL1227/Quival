@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace QuivalCombatTestWPF
@@ -15,6 +16,8 @@ namespace QuivalCombatTestWPF
                 handcard.CardNameLabel.Content = card.Name;
                 handcard.CardDescriptionLabel.Text = card.Description;
                 handcard.CostContent.Content = card.Cost;
+
+                Panel.SetZIndex(handcard, 500);
 
                 if (card is CreatureCard cc)
                 {

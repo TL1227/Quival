@@ -6,6 +6,7 @@ using System.Windows.Media.Animation;
 using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
+using QuivalLogicEngine.Turns;
 using QuivalServer;
 
 namespace QuivalCombatTestWPF
@@ -36,7 +37,6 @@ namespace QuivalCombatTestWPF
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
-
         }
 
         #region StateUpdates
@@ -46,6 +46,8 @@ namespace QuivalCombatTestWPF
             CurrentGameState = cgs;
 
             MyPlayerId ??= cgs.PlayerState.Id;
+
+            UnselectAll();
 
             //ANIMATION
             var blockEvents = cgs.GameEvents.OfType<MoveToBlockZoneEvent>().ToList();
@@ -212,7 +214,12 @@ namespace QuivalCombatTestWPF
 
             if (!PlayerCanMove())
             {
-                Client.PlayBlank();
+                QuivalTurn turn = new()
+                {
+                    TurnType = TurnType.EndTurn
+                };
+                Client.SubmitTurn(turn);
+
                 CastSpellButton.Content = "No Actions";
                 SelectedCard = null;
             }
@@ -307,9 +314,16 @@ namespace QuivalCombatTestWPF
         {
             if (SelectedCard != null && SelectedCard is HandCard hc)
             {
-                Client.PlayCard(hc.CardId);
+                QuivalTurn turn = new()
+                {
+                    TurnType = TurnType.Cast,
+                    CardToPlayId = hc.CardId
+                };
+
+                Client.SubmitTurn(turn);
+
                 QuivalColour.ChangetoPurpleHighlights();
-                CastSpellButton.Content = "Summon";
+                CastSpellButton.Content = "Cast";
                 SelectedCard = null;
             }
         }
@@ -340,7 +354,13 @@ namespace QuivalCombatTestWPF
         {
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                Client.PlayBlock(bc.CardId);
+                QuivalTurn turn = new()
+                {
+                    TurnType = TurnType.MoveToBlock,
+                    CardToPlayId = bc.CardId
+                };
+
+                Client.SubmitTurn(turn);
 
                 OpponentBlockZone.SetHighlighted(false);
                 QuivalColour.ChangetoPurpleHighlights();
@@ -355,7 +375,13 @@ namespace QuivalCombatTestWPF
             {
                 if (CombatZone.CardIsSummonedByPlayer(bc, Side.Player))
                 {
-                    Client.PlayAttack(bc.CardId);
+                    QuivalTurn turn = new()
+                    {
+                        TurnType = TurnType.Attack,
+                        CardToPlayId = bc.CardId
+                    };
+
+                    Client.SubmitTurn(turn);
 
                     PlayerBlockZone.SetHighlighted(false);
                     QuivalColour.ChangetoPurpleHighlights();
