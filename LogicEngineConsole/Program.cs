@@ -29,7 +29,7 @@ namespace LogicEngineConsole
                     Description = "\"I'm gonna block your ass!\" - Defender",
                     Cost = 2,
                     Attack = 1,
-                    Health = 4,
+                    Health = 3,
                 },
                 new CreatureCard(){
                     Name = "Aggression",
@@ -41,7 +41,7 @@ namespace LogicEngineConsole
                 new CreatureCard(){
                     Name = "BFG",
                     Description = "\"The 'F' don't stand for friendly mate\" - BFG",
-                    Cost = 2,
+                    Cost = 3,
                     Attack = 2,
                     Health = 4,
                     Abilities =
@@ -68,9 +68,9 @@ namespace LogicEngineConsole
                 new CreatureCard(){
                     Name = "The Wall",
                     Description = "",
-                    Cost = 2,
-                    Attack = 3,
-                    Health = 1,
+                    Cost = 4,
+                    Attack = 1,
+                    Health = 5,
                 },
                 new SpellCard()
                 {

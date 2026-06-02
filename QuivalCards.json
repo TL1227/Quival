@@ -35,7 +35,7 @@
     {
       "Type": "creaturecard",
       "Attack": 1,
-      "Health": 4,
+      "Health": 3,
       "CurrentHealth": 0,
       "HasActed": false,
       "SetCode": "ALP",
@@ -74,7 +74,7 @@
       "PlayerId": 0,
       "Name": "BFG",
       "Description": "\u0022The \u0027F\u0027 don\u0027t stand for friendly mate\u0022 - BFG",
-      "Cost": 2,
+      "Cost": 3,
       "Abilities": [
         {
           "Trigger": 1,
@@ -96,8 +96,8 @@
     },
     {
       "Type": "creaturecard",
-      "Attack": 3,
-      "Health": 1,
+      "Attack": 1,
+      "Health": 5,
       "CurrentHealth": 0,
       "HasActed": false,
       "SetCode": "ALP",
@@ -106,7 +106,7 @@
       "PlayerId": 0,
       "Name": "The Wall",
       "Description": "",
-      "Cost": 2,
+      "Cost": 4,
       "Abilities": []
     },
     {
