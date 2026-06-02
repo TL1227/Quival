@@ -11,6 +11,13 @@ using QuivalServer;
 
 namespace QuivalCombatTestWPF
 {
+    //TOODO: put this somewhere else later
+    public enum Side
+    {
+        Player,
+        Opponent,
+    }
+
     public partial class MainWindow : Window
     {
         QuivalClient Client { get; set; }

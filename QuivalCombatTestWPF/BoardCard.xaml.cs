@@ -11,6 +11,8 @@ namespace QuivalCombatTestWPF
         public required bool HasActed { get; set; }
         public required Side Side { get; set; }
 
+        public static int BlankId = -1;
+
         public BoardCard()
         {
             InitializeComponent();
