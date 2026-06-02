@@ -5,8 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="150" d:DesignWidth="800" >
-    <Grid>
+             d:DesignHeight="150" d:DesignWidth="800" 
+             ClipToBounds="False">
+
+    <Grid ClipToBounds="False">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -15,6 +17,6 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="2" x:Name="BlockArea" ClipToBounds="False" Background="red"/>
+        <Grid Grid.Column="2" x:Name="BlockArea" ClipToBounds="False" />
     </Grid>
 </UserControl>

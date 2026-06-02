@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -6,7 +7,7 @@ namespace QuivalCombatTestWPF
 {
     internal static class Mapper
     {
-        public static List<HandCard> MapToHandCards(List<Card> cards)
+        public static List<HandCard> MapToHandCards(List<Card> cards, Grid playerSummonZone)
         {
             List<HandCard> result = new();
 
@@ -17,15 +18,16 @@ namespace QuivalCombatTestWPF
                 handcard.CardDescriptionLabel.Text = card.Description;
                 handcard.CostContent.Content = card.Cost;
 
-                Panel.SetZIndex(handcard, 500);
-
                 if (card is CreatureCard cc)
                 {
                     handcard.AttackLabel.Content = cc.Attack;
                     handcard.HealthLabel.Content = cc.Health;
                     handcard.CardBackground.Background = GetColor(cc.Attack);
-                }
 
+                    var boardCard = MapToBoardCard(cc, Side.Player);
+                    playerSummonZone.Children.Add(boardCard);
+                    boardCard.Visibility = Visibility.Hidden;
+                }
 
                 result.Add(handcard);
             }
@@ -49,6 +51,22 @@ namespace QuivalCombatTestWPF
 
             if(card.CurrentHealth < card.Health )
                 bc.HealthLabel.Foreground = Brushes.Red;
+
+            return bc;
+        }
+        public static BoardCard MapToBoardCard(HandCard card, Side side)
+        {
+            BoardCard bc = new()
+            {
+                CardId = card.CardId,
+                HasActed = true,
+                Side = side,
+            };
+
+            bc.CardNameLabel.Content = card.Name;
+            bc.AttackLabel.Content = card.AttackLabel.Content;
+            bc.HealthLabel.Content = card.HealthLabel.Content;
+            bc.CardBackground.Background = GetColor(int.Parse(card.AttackLabel.Content.ToString()));
 
             return bc;
         }

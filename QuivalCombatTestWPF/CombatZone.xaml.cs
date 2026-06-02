@@ -12,8 +12,8 @@ namespace QuivalCombatTestWPF
 {
     public enum Side
     {
+        Player,
         Opponent,
-        Player
     }
 
     public partial class CombatZone : UserControl
@@ -27,7 +27,7 @@ namespace QuivalCombatTestWPF
         {
             InitializeComponent();
             PlayerCombatZone.MouseLeftButtonDown += HandleClick;
-            CombatZones = [OpponentCombatZone, PlayerCombatZone];
+            CombatZones = [PlayerCombatZone, OpponentCombatZone];
         }
 
 

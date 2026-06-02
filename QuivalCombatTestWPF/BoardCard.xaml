@@ -5,8 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="170" d:DesignWidth="200">
-    <Grid x:Name="CardBackground" Margin="10" Background="Coral" Width="180" Height="150">
+             d:DesignHeight="180" d:DesignWidth="150"
+             Width="180" Height="150">
+    <Grid x:Name="CardBackground" Background="Coral" >
         <Grid x:Name="CardContent" Margin="10,0,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>

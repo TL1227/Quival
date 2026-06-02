@@ -17,6 +17,10 @@ namespace QuivalCombatTestWPF
         Control? SelectedCard { get; set; }
         private ClientGameState CurrentGameState { get; set; }
 
+        private CardLayoutManager CardLayoutManager { get; set; }
+
+        private Animator Animator { get; set; } 
+
         int MaxSummonedCards = 5;
 
         public int? MyPlayerId { get; set; } = null;
@@ -37,6 +41,15 @@ namespace QuivalCombatTestWPF
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
+
+            Animator = new(AnimationCanvas);
+
+            BattleField.Loaded += (s, e) =>
+            {
+                CardLayoutManager = new();
+                CardLayoutManager.FillCombatZonePoints(CombatZone, BattleField);
+                CardLayoutManager.FillBlockZonePoints(PlayerBlockZone, OpponentBlockZone);
+            };
         }
 
         #region StateUpdates
@@ -50,6 +63,9 @@ namespace QuivalCombatTestWPF
             UnselectAll();
 
             //ANIMATION
+            var summonEvents = cgs.GameEvents.OfType<SummonEvent>().ToList();
+            await PlaySummonAnimations(summonEvents);
+
             var blockEvents = cgs.GameEvents.OfType<MoveToBlockZoneEvent>().ToList();
             await PlayBlockAnimations(blockEvents);
 
@@ -76,7 +92,7 @@ namespace QuivalCombatTestWPF
 
                 if (creature != null && oldCreature != null)
                 {
-                    //tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
+                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
                     Point end = creature.TransformToVisual(BattleField).Transform(new Point(0, 0));
                     tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, end));
                 }
@@ -148,6 +164,7 @@ namespace QuivalCombatTestWPF
                 }
             }
         }
+
         private async Task PlayDeathAnimations(List<CreatureDeathEvent> deathEvents)
         {
             List<Task> tasks = new();
@@ -160,6 +177,34 @@ namespace QuivalCombatTestWPF
             }
 
             await Task.WhenAll(tasks);
+        }
+
+        private async Task PlaySummonAnimations(List<SummonEvent> summonEvents)
+        {
+            List<Task> tasks = new();
+
+            List<BoardCard> bcs = new();
+            foreach (var eve in summonEvents)
+            {
+                var bc = GetBoardCard(eve.CreatureId);
+
+                if (bc != null)
+                {
+                    //Summon test
+                    bc.Visibility = Visibility.Visible;
+                    Side side = eve.PlayerId == MyPlayerId ? Side.Player : Side.Opponent;
+                    var end = CardLayoutManager.CombatZones[(int)side][0];
+                    tasks.Add(bc.AnimateSummon(end, BattleField));
+                    bcs.Add(bc);
+                }
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (var b in bcs)
+            {
+                PlayerSummonZone.Children.Remove(b);
+            }
         }
 
         public void UpdateUIFromGameState()
@@ -273,7 +318,7 @@ namespace QuivalCombatTestWPF
 
         public void UpdateHand(List<Card> cards)
         {
-            List<HandCard> hand = Mapper.MapToHandCards(cards);
+            List<HandCard> hand = Mapper.MapToHandCards(cards, PlayerSummonZone);
             
             HandZone.ClearHand();
             HandZone.SetHand(hand);
@@ -435,6 +480,7 @@ namespace QuivalCombatTestWPF
                 OpponentBlockZone.BlockArea.Children,
                 CombatZone.PlayerCombatZone.Children,
                 CombatZone.OpponentCombatZone.Children,
+                PlayerSummonZone.Children
             ];
 
             foreach (var cards in cardsGroup)
@@ -442,6 +488,15 @@ namespace QuivalCombatTestWPF
                     if (card is BoardCard boardCard)
                         if (boardCard != null && boardCard.CardId == cardId)
                             return boardCard;
+
+            return null;
+        }
+        public HandCard? GetHandCard(int cardId)
+        {
+            foreach (var card in HandZone.HandGrid.Children)
+                    if (card is HandCard handCard)
+                        if (handCard != null && handCard.CardId == cardId)
+                            return handCard;
 
             return null;
         }

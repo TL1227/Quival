@@ -7,41 +7,43 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
         WindowState="Maximized">
-    
-    <Grid Margin="10" x:Name="BattleField">
-        <Grid.RowDefinitions>
-            <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
-            <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>
-            <RowDefinition x:Name="CombatZoneRow" Height="2*"/>
-            <RowDefinition x:Name="PlayerBlockZoneRow" Height="*"></RowDefinition>
-            <RowDefinition x:Name="PlayerHandZone" Height="*"></RowDefinition>
-            <RowDefinition x:Name="PlayerLifeRow" Height="auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition x:Name="CombatZoneColumn" Width="7*"/>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="GameEventLog" Grid.Row="2" TextWrapping="WrapWithOverflow"/>
+    <Grid>
+        <Grid x:Name="BattleField">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
+                <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>
+                <RowDefinition x:Name="CombatZoneRow" Height="2*"/>
+                <RowDefinition x:Name="PlayerBlockZoneRow" Height="*"></RowDefinition>
+                <RowDefinition x:Name="PlayerHandZone" Height="*"></RowDefinition>
+                <RowDefinition x:Name="PlayerLifeRow" Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition x:Name="CombatZoneColumn" Width="7*"/>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-        <local:PlayerResource x:Name="OpponentResources"/>
+            <TextBlock x:Name="GameEventLog" Grid.Row="2" TextWrapping="WrapWithOverflow"/>
 
-        <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
+            <local:PlayerResource x:Name="OpponentResources"/>
 
-        <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="2"/>
+            <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
 
-        <local:BlockZone x:Name="PlayerBlockZone" Grid.Row="3" Grid.Column="1"/>
+            <local:CombatZone x:Name="CombatZone" Grid.Column="1" Grid.Row="2"/>
 
-        <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
-            <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="1"/>
-        </Grid>
+            <local:BlockZone x:Name="PlayerBlockZone" Grid.Row="3" Grid.Column="1"/>
 
-        <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
+            <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
+                <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="1"/>
+                <Grid x:Name="PlayerSummonZone"></Grid>
+            </Grid>
 
-        <local:Counter x:Name="Counter" Grid.Row="2" Grid.Column="2"></local:Counter>
+            <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
 
-        <Button 
+            <local:Counter x:Name="Counter" Grid.Row="2" Grid.Column="2"></local:Counter>
+
+            <Button 
             x:Name="CastSpellButton" 
             Margin="5"
             Width="110" Height="40"
@@ -50,8 +52,18 @@
             Background="CornflowerBlue"
             Foreground="DarkBlue"
             >
-        </Button>
+            </Button>
 
-        <Canvas x:Name="ClickBlocker" Grid.Column="1" Grid.RowSpan="6" Background="Transparent" IsHitTestVisible="false"/>
+
+            <Canvas x:Name="ClickBlocker" 
+                Grid.Column="1" 
+                Grid.RowSpan="6" 
+                Background="Transparent" 
+                IsHitTestVisible="false"/>
+        </Grid>
+        <Canvas x:Name="AnimationCanvas" 
+        Background="Transparent" 
+        IsHitTestVisible="False" 
+        Panel.ZIndex="9999"/>
     </Grid>
 </Window>
