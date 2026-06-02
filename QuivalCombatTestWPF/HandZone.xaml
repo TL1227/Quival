@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid x:Name="HandGrid" Margin="20" ShowGridLines="True">
+    <Grid x:Name="HandGrid" Margin="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>

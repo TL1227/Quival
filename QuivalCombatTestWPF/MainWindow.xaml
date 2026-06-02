@@ -9,7 +9,7 @@
         WindowState="Maximized">
 
     <Grid>
-        <Grid x:Name="BattleField">
+        <Grid x:Name="BattleField" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
                 <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>

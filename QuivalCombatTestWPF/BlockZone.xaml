@@ -17,6 +17,8 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="2" x:Name="BlockArea" ClipToBounds="False" />
+        <Border Grid.Column="2" BorderBrush="Aquamarine" BorderThickness="3">
+            <Grid x:Name="BlockArea" ClipToBounds="False" />
+        </Border>
     </Grid>
 </UserControl>

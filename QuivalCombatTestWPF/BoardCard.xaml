@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="180" d:DesignWidth="150"
              Width="180" Height="150">
-    <Grid x:Name="CardBackground" Background="Coral" >
+    <Grid x:Name="CardBackground" Background="Coral" Margin="10" >
         <Grid x:Name="CardContent" Margin="10,0,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
