@@ -76,7 +76,7 @@ namespace QuivalCombatTestWPF
 
                 if (creature != null && oldCreature != null)
                 {
-                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
+                    //tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
                     Point end = creature.TransformToVisual(BattleField).Transform(new Point(0, 0));
                     tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, end));
                 }
