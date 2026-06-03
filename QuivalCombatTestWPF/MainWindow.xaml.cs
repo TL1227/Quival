@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using QuivalCombatTestWPF.Colours;
@@ -28,6 +29,7 @@ namespace QuivalCombatTestWPF
         int MaxSummonedCards = 5;
 
         private CombatZone[] CombatZones { get; set; }
+        private BlockZone[] BlockZones { get; set; }
 
         public int? MyPlayerId { get; set; } = null;
 
@@ -53,14 +55,15 @@ namespace QuivalCombatTestWPF
 
             Animator = new(AnimationCanvas);
 
+            CombatZones = [PlayerCombatZone, OpponentCombatZone];
+            BlockZones = [PlayerBlockZone, OpponentBlockZone];
+
             BattleField.Loaded += (s, e) =>
             {
                 CardLayoutManager = new();
-                CardLayoutManager.FillCombatZonePoints(PlayerCombatZone, BattleField);
-                CardLayoutManager.FillBlockZonePoints(PlayerBlockZone, OpponentBlockZone);
+                CardLayoutManager.FillCombatZonePoints(CombatZones, BattleField);
+                CardLayoutManager.FillBlockZonePoints(BlockZones, BattleField);
             };
-
-            CombatZones = [PlayerCombatZone, OpponentCombatZone];
         }
 
         #region StateUpdates
@@ -136,8 +139,8 @@ namespace QuivalCombatTestWPF
                 for (int i = 0; i < CombatZones.Length; i++)
                 {
                     foreach (var slot in CombatZones[i].SummonSlots)
-                        if (slot.Children[0] is BoardCard bc && bc.CardId  == eve.CreatureId)
-                            blockingCards[i].Add(bc);
+                        if (slot.Card != null && slot.Card.Id == eve.CreatureId)
+                            blockingCards[i].Add(slot.Card);
                 }
             }
 
@@ -160,8 +163,8 @@ namespace QuivalCombatTestWPF
                 for (int i = 0; i < CombatZones.Length; i++)
                 {
                     foreach (var slot in CombatZones[i].SummonSlots)
-                        if (slot.Children[0] is BoardCard bc && bc.CardId  == eve.CreatureId)
-                            attackingCards[i].Add(bc);
+                        if (slot.Card != null && slot.Card.Id == eve.CreatureId)
+                            attackingCards[i].Add(slot.Card);
                 }
             }
 
@@ -218,6 +221,7 @@ namespace QuivalCombatTestWPF
 
         public void UpdateUIFromGameState()
         {
+            Debug.WriteLine($"Gamestate update: Turn {CurrentGameState.TurnCount} round {CurrentGameState.RoundCount}");
             var gs = CurrentGameState;
 
             CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id]);
@@ -264,7 +268,9 @@ namespace QuivalCombatTestWPF
 
             ResetHighlightColour();
 
-            MarkAllHaveActedCards();
+            //Mark all cards that have acted
+            for (int i = 0; i < CombatZones.Length; i++)
+                CombatZones[i].MarkActedCards();
 
             MessageRecieved();
 
@@ -279,19 +285,6 @@ namespace QuivalCombatTestWPF
                 CastSpellButton.Content = "No Actions";
                 SelectedCard = null;
             }
-        }
-
-        private void MarkAllHaveActedCards()
-        {
-            //check block zones
-
-            foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
-                if (bc.HasActed)
-                    bc.MarkAsActed();
-
-            foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
-                if (bc.HasActed)
-                    bc.MarkAsActed();
         }
 
         private bool SummonedCardsCantMove()
@@ -333,20 +326,14 @@ namespace QuivalCombatTestWPF
             HandZone.SetHand(hand);
         }
 
-        public void UpdateCombatZone(List<CreatureCard> playerCreatures, List<CreatureCard> opponentCreatures)
-        {
-            CombatZone.UpdateCombatZone(playerCreatures, Side.Player);
-            CombatZone.UpdateCombatZone(opponentCreatures, Side.Opponent);
-        }
-
         public void UnselectAll()
         {
-            PlayerBlockZone.SetHighlighted(false);
-            OpponentBlockZone.SetHighlighted(false);
-
-            CombatZone.Highlight(false, Side.Player);
-            CombatZone.Highlight(false, Side.Opponent);
-            CombatZone.ClearHighlightedCards();
+            for (int i = 0; i < 2; i++)
+            {
+                BlockZones[i].SetHighlighted(false);
+                CombatZones[i].Highlight(false);
+                CombatZones[i].ClearHighlightedCards();
+            }
 
             HandZone.ClearAllHighlightedCards();
 
@@ -392,7 +379,7 @@ namespace QuivalCombatTestWPF
                 {
                     CombatZone_PlayerZoneClicked(sender, e);
                 }
-                else if (CombatZone.CardIsSummonedByPlayer(card, Side.Player))
+                else if (CombatZones[PlayerSide].CardIsSummonedByPlayer(card))
                 {
                     UnselectAll();
 
@@ -413,7 +400,7 @@ namespace QuivalCombatTestWPF
                 QuivalTurn turn = new()
                 {
                     TurnType = TurnType.MoveToBlock,
-                    CardToPlayId = bc.CardId
+                    CardToPlayId = bc.Id
                 };
 
                 Client.SubmitTurn(turn);
@@ -429,12 +416,12 @@ namespace QuivalCombatTestWPF
         {
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
-                if (CombatZone.CardIsSummonedByPlayer(bc, Side.Player))
+                if (CombatZones[PlayerSide].CardIsSummonedByPlayer(bc))
                 {
                     QuivalTurn turn = new()
                     {
                         TurnType = TurnType.Attack,
-                        CardToPlayId = bc.CardId
+                        CardToPlayId = bc.Id
                     };
 
                     Client.SubmitTurn(turn);
@@ -460,12 +447,12 @@ namespace QuivalCombatTestWPF
 
                 UnselectAll();
 
-                if (CombatZone.GetNumberOfSummonedCards(Side.Player) < MaxSummonedCards)
+                if (CombatZones[PlayerSide].GetNumberOfSummonedCards() < MaxSummonedCards)
                 {
                     card.Overlay.Opacity = 0.4;
                     SelectedCard = card;
 
-                    CombatZone.Highlight(true, Side.Player);
+                    CombatZones[PlayerSide].Highlight(true);
                 }
             }
         }
@@ -493,7 +480,7 @@ namespace QuivalCombatTestWPF
             foreach (var cards in cardsGroup)
                 foreach (var card in cards)
                     if (card is BoardCard boardCard)
-                        if (boardCard != null && boardCard.CardId == cardId)
+                        if (boardCard != null && boardCard.Id == cardId)
                             return boardCard;
 
             List<BoardCard> combatZoneCards = new();

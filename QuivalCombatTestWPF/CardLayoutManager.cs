@@ -1,8 +1,12 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace QuivalCombatTestWPF;
 
+//TODO: This whole class's job is just to calculate the position of the cards that are being summoned for animation purposes.
+//Once it's been calculated once it will probably remain the same.
+//Maybe we should look at precalculating these things.
 internal class CardLayoutManager
 {
     public List<Point[]> CombatZones { get; set; } = new();
@@ -17,43 +21,46 @@ internal class CardLayoutManager
         BlockZones.Add(new Point()); //opponent
     }
 
-    public void FillCombatZonePoints(CombatZone combatZone, Grid battleField)
+    public void FillCombatZonePoints(CombatZone[] combatZones, Grid battleField)
     {
-        Grid[] zones = [combatZone.OpponentCombatZone, combatZone.PlayerCombatZone];
-
         for (int i = 0; i < 2; i++)
         {
-            zones[i].Children.Clear();
-
             for (int y = 0; y < 5; y++)
             {
-                var card = new BoardCard() { CardId = -1, HasActed = true, Side = Side.Player };
-                Grid.SetRow(card, i);
-                Grid.SetColumn(card, y);
-                zones[i].Children.Add(card);
+                var card = BoardCard.GetBlankCard();
+                combatZones[i].SummonSlots[y].ClearCard();
 
-                zones[i].UpdateLayout();
+                combatZones[i].SummonSlots[y].SetCard(card);
+                combatZones[i].UpdateLayout();
 
-                Point point = card.TransformToVisual(battleField).Transform(new Point(0,0));
-                CombatZones[i][y] = point;
+                try
+                {
+                    Point point = card.TransformToVisual(battleField).Transform(new Point(0, 0));
+                    CombatZones[i][y] = point;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
+                }
+
+                combatZones[i].SummonSlots[y].ClearCard();
             }
-
-            zones[i].Children.Clear();
         }
     }
 
-    public void FillBlockZonePoints(BlockZone playerBlockZone, BlockZone opponentBlockZone)
+    public void FillBlockZonePoints(BlockZone[] blockZones, Grid battleField)
     {
         for (int i = 0; i < 2; i++)
         {
-            BlockZone bz = i == 0 ? playerBlockZone : opponentBlockZone;
-            var card = new BoardCard() { CardId = -1, HasActed = true, Side = Side.Player };
-            bz.BlockArea.Children.Clear();
-            bz.BlockArea.Children.Add(card);
-            bz.BlockArea.UpdateLayout();
+            var card = BoardCard.GetBlankCard();
+            blockZones[i].BlockArea.Children.Clear();
+
+            blockZones[i].BlockArea.Children.Add(card);
+            blockZones[i].BlockArea.UpdateLayout();
             Point point = card.TransformToVisual(Window.GetWindow(card)).Transform(new Point(0,0));
             BlockZones[i] = point;
-            bz.BlockArea.Children.Clear();
+
+            blockZones[i].BlockArea.Children.Clear();
         }
     }
 }

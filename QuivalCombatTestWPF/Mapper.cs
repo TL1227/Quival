@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -39,10 +40,12 @@ namespace QuivalCombatTestWPF
         {
             BoardCard bc = new()
             { 
-                CardId = card.Id,
+                Id = card.Id,
                 HasActed = card.HasActed,
                 Side = side,
             };
+
+            Debug.WriteLine($"Mapper: card id {card.Id} has acted is {card.HasActed}");
 
             bc.CardNameLabel.Content = card.Name;
             bc.AttackLabel.Content = card.Attack;
@@ -51,22 +54,6 @@ namespace QuivalCombatTestWPF
 
             if(card.CurrentHealth < card.Health )
                 bc.HealthLabel.Foreground = Brushes.Red;
-
-            return bc;
-        }
-        public static BoardCard MapToBoardCard(HandCard card, Side side)
-        {
-            BoardCard bc = new()
-            {
-                CardId = card.CardId,
-                HasActed = true,
-                Side = side,
-            };
-
-            bc.CardNameLabel.Content = card.Name;
-            bc.AttackLabel.Content = card.AttackLabel.Content;
-            bc.HealthLabel.Content = card.HealthLabel.Content;
-            bc.CardBackground.Background = GetColor(int.Parse(card.AttackLabel.Content.ToString()));
 
             return bc;
         }

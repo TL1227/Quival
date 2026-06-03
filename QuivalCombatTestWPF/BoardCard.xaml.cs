@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -7,8 +8,19 @@ namespace QuivalCombatTestWPF
 {
     public partial class BoardCard : UserControl
     {
-        public required int CardId { get; set; }
-        public required bool HasActed { get; set; }
+        public required int Id { get; set; }
+
+        private bool hasActed;
+        public required bool HasActed 
+        {
+            get => hasActed;
+            set
+            {
+                Debug.WriteLine($"Card {Id} has been set to {value}");
+                hasActed = value;
+            }
+        }
+
         public required Side Side { get; set; }
 
         public static int BlankId = -1;
@@ -184,6 +196,16 @@ namespace QuivalCombatTestWPF
         public void MarkAsInvisible()
         {
             Opacity = 0.0;
+        }
+
+        public static BoardCard GetBlankCard()
+        {
+            return new BoardCard()
+            {
+                Id = -1,
+                HasActed = false,
+                Side = Side.Player
+            };
         }
     }
 }
