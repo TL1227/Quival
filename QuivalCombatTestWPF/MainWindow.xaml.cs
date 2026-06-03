@@ -1,13 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.Turns;
-using QuivalServer;
 
 namespace QuivalCombatTestWPF
 {
@@ -30,7 +27,12 @@ namespace QuivalCombatTestWPF
 
         int MaxSummonedCards = 5;
 
+        private CombatZone[] CombatZones { get; set; }
+
         public int? MyPlayerId { get; set; } = null;
+
+        public int PlayerSide = (int)Side.Player;
+        public int OpponentSide = (int)Side.Opponent;
 
         public MainWindow()
         {
@@ -43,8 +45,8 @@ namespace QuivalCombatTestWPF
             OpponentBlockZone.Side = Side.Opponent;
 
             HandZone.CardClicked += HandZone_CardClicked;
-            CombatZone.CardClicked += CombatZone_CardClicked;
-            CombatZone.PlayerZoneClicked += CombatZone_PlayerZoneClicked;
+            PlayerCombatZone.CardClicked += CombatZone_CardClicked;
+            PlayerCombatZone.PlayerZoneClicked += CombatZone_PlayerZoneClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
@@ -54,9 +56,11 @@ namespace QuivalCombatTestWPF
             BattleField.Loaded += (s, e) =>
             {
                 CardLayoutManager = new();
-                CardLayoutManager.FillCombatZonePoints(CombatZone, BattleField);
+                CardLayoutManager.FillCombatZonePoints(PlayerCombatZone, BattleField);
                 CardLayoutManager.FillBlockZonePoints(PlayerBlockZone, OpponentBlockZone);
             };
+
+            CombatZones = [PlayerCombatZone, OpponentCombatZone];
         }
 
         #region StateUpdates
@@ -94,7 +98,7 @@ namespace QuivalCombatTestWPF
             var playerBlockSwap = blockSwapEvents.Where(b => b.PlayerId == MyPlayerId).ToList();
             foreach (var swap in playerBlockSwap)
             {
-                var creature = CombatZone.GetBoardCard(swap.CreatureId);
+                var creature = CombatZones[(int)Side.Opponent].GetBoardCard(swap.CreatureId);
                 var oldCreature = PlayerBlockZone.GetCardFromBlockZone();
 
                 if (creature != null && oldCreature != null)
@@ -110,7 +114,7 @@ namespace QuivalCombatTestWPF
             var opponentBlockSwap = blockSwapEvents.Where(b => b.PlayerId != MyPlayerId).ToList();
             foreach (var swap in opponentBlockSwap)
             {
-                var creature = CombatZone.GetBoardCard(swap.CreatureId);
+                var creature = CombatZones[(int)Side.Opponent].GetBoardCard(swap.CreatureId);
                 var oldCreature = OpponentBlockZone.GetCardFromBlockZone();
 
                 if (creature != null && oldCreature != null)
@@ -129,13 +133,12 @@ namespace QuivalCombatTestWPF
 
             foreach (var eve in blockEvents)
             {
-                foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
-                    if (bc.CardId == eve.CreatureId)
-                        blockingCards[0].Add(bc);
-
-                foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
-                    if (bc.CardId == eve.CreatureId)
-                        blockingCards[1].Add(bc);
+                for (int i = 0; i < CombatZones.Length; i++)
+                {
+                    foreach (var slot in CombatZones[i].SummonSlots)
+                        if (slot.Children[0] is BoardCard bc && bc.CardId  == eve.CreatureId)
+                            blockingCards[i].Add(bc);
+                }
             }
 
             for (int i = 0; i < blockingCards.Count; i++)
@@ -154,13 +157,12 @@ namespace QuivalCombatTestWPF
 
             foreach (var eve in attackEvents)
             {
-                foreach (BoardCard bc in CombatZone.PlayerCombatZone.Children)
-                    if (bc.CardId == eve.CreatureId)
-                        attackingCards[0].Add(bc);
-
-                foreach (BoardCard bc in CombatZone.OpponentCombatZone.Children)
-                    if (bc.CardId == eve.CreatureId)
-                        attackingCards[1].Add(bc);
+                for (int i = 0; i < CombatZones.Length; i++)
+                {
+                    foreach (var slot in CombatZones[i].SummonSlots)
+                        if (slot.Children[0] is BoardCard bc && bc.CardId  == eve.CreatureId)
+                            attackingCards[i].Add(bc);
+                }
             }
 
             for (int i = 0; i < attackingCards.Count; i++)
@@ -218,8 +220,8 @@ namespace QuivalCombatTestWPF
         {
             var gs = CurrentGameState;
 
-            CombatZone.UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id], Side.Player);
-            CombatZone.UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId], Side.Opponent);
+            CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id]);
+            CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId]);
 
             PlayerResources.HealthPoints.Content = gs.PlayerState.HealthPoints;
             OpponentResources.HealthPoints.Content = gs.OpponentHealthPoints;
@@ -485,8 +487,6 @@ namespace QuivalCombatTestWPF
             [
                 PlayerBlockZone.BlockArea.Children,
                 OpponentBlockZone.BlockArea.Children,
-                CombatZone.PlayerCombatZone.Children,
-                CombatZone.OpponentCombatZone.Children,
                 PlayerSummonZone.Children
             ];
 
@@ -495,6 +495,11 @@ namespace QuivalCombatTestWPF
                     if (card is BoardCard boardCard)
                         if (boardCard != null && boardCard.CardId == cardId)
                             return boardCard;
+
+            List<BoardCard> combatZoneCards = new();
+            combatZoneCards.AddRange(PlayerCombatZone.GetBoardCards());
+            combatZoneCards.AddRange(OpponentCombatZone.GetBoardCards());
+
 
             return null;
         }
