@@ -21,8 +21,6 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        public required Side Side { get; set; }
-
         public static int BlankId = -1;
 
         public BoardCard()
@@ -31,12 +29,12 @@ namespace QuivalCombatTestWPF
         }
 
         #region Animation
-        public Task AnimateAttack(Visual visual, Visual blockarea)
+        public Task AnimateAttack(Visual visual, Visual destination)
         {
             RemoveHighlight();
 
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
-            Point end = blockarea.TransformToVisual(visual).Transform(new Point(0, 0));
+            Point end = destination.TransformToVisual(visual).Transform(new Point(0, 0));
 
             double deltaX = end.X - start.X;
             double deltaY = end.Y - start.Y;
@@ -58,14 +56,12 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
-        public Task AnimateMoveToBlockZone(Visual visual, Visual opponentsBZ, Visual playersBZ)
+        public Task AnimateMoveToBlockZone(Visual visual, Visual destination)
         {
             RemoveHighlight();
 
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
-
-            Point end = (Side == Side.Opponent) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
-                : playersBZ.TransformToVisual(visual).Transform(new Point(0, 0));
+            Point end = destination.TransformToVisual(visual).Transform(new Point(0, 0));
 
             double deltaX = end.X - start.X;
             double deltaY = end.Y - start.Y;
@@ -87,14 +83,13 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
-        public Task AnimateReturnFromBlockZone(Visual visual, Visual opponentsBZ, Visual playersBZ, Point endPoint)
+        public Task AnimateReturnFromBlockZone(Visual visual, Visual blockArea, Point endPoint)
         {
             RemoveHighlight();
-            Panel.SetZIndex(this, 9999);
 
-            Point start = (Side == Side.Opponent) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
-                : playersBZ.TransformToVisual(visual).Transform(new Point(0, 0));
+            Panel.SetZIndex(this, 9999); //TODO: test if this is needed
 
+            Point start = blockArea.TransformToVisual(visual).Transform(new Point(0, 0));
             Point end = endPoint;
 
             double deltaX = end.X - start.X;
@@ -124,6 +119,8 @@ namespace QuivalCombatTestWPF
         {
             RemoveHighlight();
 
+            Panel.SetZIndex(this, 9999); //TODO: test if this is needed
+
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
 
             double deltaX = end.X - start.X;
@@ -138,7 +135,13 @@ namespace QuivalCombatTestWPF
             yAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
 
             TaskCompletionSource tsc = new();
-            yAnim.Completed += (_, _) => tsc.SetResult();
+            yAnim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+
+                Point finalPos = TransformToVisual(visual)
+                        .Transform(new Point(0, 0));
+            };
 
             transform.BeginAnimation(TranslateTransform.XProperty, xAnim);
             transform.BeginAnimation(TranslateTransform.YProperty, yAnim);
@@ -202,7 +205,6 @@ namespace QuivalCombatTestWPF
             {
                 Id = -1,
                 HasActed = false,
-                Side = Side.Player
             };
         }
     }

@@ -37,6 +37,9 @@ namespace QuivalCombatTestWPF
             SlotGrid.Children.Add(bc);
         }
 
+        public bool CardIs(int cardId) => Card != null && Card.Id == cardId;
+        public bool CardIs(BoardCard card) => Card != null && Card == card;
+
         private void BoardCard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             SlotCardClickedOn?.Invoke(sender, new EventArgs());

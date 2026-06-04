@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using QuivalCombatTestWPF.Colours;
+﻿using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.Turns;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace QuivalCombatTestWPF
 {
@@ -22,14 +23,13 @@ namespace QuivalCombatTestWPF
         Control? SelectedCard { get; set; }
         private ClientGameState CurrentGameState { get; set; }
 
-        private CardLayoutManager CardLayoutManager { get; set; }
-
         private Animator Animator { get; set; } 
 
         int MaxSummonedCards = 5;
 
         private CombatZone[] CombatZones { get; set; }
         private BlockZone[] BlockZones { get; set; }
+        private Grid[] SummonZones { get; set; }
 
         public int? MyPlayerId { get; set; } = null;
 
@@ -52,19 +52,15 @@ namespace QuivalCombatTestWPF
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
+            EndTurnButton.Click += EndTurnButton_Click;
 
             Animator = new(AnimationCanvas);
 
             CombatZones = [PlayerCombatZone, OpponentCombatZone];
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
-
-            BattleField.Loaded += (s, e) =>
-            {
-                CardLayoutManager = new();
-                CardLayoutManager.FillCombatZonePoints(CombatZones, BattleField);
-                CardLayoutManager.FillBlockZonePoints(BlockZones, BattleField);
-            };
+            SummonZones = [PlayerSummonZone, OpponentSummonZone];
         }
+
 
         #region StateUpdates
 
@@ -97,77 +93,72 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayBlockSwapAnimations(List<BlockSwapEvent> blockSwapEvents)
         {
-            List<Task> tasks = new();
-            var playerBlockSwap = blockSwapEvents.Where(b => b.PlayerId == MyPlayerId).ToList();
-            foreach (var swap in playerBlockSwap)
-            {
-                var creature = CombatZones[PlayerSide].GetBoardCard(swap.CreatureId);
-                var oldCreature = PlayerBlockZone.GetCardFromBlockZone();
+            List<List<BlockSwapEvent>> events = [
+                blockSwapEvents.Where(e => e.PlayerId == MyPlayerId).ToList(),
+                blockSwapEvents.Where(e => e.PlayerId != MyPlayerId).ToList()
+            ];
 
-                if (creature != null && oldCreature != null)
+            for (int i = 0; i < events.Count; i++)
+            {
+                foreach (var blockSwapEvent in events[i])
                 {
-                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
-                    Point end = creature.TransformToVisual(BattleField).Transform(new Point(0, 0));
-                    tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, end));
+                    var newCreature = CombatZones[i].GetBoardCard(blockSwapEvent.CreatureId);
+                    var oldCreature = BlockZones[i].GetCardFromBlockZone();
+
+                    if (newCreature != null && oldCreature != null)
+                    {
+                        List<Task> tasks = new();
+
+                        tasks.Add(newCreature.AnimateMoveToBlockZone(BattleField, BlockZones[i].BlockArea));
+                        Point newCreaturePoint = newCreature.TransformToVisual(BattleField).Transform(new Point(0, 0));
+                        tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, BlockZones[i].BlockArea, newCreaturePoint));
+
+                        await Task.WhenAll(tasks);
+                    }
                 }
             }
-            await Task.WhenAll(tasks);
-
-            tasks.Clear();
-            var opponentBlockSwap = blockSwapEvents.Where(b => b.PlayerId != MyPlayerId).ToList();
-            foreach (var swap in opponentBlockSwap)
-            {
-                var creature = CombatZones[OpponentSide].GetBoardCard(swap.CreatureId);
-                var oldCreature = OpponentBlockZone.GetCardFromBlockZone();
-
-                if (creature != null && oldCreature != null)
-                {
-                    tasks.Add(creature.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea));
-                    Point end = creature.TransformToVisual(BattleField).Transform(new Point(0, 0));
-                    tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea, end));
-                }
-            }
-            await Task.WhenAll(tasks);
         }
 
         private async Task PlayBlockAnimations(List<MoveToBlockZoneEvent> blockEvents)
         {
-            List<List<BoardCard>> blockingCards = [new List<BoardCard>(), new List<BoardCard>()];
+            List<List<MoveToBlockZoneEvent>> events = [
+                blockEvents.Where(e => e.PlayerId == MyPlayerId).ToList(),
+                blockEvents.Where(e => e.PlayerId != MyPlayerId).ToList()
+            ];
 
-            foreach (var eve in blockEvents)
+            for (int i = 0; i < events.Count; i++)
             {
-                for (int i = 0; i < CombatZones.Length; i++)
+                foreach (var blockEvent in events[i])
                 {
                     foreach (var slot in CombatZones[i].SummonSlots)
-                        if (slot.Card != null && slot.Card.Id == eve.CreatureId)
-                            blockingCards[i].Add(slot.Card);
-                }
-            }
-
-            for (int i = 0; i < blockingCards.Count; i++)
-            {
-                foreach (var block in blockingCards[i])
-                {
-                    await block.AnimateMoveToBlockZone(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
+                    {
+                        if (slot.CardIs(blockEvent.CreatureId))
+                        {
+                            await slot.Card!.AnimateMoveToBlockZone(BattleField, BlockZones[i].BlockArea);
+                        }
+                    }
                 }
             }
         }
 
         private async Task PlayAttackAnimations(List<AttackEvent> attackEvents)
         {
-            //ATTACK ANIMATION
-            List<BoardCard> attackingCards = new();
+            List<List<AttackEvent>> events = [
+                attackEvents.Where(e => e.PlayerId == MyPlayerId).ToList(),
+                attackEvents.Where(e => e.PlayerId != MyPlayerId).ToList()
+            ];
 
-            foreach (var attackEvent in attackEvents)
+            for (int i = 0; i < events.Count; i++)
             {
-                for (int i = 0; i < CombatZones.Length; i++)
+                foreach (var eve in events[i])
                 {
                     foreach (var slot in CombatZones[i].SummonSlots)
-                        if (slot.Card != null && slot.Card.Id == attackEvent.CreatureId)
+                    {
+                        if (slot.CardIs(eve.CreatureId))
                         {
-                            int side = i == PlayerSide ? OpponentSide : PlayerSide;
-                            await slot.Card.AnimateAttack(BattleField, BlockZones[side].BlockArea);
+                            await slot.Card!.AnimateAttack(BattleField, BlockZones[OppositeSide(i)].BlockArea);
                         }
+                    }
                 }
             }
         }
@@ -175,12 +166,20 @@ namespace QuivalCombatTestWPF
         private async Task PlayDeathAnimations(List<CreatureDeathEvent> deathEvents)
         {
             List<Task> tasks = new();
+
             foreach (var eve in deathEvents)
             {
                 var card = GetBoardCard(eve.CreatureId);
 
                 if (card != null)
+                {
+                    Debug.WriteLine("Animating Death!");
                     tasks.Add(card.AnimateDeath());
+                }
+                else
+                {
+                    Debug.WriteLine("Card not found. Can't animate!");
+                }
             }
 
             await Task.WhenAll(tasks);
@@ -188,31 +187,63 @@ namespace QuivalCombatTestWPF
 
         private async Task PlaySummonAnimations(List<SummonEvent> summonEvents)
         {
+            //TODO: refactor this like I have the other animations
+            //currently this is a pain due to the BoardState id order not matching the player/opponent order
+            //come back to this when you haven't been working on this all day
+
             List<Task> tasks = new();
 
-            List<BoardCard> bcs = new();
-            foreach (var eve in summonEvents)
+            foreach (var se in summonEvents.Where(e => e.PlayerId == MyPlayerId).ToList())
             {
-                var bc = GetBoardCard(eve.CreatureId);
-
-                if (bc != null)
+                BoardCard? cardToSummon = null;
+                foreach (CreatureCard card in CurrentGameState.BoardState.SummonedCreatures[(int)MyPlayerId]) 
                 {
-                    //Summon test
-                    bc.Visibility = Visibility.Visible;
-                    Side side = eve.PlayerId == MyPlayerId ? Side.Player : Side.Opponent;
-                    var end = CardLayoutManager.CombatZones[(int)side][0];
-                    tasks.Add(bc.AnimateSummon(end, BattleField));
-                    bcs.Add(bc);
+                    if (card.Id == se.CreatureId)
+                        cardToSummon = Mapper.MapToBoardCard(card);
+                }
+
+                if (cardToSummon != null)
+                {
+                    PlayerSummonZone.Children.Add(cardToSummon);
+                    PlayerSummonZone.UpdateLayout();
+
+                    Point end = CombatZones[PlayerSide].GetNextFreeSummonSlotGrid()!
+                        .TransformToVisual(BattleField)
+                        .Transform(new Point(0, 0));
+
+                    tasks.Add(cardToSummon.AnimateSummon(end, BattleField));
+                }
+            }
+            await Task.WhenAll(tasks);
+            tasks.Clear();
+
+            foreach (var se in summonEvents.Where(e => e.PlayerId != MyPlayerId).ToList())
+            {
+                BoardCard? cardToSummon = null;
+                foreach (CreatureCard card in CurrentGameState.BoardState.SummonedCreatures[OppositeSide((int)MyPlayerId)]) 
+                {
+                    if (card.Id == se.CreatureId)
+                        cardToSummon = Mapper.MapToBoardCard(card);
+                }
+
+                if (cardToSummon != null)
+                {
+                    OpponentSummonZone.Children.Add(cardToSummon);
+                    OpponentSummonZone.UpdateLayout();
+
+                    Point end = CombatZones[OpponentSide].GetNextFreeSummonSlotGrid()!
+                        .TransformToVisual(BattleField)
+                        .Transform(new Point(0, 0));
+
+                    tasks.Add(cardToSummon.AnimateSummon(end, BattleField));
                 }
             }
 
             await Task.WhenAll(tasks);
 
-            foreach (var b in bcs)
-            {
-                PlayerSummonZone.Children.Remove(b);
-            }
         }
+
+        public int OppositeSide(int i) => i == PlayerSide ? OpponentSide : PlayerSide;
 
         public void UpdateUIFromGameState()
         {
@@ -228,22 +259,18 @@ namespace QuivalCombatTestWPF
             PlayerResources.ManaPoints.Content = gs.PlayerState.ManaPoints;
             OpponentResources.ManaPoints.Content = gs.OpponentManaPoints;
 
-            if (gs.OpponentBlockCard == null)
-            {
-                OpponentBlockZone.RemoveCardFromBlockZone();
-            }
-            else if (gs.OpponentBlockCard is CreatureCard opponentBlocker)
-            {
-                OpponentBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(opponentBlocker, OpponentBlockZone.Side));
-            }
+            Card?[] blockingCreatures = [ gs.PlayerState.BlockingCreature, gs.OpponentBlockCard ];
 
-            if (gs.PlayerState.BlockingCreature == null)
+            for (int i = 0; i < 2; i++)
             {
-                PlayerBlockZone.RemoveCardFromBlockZone();
-            }
-            else if (gs.PlayerState.BlockingCreature is CreatureCard playerBlocker)
-            {
-                PlayerBlockZone.AddCardToBlockZone(Mapper.MapToBoardCard(playerBlocker, PlayerBlockZone.Side));
+                if (blockingCreatures[i] == null)
+                {
+                    BlockZones[i].RemoveCardFromBlockZone();
+                }
+                else if (blockingCreatures[i] is CreatureCard cc)
+                {
+                    BlockZones[i].AddCardToBlockZone(Mapper.MapToBoardCard(cc));
+                }
             }
 
             UpdateHand(gs.PlayerState.Hand);
@@ -280,6 +307,10 @@ namespace QuivalCombatTestWPF
                 CastSpellButton.Content = "No Actions";
                 SelectedCard = null;
             }
+
+            //TODO: both sides
+            PlayerSummonZone.Children.Clear();
+            OpponentSummonZone.Children.Clear();
         }
 
         private bool SummonedCardsCantMove()
@@ -346,6 +377,19 @@ namespace QuivalCombatTestWPF
         private void ClickBlocker_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
+        }
+
+        private void EndTurnButton_Click(object sender, RoutedEventArgs e)
+        {
+            QuivalTurn turn = new()
+            {
+                TurnType = TurnType.EndTurn
+            };
+
+            Client.SubmitTurn(turn);
+
+            CastSpellButton.Content = "Cast";
+            SelectedCard = null;
         }
 
         private void CombatZone_PlayerZoneClicked(object? sender, EventArgs e)
@@ -482,6 +526,9 @@ namespace QuivalCombatTestWPF
             combatZoneCards.AddRange(PlayerCombatZone.GetBoardCards());
             combatZoneCards.AddRange(OpponentCombatZone.GetBoardCards());
 
+            foreach (var card in combatZoneCards)
+                        if (card != null && card.Id == cardId)
+                            return card;
 
             return null;
         }

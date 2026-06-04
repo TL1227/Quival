@@ -24,10 +24,6 @@ namespace QuivalCombatTestWPF
                     handcard.AttackLabel.Content = cc.Attack;
                     handcard.HealthLabel.Content = cc.Health;
                     handcard.CardBackground.Background = GetColor(cc.Attack);
-
-                    var boardCard = MapToBoardCard(cc, Side.Player);
-                    playerSummonZone.Children.Add(boardCard);
-                    boardCard.Visibility = Visibility.Hidden;
                 }
 
                 result.Add(handcard);
@@ -36,13 +32,12 @@ namespace QuivalCombatTestWPF
             return result;
         }
 
-        public static BoardCard MapToBoardCard(CreatureCard card, Side side)
+        public static BoardCard MapToBoardCard(CreatureCard card)
         {
             BoardCard bc = new()
             { 
                 Id = card.Id,
                 HasActed = card.HasActed,
-                Side = side,
             };
 
             Debug.WriteLine($"Mapper: card id {card.Id} has acted is {card.HasActed}");

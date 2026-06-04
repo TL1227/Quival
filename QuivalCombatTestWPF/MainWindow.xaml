@@ -25,9 +25,10 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="GameEventLog" Grid.Row="2" TextWrapping="WrapWithOverflow"/>
+            <TextBlock x:Name="GameEventLog" Grid.Column="1" TextWrapping="WrapWithOverflow"/>
 
             <local:PlayerResource x:Name="OpponentResources"/>
+            <Grid x:Name="OpponentSummonZone" Grid.Column="1" Grid.RowSpan="2"></Grid>
 
             <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
 
@@ -52,10 +53,17 @@
             Grid.Row="4" Grid.Column="2" 
             FontSize="20"
             Background="CornflowerBlue"
-            Foreground="DarkBlue"
-            >
-            </Button>
+            Foreground="DarkBlue"/>
 
+            <Button 
+            x:Name="EndTurnButton" 
+            Margin="5"
+            Width="110" Height="40"
+            Grid.Row="5" Grid.Column="2" 
+            FontSize="20"
+            Background="Coral"
+            Foreground="DarkRed"
+            Content="End Turn"/>
 
             <Canvas x:Name="ClickBlocker" 
                 Grid.Column="1" 

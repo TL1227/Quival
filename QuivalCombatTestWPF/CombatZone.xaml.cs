@@ -70,7 +70,7 @@ public partial class CombatZone : UserControl
                 var slot = GetSlotFromCardId(newCard.Id);
                 if (slot != null)
                 {
-                    slot.SetCard(Mapper.MapToBoardCard(newCard, Side.Player));
+                    slot.SetCard(Mapper.MapToBoardCard(newCard));
                 }
             }
             else
@@ -80,7 +80,7 @@ public partial class CombatZone : UserControl
                 {
                     if (slot.Card == null)
                     {
-                        slot.SetCard(Mapper.MapToBoardCard(newCard, Side));
+                        slot.SetCard(Mapper.MapToBoardCard(newCard));
                         break;
                     }
                 }
@@ -163,6 +163,32 @@ public partial class CombatZone : UserControl
     {
         List<BoardCard> list = SummonSlots.Where(s => s.Card != null).Select(c => c.Card).ToList()!;
         return list;
+    }
+
+    public int GetNextFreeSummonSlotIndex()
+    {
+        for (int i = 0; i < SummonSlots.Length; i++)
+        {
+            if (SummonSlots[i].Card == null) 
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public Grid? GetNextFreeSummonSlotGrid()
+    {
+        for (int i = 0; i < SummonSlots.Length; i++)
+        {
+            if (SummonSlots[i].Card == null) 
+            {
+                return SummonSlots[i].SlotGrid;
+            }
+        }
+
+        return null;
     }
 
     private void HandleClick(object obj, MouseButtonEventArgs args)
