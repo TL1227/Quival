@@ -5,6 +5,8 @@ namespace QuivalCombatTestWPF
 {
     public partial class SummonSlot : UserControl
     {
+        public event EventHandler SlotCardClickedOn;
+
         public BoardCard? Card
         {
             get
@@ -30,8 +32,14 @@ namespace QuivalCombatTestWPF
 
         public void SetCard(BoardCard bc)
         {
+            bc.MouseLeftButtonDown += BoardCard_MouseLeftButtonDown;
             SlotGrid.Children.Clear();
             SlotGrid.Children.Add(bc);
+        }
+
+        private void BoardCard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            SlotCardClickedOn?.Invoke(sender, new EventArgs());
         }
     }
 }

@@ -29,8 +29,13 @@ public partial class CombatZone : UserControl
 
         foreach (var slot in SummonSlots)
         {
-            slot.MouseLeftButtonDown += HandleClick;
+            slot.SlotCardClickedOn += Slot_SlotCardClickedOn;
         }
+    }
+
+    private void Slot_SlotCardClickedOn(object? sender, EventArgs e)
+    {
+        CardClicked?.Invoke(sender, e);
     }
 
     public void Highlight(bool highlight)
