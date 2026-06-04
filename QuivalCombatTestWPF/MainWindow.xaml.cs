@@ -101,7 +101,7 @@ namespace QuivalCombatTestWPF
             var playerBlockSwap = blockSwapEvents.Where(b => b.PlayerId == MyPlayerId).ToList();
             foreach (var swap in playerBlockSwap)
             {
-                var creature = CombatZones[(int)Side.Opponent].GetBoardCard(swap.CreatureId);
+                var creature = CombatZones[PlayerSide].GetBoardCard(swap.CreatureId);
                 var oldCreature = PlayerBlockZone.GetCardFromBlockZone();
 
                 if (creature != null && oldCreature != null)
@@ -117,7 +117,7 @@ namespace QuivalCombatTestWPF
             var opponentBlockSwap = blockSwapEvents.Where(b => b.PlayerId != MyPlayerId).ToList();
             foreach (var swap in opponentBlockSwap)
             {
-                var creature = CombatZones[(int)Side.Opponent].GetBoardCard(swap.CreatureId);
+                var creature = CombatZones[OpponentSide].GetBoardCard(swap.CreatureId);
                 var oldCreature = OpponentBlockZone.GetCardFromBlockZone();
 
                 if (creature != null && oldCreature != null)
@@ -156,23 +156,18 @@ namespace QuivalCombatTestWPF
         private async Task PlayAttackAnimations(List<AttackEvent> attackEvents)
         {
             //ATTACK ANIMATION
-            List<List<BoardCard>> attackingCards = [new List<BoardCard>(), new List<BoardCard>()];
+            List<BoardCard> attackingCards = new();
 
-            foreach (var eve in attackEvents)
+            foreach (var attackEvent in attackEvents)
             {
                 for (int i = 0; i < CombatZones.Length; i++)
                 {
                     foreach (var slot in CombatZones[i].SummonSlots)
-                        if (slot.Card != null && slot.Card.Id == eve.CreatureId)
-                            attackingCards[i].Add(slot.Card);
-                }
-            }
-
-            for (int i = 0; i < attackingCards.Count; i++)
-            {
-                foreach (var attack in attackingCards[i])
-                {
-                    await attack.AnimateAttack(BattleField, OpponentBlockZone.BlockArea, PlayerBlockZone.BlockArea);
+                        if (slot.Card != null && slot.Card.Id == attackEvent.CreatureId)
+                        {
+                            int side = i == PlayerSide ? OpponentSide : PlayerSide;
+                            await slot.Card.AnimateAttack(BattleField, BlockZones[side].BlockArea);
+                        }
                 }
             }
         }

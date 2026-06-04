@@ -31,14 +31,12 @@ namespace QuivalCombatTestWPF
         }
 
         #region Animation
-        public Task AnimateAttack(Visual visual, Visual opponentsBZ, Visual playersBZ)
+        public Task AnimateAttack(Visual visual, Visual blockarea)
         {
             RemoveHighlight();
 
             Point start = TransformToVisual(visual).Transform(new Point(0, 0));
-
-            Point end = (Side == Side.Player) ? opponentsBZ.TransformToVisual(visual).Transform(new Point(0, 0))
-                : playersBZ.TransformToVisual(visual).Transform(new Point(0, 0));
+            Point end = blockarea.TransformToVisual(visual).Transform(new Point(0, 0));
 
             double deltaX = end.X - start.X;
             double deltaY = end.Y - start.Y;
