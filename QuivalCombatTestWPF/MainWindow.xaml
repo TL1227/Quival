@@ -72,8 +72,7 @@
                 IsHitTestVisible="false"/>
         </Grid>
         <Canvas x:Name="AnimationCanvas" 
-        Background="Transparent" 
-        IsHitTestVisible="False" 
-        Panel.ZIndex="9999"/>
+        Background="White" 
+        IsHitTestVisible="False"/>
     </Grid>
 </Window>

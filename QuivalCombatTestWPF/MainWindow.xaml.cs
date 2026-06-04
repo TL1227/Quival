@@ -59,6 +59,25 @@ namespace QuivalCombatTestWPF
             CombatZones = [PlayerCombatZone, OpponentCombatZone];
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
+
+
+            AnimationCanvas.Loaded += AnimationCanvas_Loaded;
+        }
+
+        private void AnimationCanvas_Loaded(object sender, RoutedEventArgs e)
+        {
+            double wid = AnimationCanvas.ActualWidth;
+
+            for (double i = 0.2; i <= 1; i+= 0.2)
+            {
+                BoardCard bc = new() { HasActed = false, Id = -1 };
+                AnimationCanvas.Children.Add(bc);
+                bc.UpdateLayout();
+                Debug.WriteLine($"card width {bc.ActualWidth}");
+                double pos = wid * i - (bc.ActualWidth / 2);
+                Debug.WriteLine(pos);
+                Canvas.SetLeft(bc, pos);
+            }
         }
 
 
