@@ -10,16 +10,7 @@ namespace QuivalCombatTestWPF
     {
         public required int Id { get; set; }
 
-        private bool hasActed;
-        public required bool HasActed 
-        {
-            get => hasActed;
-            set
-            {
-                Debug.WriteLine($"Card {Id} has been set to {value}");
-                hasActed = value;
-            }
-        }
+        public required bool HasActed { get; set; }
 
         public static int BlankId = -1;
 
