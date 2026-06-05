@@ -73,6 +73,6 @@
         </Grid>
         <Canvas x:Name="AnimationCanvas" 
         Background="White" 
-        IsHitTestVisible="False"/>
+        IsHitTestVisible="True"/>
     </Grid>
 </Window>
