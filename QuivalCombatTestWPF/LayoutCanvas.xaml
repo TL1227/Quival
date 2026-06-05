@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas x:Name="Canvas"
-            Background="Transparent">
+    <Canvas x:Name="Canvas">
     </Canvas>
 
 </UserControl>

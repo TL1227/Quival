@@ -8,7 +8,7 @@ namespace QuivalCombatTestWPF
 {
     internal static class Mapper
     {
-        public static List<HandCard> MapToHandCards(List<Card> cards, Grid playerSummonZone)
+        public static List<HandCard> MapToHandCards(List<Card> cards)
         {
             List<HandCard> result = new();
 
@@ -30,6 +30,23 @@ namespace QuivalCombatTestWPF
             }
 
             return result;
+        }
+
+        public static HandCard MapToHandCard(Card card)
+        {
+            HandCard handcard = new(card.Id);
+            handcard.CardNameLabel.Content = card.Name;
+            handcard.CardDescriptionLabel.Text = card.Description;
+            handcard.CostContent.Content = card.Cost;
+
+            if (card is CreatureCard cc)
+            {
+                handcard.AttackLabel.Content = cc.Attack;
+                handcard.HealthLabel.Content = cc.Health;
+                handcard.CardBackground.Background = GetColor(cc.Attack);
+            }
+
+            return handcard;
         }
 
         public static BoardCard MapToBoardCard(CreatureCard card)

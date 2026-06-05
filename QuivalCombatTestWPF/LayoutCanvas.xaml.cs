@@ -1,5 +1,6 @@
 ﻿using QuivalLogicEngine.Cards;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
@@ -25,7 +26,7 @@ namespace QuivalCombatTestWPF
             //card slots layout
             SummonSlotPadding = 100;
             CenterWidth = Canvas.ActualWidth / 2;
-            SummonSlotsWidth = (BoardCard.DefaultWidth * 5)  + (SummonSlotPadding * 4); //NOTE it's 4 paddings because there are 4 gaps between the 5 cards
+            SummonSlotsWidth = (BoardCard.DefaultWidth * 5) + (SummonSlotPadding * 4); //NOTE it's 4 paddings because there are 4 gaps between the 5 cards
             SummonSlotsCenter = SummonSlotsWidth / 2;
             SummonSlotsStartLeft = CenterWidth - SummonSlotsCenter;
 
@@ -54,55 +55,57 @@ namespace QuivalCombatTestWPF
                 HandSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + 20) * i);
                 HandSlots[i].Top = Canvas.ActualHeight - HandCard.DefaultHeight - 10;
             }
+        }
 
-            /*
-            List<BoardCard> cards = new();
-            foreach (var slot in summonSlots)
+        public Task MoveToPoint(BoardCard boardCard, Position start, Position end)
+        {
+            double animationSpeed = 0.6;
+
+            DoubleAnimation yAnim = new()
             {
-                BoardCard bc = new() { HasActed = false, Id = -1 };
-                AnimationCanvas.Children.Add(bc);
-                Canvas.SetTop(bc, 500);
-                Canvas.SetLeft(bc, centerScreen - 90);
-                cards.Add(bc);
-            }
-            */
+                From = start.Top,
+                To = end.Top,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn }
+            };
 
-            /*
-            for (int i = 0; i < cards.Count; i++)
+            DoubleAnimation xAnim = new()
             {
-                long animationSpeed = 2;
-                DoubleAnimation yAnim = new()
+                From = start.Left,
+                To = end.Left,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = EasingMode.EaseIn },
+            };
+
+            TaskCompletionSource tsc = new();
+            xAnim.Completed += (_, _) =>
+            {
+                boardCard.SetPos(end);
+                tsc.SetResult();
+            };
+
+            boardCard.BeginAnimation(Canvas.LeftProperty, xAnim);
+            boardCard.BeginAnimation(Canvas.TopProperty, yAnim);
+
+            return tsc.Task;
+        }
+
+        public void ClearHand()
+        {
+            List<HandCard> handCards = new();
+            foreach (var card in Canvas.Children)
+            {
+                if (card is HandCard hc)
                 {
-                    From = Canvas.GetTop(cards[i]),
-                    To = summonSlots[i].Top,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
-                    AutoReverse = true
-                };
-
-                yAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
-
-                yAnim.Completed += (_, _) =>
-                {
-                };
-
-                DoubleAnimation xAnim = new()
-                {
-                    From = Canvas.GetLeft(cards[i]),
-                    To = summonSlots[i].Left,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
-                    AutoReverse = true
-                };
-
-                xAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
-
-                xAnim.Completed += (_, _) =>
-                {
-                };
-
-                cards[i].BeginAnimation(Canvas.LeftProperty, xAnim);
-                cards[i].BeginAnimation(Canvas.TopProperty, yAnim);
+                    handCards.Add(hc);
+                }
             }
-            */
+
+            foreach (var card in handCards)
+            {
+                Canvas.Children.Remove(card);
+            }
         }
     }
+
 }

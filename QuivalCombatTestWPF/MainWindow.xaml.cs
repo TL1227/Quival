@@ -48,12 +48,6 @@ namespace QuivalCombatTestWPF
         {
             InitializeComponent();
 
-
-            /*
-            Client = new QuivalClient(this);
-            Client.ConnectToServer();
-            */
-
             PlayerBlockZone.Side = Side.Player;
             OpponentBlockZone.Side = Side.Opponent;
 
@@ -69,37 +63,16 @@ namespace QuivalCombatTestWPF
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
 
-            Layout.Canvas.Loaded += AnimationCanvas_Loaded;
-        }
-
-
-        private void AnimationCanvas_Loaded(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < 5; i++)
+            // wait for the canvas to be loaded before trying to connect to the
+            // server
+            Layout.Loaded += (_, _) =>
             {
-                BoardCard meCard = new() { HasActed = false, Id = -1 };
-                meCard.MouseLeftButtonDown += CombatZone_PlayerZoneClicked;
-                meCard.SetPos(Layout.PlayerSummonSlots[i]);
-                Layout.Canvas.Children.Add(meCard);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                BoardCard meCard = new() { HasActed = false, Id = -1 };
-                meCard.SetPos(Layout.OpponentSummonSlots[i]);
-                Layout.Canvas.Children.Add(meCard);
-            }
-
-            for (int i = 0; i < 7; i++)
-            {
-                HandCard meCard = new(-1);
-                meCard.SetPos(Layout.HandSlots[i]);
-                Layout.Canvas.Children.Add(meCard);
-            }
+                Client = new QuivalClient(this);
+                Client.ConnectToServer();
+            };
         }
 
         #region StateUpdates
-
         public async void UpdateGameState(ClientGameState cgs)
         {
             CurrentGameState = cgs;
@@ -240,16 +213,27 @@ namespace QuivalCombatTestWPF
 
                 if (cardToSummon != null)
                 {
-                    PlayerSummonZone.Children.Add(cardToSummon);
-                    PlayerSummonZone.UpdateLayout();
+                    Position handcardPos = new();
+                    foreach (var child in Layout.Canvas.Children)
+                    {
+                        if (child is HandCard handCard)
+                        {
+                            if (handCard.Id == cardToSummon.Id)
+                            {
+                                handcardPos.Left = Canvas.GetLeft(handCard);
+                                handcardPos.Top = Canvas.GetTop(handCard);
+                                handCard.Visibility = Visibility.Hidden;
+                            }
+                        }
+                    }
 
-                    Point end = CombatZones[PlayerSide].GetNextFreeSummonSlotGrid()!
-                        .TransformToVisual(BattleField)
-                        .Transform(new Point(0, 0));
+                    cardToSummon.SetPos(handcardPos);
+                    Layout.Canvas.Children.Add(cardToSummon);
 
-                    tasks.Add(cardToSummon.AnimateSummon(end, BattleField));
+                    tasks.Add(Layout.MoveToPoint(cardToSummon, handcardPos, Layout.PlayerSummonSlots[0]));
                 }
             }
+
             await Task.WhenAll(tasks);
             tasks.Clear();
 
@@ -264,14 +248,11 @@ namespace QuivalCombatTestWPF
 
                 if (cardToSummon != null)
                 {
-                    OpponentSummonZone.Children.Add(cardToSummon);
-                    OpponentSummonZone.UpdateLayout();
+                    Position opponentCardStartPos = new() { Top = -200, Left = Layout.ActualWidth / 2 };
+                    cardToSummon.SetPos(opponentCardStartPos);
+                    Layout.Canvas.Children.Add(cardToSummon);
 
-                    Point end = CombatZones[OpponentSide].GetNextFreeSummonSlotGrid()!
-                        .TransformToVisual(BattleField)
-                        .Transform(new Point(0, 0));
-
-                    tasks.Add(cardToSummon.AnimateSummon(end, BattleField));
+                    tasks.Add(Layout.MoveToPoint(cardToSummon, opponentCardStartPos, Layout.OpponentSummonSlots[0]));
                 }
             }
 
@@ -286,8 +267,9 @@ namespace QuivalCombatTestWPF
             Debug.WriteLine($"Gamestate update: Turn {CurrentGameState.TurnCount} round {CurrentGameState.RoundCount}");
             var gs = CurrentGameState;
 
-            CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id]);
-            CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId]);
+            //TODO: rework this with the new layout canvas
+            //CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id]);
+            //CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId]);
 
             PlayerResources.HealthPoints.Content = gs.PlayerState.HealthPoints;
             OpponentResources.HealthPoints.Content = gs.OpponentHealthPoints;
@@ -382,10 +364,20 @@ namespace QuivalCombatTestWPF
 
         public void UpdateHand(List<Card> cards)
         {
-            List<HandCard> hand = Mapper.MapToHandCards(cards, PlayerSummonZone);
-            
-            HandZone.ClearHand();
-            HandZone.SetHand(hand);
+            Layout.ClearHand();
+
+            //use the smallest number for the for loop
+            int length = cards.Count >= Layout.HandSlots.Length 
+                ? Layout.Name.Length 
+                : cards.Count;
+
+            for (int i = 0; i < length; i++)
+            {
+                HandCard hand = Mapper.MapToHandCard(cards[i]);
+                hand.MouseLeftButtonDown += HandZone_CardClicked;
+                hand.SetPos(Layout.HandSlots[i]);
+                Layout.Canvas.Children.Add(hand);
+            }
         }
 
         public void UnselectAll()
