@@ -14,9 +14,15 @@ namespace QuivalCombatTestWPF
 
         public static int BlankId = -1;
 
+        public static double DefaultWidth { get; set; } = 180;
+        public static double DefaultHeight { get; set; } = 130;
+
         public BoardCard()
         {
             InitializeComponent();
+
+            Width = DefaultWidth;
+            Height = DefaultHeight;
         }
 
         #region Animation
@@ -197,6 +203,12 @@ namespace QuivalCombatTestWPF
                 Id = -1,
                 HasActed = false,
             };
+        }
+
+        public void SetPos(Position p)
+        {
+            Canvas.SetTop(this, p.Top);
+            Canvas.SetLeft(this, p.Left);
         }
     }
 }

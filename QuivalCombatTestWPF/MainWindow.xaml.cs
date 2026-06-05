@@ -19,6 +19,12 @@ namespace QuivalCombatTestWPF
         Opponent,
     }
 
+    public class Position
+    {
+        public double Top;
+        public double Left;
+    }
+
     public partial class MainWindow : Window
     {
         QuivalClient Client { get; set; }
@@ -59,85 +65,36 @@ namespace QuivalCombatTestWPF
             ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
             EndTurnButton.Click += EndTurnButton_Click;
 
-            Animator = new(AnimationCanvas);
-
             CombatZones = [PlayerCombatZone, OpponentCombatZone];
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
 
-
-            AnimationCanvas.Loaded += AnimationCanvas_Loaded;
+            Layout.Canvas.Loaded += AnimationCanvas_Loaded;
         }
 
-        class TopLeftPos
-        {
-            public double Top;
-            public double Left;
-        }
 
         private void AnimationCanvas_Loaded(object sender, RoutedEventArgs e)
         {
-            double wid = AnimationCanvas.ActualWidth;
-            double centerScreen = wid / 2;
-
-            BoardCard card = new() { HasActed = false, Id = -1 };
-            var allCardsWidth = card.Width * 5;
-            var allCardsCenter = allCardsWidth / 2;
-            var startpos = centerScreen - allCardsCenter;
-
-            TopLeftPos[] summonSlots = new TopLeftPos[5];
+            for (int i = 0; i < 5; i++)
+            {
+                BoardCard meCard = new() { HasActed = false, Id = -1 };
+                meCard.MouseLeftButtonDown += CombatZone_PlayerZoneClicked;
+                meCard.SetPos(Layout.PlayerSummonSlots[i]);
+                Layout.Canvas.Children.Add(meCard);
+            }
 
             for (int i = 0; i < 5; i++)
             {
-                summonSlots[i] = new();
-                var pos = startpos + (180 * i);
-                summonSlots[i].Left = pos;
-                summonSlots[i].Top = 100;
+                BoardCard meCard = new() { HasActed = false, Id = -1 };
+                meCard.SetPos(Layout.OpponentSummonSlots[i]);
+                Layout.Canvas.Children.Add(meCard);
             }
 
-            List<BoardCard> cards = new();
-            foreach (var slot in summonSlots)
+            for (int i = 0; i < 7; i++)
             {
-                BoardCard bc = new() { HasActed = false, Id = -1 };
-                AnimationCanvas.Children.Add(bc);
-                Canvas.SetTop(bc, 500);
-                Canvas.SetLeft(bc, centerScreen - 90);
-                cards.Add(bc);
-            }
-
-            for (int i = 0; i < cards.Count; i++)
-            {
-                long animationSpeed = 2;
-                DoubleAnimation yAnim = new()
-                {
-                    From = Canvas.GetTop(cards[i]),
-                    To = summonSlots[i].Top,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
-                    AutoReverse = true
-                };
-
-                yAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
-
-                yAnim.Completed += (_, _) =>
-                {
-                };
-
-                DoubleAnimation xAnim = new()
-                {
-                    From = Canvas.GetLeft(cards[i]),
-                    To = summonSlots[i].Left,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
-                    AutoReverse = true
-                };
-
-                xAnim.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn };
-
-                xAnim.Completed += (_, _) =>
-                {
-                };
-
-                cards[i].BeginAnimation(Canvas.LeftProperty, xAnim);
-                cards[i].BeginAnimation(Canvas.TopProperty, yAnim);
+                HandCard meCard = new(-1);
+                meCard.SetPos(Layout.HandSlots[i]);
+                Layout.Canvas.Children.Add(meCard);
             }
         }
 
@@ -478,7 +435,7 @@ namespace QuivalCombatTestWPF
                 QuivalTurn turn = new()
                 {
                     TurnType = TurnType.Cast,
-                    CardToPlayId = hc.CardId
+                    CardToPlayId = hc.Id
                 };
 
                 Client.SubmitTurn(turn);
@@ -615,7 +572,7 @@ namespace QuivalCombatTestWPF
         {
             foreach (var card in HandZone.HandGrid.Children)
                     if (card is HandCard handCard)
-                        if (handCard != null && handCard.CardId == cardId)
+                        if (handCard != null && handCard.Id == cardId)
                             return handCard;
 
             return null;

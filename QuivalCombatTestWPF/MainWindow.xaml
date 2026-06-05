@@ -71,8 +71,8 @@
                 Background="Transparent" 
                 IsHitTestVisible="false"/>
         </Grid>
-        <Canvas x:Name="AnimationCanvas" 
-        Background="White" 
-        IsHitTestVisible="True"/>
+        <local:LayoutCanvas 
+            x:Name="Layout">
+        </local:LayoutCanvas>
     </Grid>
 </Window>
