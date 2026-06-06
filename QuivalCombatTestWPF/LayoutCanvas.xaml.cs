@@ -11,8 +11,8 @@ namespace QuivalCombatTestWPF
         public double SummonSlotsCenter { get; set; }
         public double SummonSlotsStartLeft { get; set; }
         public double SummonSlotPadding { get; set; }
-        public Position[] PlayerSummonSlots { get; set; }
-        public Position[] OpponentSummonSlots { get; set; }
+        public SummonSlot[] PlayerSummonSlots { get; set; }
+        public SummonSlot[] OpponentSummonSlots { get; set; }
         public Position[] HandSlots { get; set; }
 
         public LayoutCanvas()
@@ -31,20 +31,20 @@ namespace QuivalCombatTestWPF
             SummonSlotsStartLeft = CenterWidth - SummonSlotsCenter;
 
             double CenterHeight = Canvas.ActualHeight / 2;
-            OpponentSummonSlots = new Position[5];
+            OpponentSummonSlots = new SummonSlot[5];
             for (int i = 0; i < 5; i++)
             {
-                OpponentSummonSlots[i] = new();
-                OpponentSummonSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
-                OpponentSummonSlots[i].Top = CenterHeight - BoardCard.DefaultHeight - 90;
+                OpponentSummonSlots[i] = new(Canvas);
+                OpponentSummonSlots[i].Position.Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
+                OpponentSummonSlots[i].Position.Top = CenterHeight - BoardCard.DefaultHeight - 90;
             }
 
-            PlayerSummonSlots = new Position[5];
+            PlayerSummonSlots = new SummonSlot[5];
             for (int i = 0; i < 5; i++)
             {
-                PlayerSummonSlots[i] = new();
-                PlayerSummonSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
-                PlayerSummonSlots[i].Top = CenterHeight - 60;
+                PlayerSummonSlots[i] = new(Canvas);
+                PlayerSummonSlots[i].Position.Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
+                PlayerSummonSlots[i].Position.Top = CenterHeight - 60;
             }
 
 
