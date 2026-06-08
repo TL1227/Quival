@@ -31,8 +31,6 @@ namespace QuivalCombatTestWPF
         Control? SelectedCard { get; set; }
         private ClientGameState CurrentGameState { get; set; }
 
-        private Animator Animator { get; set; } 
-
         int MaxSummonedCards = 5;
 
         private CombatZone[] CombatZones { get; set; }
@@ -63,8 +61,6 @@ namespace QuivalCombatTestWPF
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
 
-            // wait for the canvas to be loaded before trying to connect to the
-            // server
             Layout.Loaded += (_, _) =>
             {
                 Client = new QuivalClient(this);
@@ -72,7 +68,7 @@ namespace QuivalCombatTestWPF
             };
         }
 
-        #region StateUpdates
+        #region Animation
         public async void UpdateGameState(ClientGameState cgs)
         {
             CurrentGameState = cgs;
@@ -118,9 +114,12 @@ namespace QuivalCombatTestWPF
                     {
                         List<Task> tasks = new();
 
-                        tasks.Add(newCreature.AnimateMoveToBlockZone(BattleField, BlockZones[i].BlockArea));
-                        Point newCreaturePoint = newCreature.TransformToVisual(BattleField).Transform(new Point(0, 0));
-                        tasks.Add(oldCreature.AnimateReturnFromBlockZone(BattleField, BlockZones[i].BlockArea, newCreaturePoint));
+                        tasks.Add(Animation.MoveToPoint(newCreature, newCreature.GetPos(), Layout.BlockAreas[i]));
+                        int removedCardIndex = CombatZones[i].RemoveCardFromZone(newCreature.Id, Layout);
+                        BlockZones[i].AddCardToBlockZone(newCreature, Layout, Layout.BlockAreas[i]);
+
+                        tasks.Add(Animation.MoveToPoint(oldCreature, oldCreature.GetPos(), newCreature.GetPos()));
+                        CombatZones[i].SummonedCards[removedCardIndex] = oldCreature;
 
                         await Task.WhenAll(tasks);
                     }
@@ -139,11 +138,13 @@ namespace QuivalCombatTestWPF
             {
                 foreach (var blockEvent in events[i])
                 {
-                    foreach (var slot in CombatZones[i].SummonSlots)
+                    foreach (var summonedCard in CombatZones[i].SummonedCards)
                     {
-                        if (slot.CardIs(blockEvent.CreatureId))
+                        if (summonedCard != null && summonedCard.Id == blockEvent.CreatureId)
                         {
-                            await slot.Card!.AnimateMoveToBlockZone(BattleField, BlockZones[i].BlockArea);
+                            await Animation.MoveToPoint(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[i]);
+                            CombatZones[i].RemoveCardFromZone(summonedCard.Id, Layout);
+                            BlockZones[i].AddCardToBlockZone(summonedCard, Layout, Layout.BlockAreas[i]);
                         }
                     }
                 }
@@ -161,11 +162,11 @@ namespace QuivalCombatTestWPF
             {
                 foreach (var eve in events[i])
                 {
-                    foreach (var slot in CombatZones[i].SummonSlots)
+                    foreach (var summonedCard in CombatZones[i].SummonedCards)
                     {
-                        if (slot.CardIs(eve.CreatureId))
+                        if (summonedCard != null && summonedCard.Id == eve.CreatureId)
                         {
-                            await slot.Card!.AnimateAttack(BattleField, BlockZones[OppositeSide(i)].BlockArea);
+                            await Animation.MoveToPointAndBack(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[OppositeSide(i)]);
                         }
                     }
                 }
@@ -183,7 +184,7 @@ namespace QuivalCombatTestWPF
                 if (card != null)
                 {
                     Debug.WriteLine("Animating Death!");
-                    tasks.Add(card.AnimateDeath());
+                    tasks.Add(Animation.AnimateDeath(card));
                 }
                 else
                 {
@@ -196,10 +197,6 @@ namespace QuivalCombatTestWPF
 
         private async Task PlaySummonAnimations(List<SummonEvent> summonEvents)
         {
-            //TODO: refactor this like I have the other animations
-            //currently this is a pain due to the BoardState id order not matching the player/opponent order
-            //come back to this when you haven't been working on this all day
-
             List<Task> tasks = new();
 
             foreach (var se in summonEvents.Where(e => e.PlayerId == MyPlayerId).ToList())
@@ -228,9 +225,8 @@ namespace QuivalCombatTestWPF
                     }
 
                     cardToSummon.SetPos(handcardPos);
-                    Layout.Canvas.Children.Add(cardToSummon);
-
-                    tasks.Add(Layout.MoveToPoint(cardToSummon, handcardPos, Layout.PlayerSummonSlots[0]));
+                    int summonIndex = CombatZones[0].AddCardToNextFreeSlot(cardToSummon, Layout);
+                    tasks.Add(Animation.MoveToPoint(cardToSummon, handcardPos, Layout.PlayerSummonSlots[summonIndex]));
                 }
             }
 
@@ -250,26 +246,27 @@ namespace QuivalCombatTestWPF
                 {
                     Position opponentCardStartPos = new() { Top = -200, Left = Layout.ActualWidth / 2 };
                     cardToSummon.SetPos(opponentCardStartPos);
-                    Layout.Canvas.Children.Add(cardToSummon);
-
-                    tasks.Add(Layout.MoveToPoint(cardToSummon, opponentCardStartPos, Layout.OpponentSummonSlots[0]));
+                    int summonIndex = CombatZones[0].AddCardToNextFreeSlot(cardToSummon, Layout);
+                    tasks.Add(Animation.MoveToPoint(cardToSummon, opponentCardStartPos, Layout.OpponentSummonSlots[summonIndex]));
                 }
             }
 
             await Task.WhenAll(tasks);
 
         }
+        #endregion
 
         public int OppositeSide(int i) => i == PlayerSide ? OpponentSide : PlayerSide;
 
+        #region StateUpdates
         public void UpdateUIFromGameState()
         {
             Debug.WriteLine($"Gamestate update: Turn {CurrentGameState.TurnCount} round {CurrentGameState.RoundCount}");
             var gs = CurrentGameState;
 
             //TODO: rework this with the new layout canvas
-            //CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id]);
-            //CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId]);
+            CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id], Layout);
+            CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId], Layout);
 
             PlayerResources.HealthPoints.Content = gs.PlayerState.HealthPoints;
             OpponentResources.HealthPoints.Content = gs.OpponentHealthPoints;
@@ -283,11 +280,12 @@ namespace QuivalCombatTestWPF
             {
                 if (blockingCreatures[i] == null)
                 {
-                    BlockZones[i].RemoveCardFromBlockZone();
+                    BlockZones[i].RemoveCardFromBlockZone(Layout);
                 }
                 else if (blockingCreatures[i] is CreatureCard cc)
                 {
-                    BlockZones[i].AddCardToBlockZone(Mapper.MapToBoardCard(cc));
+                    var blockingCreature = Mapper.MapToBoardCard(cc);
+                    BlockZones[i].AddCardToBlockZone(blockingCreature, Layout, Layout.BlockAreas[i]);
                 }
             }
 

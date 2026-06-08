@@ -12,30 +12,12 @@ public partial class CombatZone : UserControl
     public event EventHandler CardClicked;
     public event EventHandler PlayerZoneClicked;
 
-    public SummonSlot[] SummonSlots { get; set; }
-
-    public Side Side { get; set; }
+    public BoardCard?[] SummonedCards { get; set; } = new BoardCard[5];
 
     public CombatZone()
     {
         InitializeComponent();
         MouseLeftButtonDown += HandleClick;
-
-        //NOTE: would it make more sense to just have one SummonGrid and have a bunch of children?
-        //would it make it too hard to keep the layout of summoned cards fixed?
-        SummonSlots = [ 
-            SummonSlot1, SummonSlot2, SummonSlot3, SummonSlot4, SummonSlot5
-        ];
-
-        foreach (var slot in SummonSlots)
-        {
-            slot.SlotCardClickedOn += Slot_SlotCardClickedOn;
-        }
-    }
-
-    private void Slot_SlotCardClickedOn(object? sender, EventArgs e)
-    {
-        CardClicked?.Invoke(sender, e);
     }
 
     public void Highlight(bool highlight)
@@ -46,17 +28,19 @@ public partial class CombatZone : UserControl
         Opacity = highlight ? 0.5 : 1 ;
     }
 
-    public void UpdateCombatZone(List<CreatureCard> newCards)
+    public void UpdateCombatZone(List<CreatureCard> newCards, LayoutCanvas layout, LayoutCanvas )
     {
         //remove items not in the card list
         var newCardIds = newCards.Select(c => c.Id);
-        foreach (var slot in SummonSlots)
+        for (int i = 0; i < 5; i++)
         {
-            if (slot.Card != null)
+            var summonedCard = SummonedCards[i];
+            if (summonedCard != null)
             {
-                if (!newCardIds.Contains(slot.Card.Id))
-                {
-                    slot.ClearCard();
+                if (!newCardIds.Contains(summonedCard.Id)) {
+
+                    layout.Canvas.Children.Remove(summonedCard);
+                    SummonedCards[i] = null;
                 }
             }
         }
@@ -67,67 +51,100 @@ public partial class CombatZone : UserControl
             //update existing card health 
             if (summonedCardIds.Contains(newCard.Id))
             {
-                var slot = GetSlotFromCardId(newCard.Id);
-                if (slot != null)
+                int i = GetSlotIndexFromCardId(newCard.Id);
+                if (SummonedCards[i] != null)
                 {
-                    slot.SetCard(Mapper.MapToBoardCard(newCard));
+                    SummonedCards[i].HealthLabel.Content = newCard.CurrentHealth;
+                    SummonedCards[i].HasActed = newCard.HasActed;
                 }
             }
             else
             {
                 //Summon new newCards
-                foreach (var slot in SummonSlots)
+                for (int i = 0; i < 5;i++)
                 {
-                    if (slot.Card == null)
+                    if (SummonedCards[i] == null)
                     {
-                        slot.SetCard(Mapper.MapToBoardCard(newCard));
+                        SummonedCards[i] = Mapper.MapToBoardCard(newCard);
+                        SummonedCards[i].MouseLeftButtonDown += HandleClick;
+                        layout.Canvas.Children.Add(SummonedCards[i]);
+                        SummonedCards[i].SetPos(layout.SummonSlots[]);
+
                         break;
                     }
                 }
             }
         }
+
+    }
+    public int RemoveCardFromZone(int cardId, LayoutCanvas layout)
+    {
+        for (int i = 0; i < SummonedCards.Length; i++)
+        {
+            if (SummonedCards[i] != null && SummonedCards[i].Id == cardId)
+            {
+                layout.Canvas.Children.Remove(SummonedCards[i]);
+                SummonedCards[i] = null;
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    public int AddCardToNextFreeSlot(BoardCard card, LayoutCanvas layout)
+    {
+        int i = GetNextFreeSummonSlotIndex();
+        if (i >= 0)
+        {
+            card.MouseLeftButtonDown += HandleClick;
+            layout.Canvas.Children.Add(card);
+            SummonedCards[i] = card;
+        }
+
+        return i;
     }
 
-    private SummonSlot? GetSlotFromCardId(int cardId)
+    private int GetSlotIndexFromCardId(int cardId)
     {
-        foreach (var slot in SummonSlots)
-            if (slot.Card != null && slot.Card.Id == cardId)
-                return slot;
+        for (int i = 0; i < SummonedCards.Length; i++)
+            if (SummonedCards[i] != null && SummonedCards[i]!.Id == cardId)
+                return i;
 
-        return null;
+        return -1;
     }
 
     private List<int> GetIdsOfAllSummonedCards()
     {
         List<int> ids = new();
-        foreach (var slot in SummonSlots)
+        foreach (var card in SummonedCards)
         {
-            if (slot.Card != null)
-                ids.Add(slot.Card.Id);
+            if (card != null)
+                ids.Add(card.Id);
         }
 
         return ids;
     }
 
+
     public void MarkActedCards()
     {
-        foreach (var summonSlot in SummonSlots)
+        foreach (var summonedCard in SummonedCards)
         {
-            if (summonSlot.Card != null)
+            if (summonedCard != null)
             {
-                if (summonSlot.Card.HasActed)
+                if (summonedCard.HasActed)
                 {
-                    summonSlot.Card.MarkAsActed();
-                    Debug.WriteLine($"MarkActedCards(): card id {summonSlot.Card.Id} has acted is {summonSlot.Card.HasActed}");
+                    summonedCard.MarkAsActed();
                 }
             }
         }
     }
 
+
     public bool CardIsSummonedByPlayer(BoardCard bc)
     {
-        foreach (var slot in SummonSlots)
-            if (slot.Card == bc)
+        foreach (var card in SummonedCards)
+            if (card == bc)
                 return true;
 
         return false;
@@ -140,62 +157,56 @@ public partial class CombatZone : UserControl
 
     public BoardCard? GetBoardCard(int cardId)
     {
-        foreach (var slot in SummonSlots)
-            if (slot.Card != null && slot.Card.Id == cardId)
-                return slot.Card;
+        foreach (var summonedCard in SummonedCards)
+            if (summonedCard != null && summonedCard.Id == cardId)
+            {
+                if (Canvas.GetTop(summonedCard) == double.NaN)
+                {
+                    Debug.WriteLine("What the fuck!!?!?!");
+                }
+
+                return summonedCard;
+            }
 
         return null;
     }
 
     public int GetNumberOfSummonedCards()
     {
-        return SummonSlots.Count(x => x.Card != null);
+        return SummonedCards.Count(x => x != null);
     }
 
     public void ClearHighlightedCards()
     {
-        foreach (var slot in SummonSlots)
-            if (slot.Card != null)
-                slot.Card.Overlay.Opacity = 0.0;
+        foreach (var card in SummonedCards)
+            if (card != null)
+                card.Overlay.Opacity = 0.0; 
     }
 
     public List<BoardCard> GetBoardCards()
     {
-        List<BoardCard> list = SummonSlots.Where(s => s.Card != null).Select(c => c.Card).ToList()!;
+        List<BoardCard> list = SummonedCards.Where(s => s != null).Select(c => c).ToList()!;
         return list;
     }
 
     public int GetNextFreeSummonSlotIndex()
     {
-        for (int i = 0; i < SummonSlots.Length; i++)
+        for (int i = 0; i < SummonedCards.Length; i++)
         {
-            if (SummonSlots[i].Card == null) 
+            if (SummonedCards[i] == null) 
             {
                 return i;
-            }
+            } 
         }
 
         return -1;
     }
 
-    public Grid? GetNextFreeSummonSlotGrid()
-    {
-        for (int i = 0; i < SummonSlots.Length; i++)
-        {
-            if (SummonSlots[i].Card == null) 
-            {
-                return SummonSlots[i].SlotGrid;
-            }
-        }
-
-        return null;
-    }
-
     private void HandleClick(object obj, MouseButtonEventArgs args)
     {
-        if (obj is SummonSlot ss)
+        if (obj is BoardCard card)
         {
-            if (ss.Card != null && ss.Card.HasActed == false)
+            if (card != null && card.HasActed == false)
             {
                 CardClicked?.Invoke(obj, args);
             }

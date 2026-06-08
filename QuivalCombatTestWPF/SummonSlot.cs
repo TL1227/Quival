@@ -28,7 +28,7 @@ public class SummonSlot
         Canvas = canvas;
     }
 
-    void RemoveCard(BoardCard boardCard)
+    void ClearCard(BoardCard boardCard)
     {
         Canvas.Children.Remove(boardCard);
         card = null;

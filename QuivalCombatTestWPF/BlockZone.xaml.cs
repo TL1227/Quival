@@ -1,25 +1,15 @@
 ﻿using QuivalCombatTestWPF.Colours;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
     public partial class BlockZone : UserControl
     {
         public event EventHandler ZoneClicked;
+
+        public BoardCard? CurrentCard;
 
         public Side Side;
 
@@ -29,29 +19,22 @@ namespace QuivalCombatTestWPF
             BlockArea.MouseLeftButtonDown += HandleClick;
         }
 
-        public void AddCardToBlockZone(BoardCard card)
+        public void AddCardToBlockZone(BoardCard card, LayoutCanvas layout, Position blockArea)
         {
-            BlockArea.Children.Clear();
-
-            /*
-            BoardCard boardCard = new() { CardId = card.CardId, HasActed = card.HasActed, Side = Side };
-            boardCard.CardBackground.Background = card.CardBackground.Background;
-            boardCard.CardNameLabel.Content = card.CardNameLabel.Content;
-            boardCard.AttackLabel.Content = card.AttackLabel.Content;
-            boardCard.HealthLabel.Content = card.HealthLabel.Content;
-            */
-
-            BlockArea.Children.Add(card);
+            card.SetPos(blockArea);
+            layout.Canvas.Children.Add(card);
+            CurrentCard = card;
         }
 
-        public void RemoveCardFromBlockZone()
+        public void RemoveCardFromBlockZone(LayoutCanvas layout)
         {
-            BlockArea.Children.Clear();
+            layout.Canvas.Children.Remove(CurrentCard);
+            CurrentCard = null;
         }
 
         public BoardCard? GetCardFromBlockZone()
         {
-            return (BoardCard)BlockArea.Children[0] ?? null;
+            return CurrentCard;
         }
 
         public void SetHighlighted(bool value)
