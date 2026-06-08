@@ -23,8 +23,8 @@ namespace QuivalCombatTestWPF
 
         public static int BlankId = -1;
 
-        public static double DefaultWidth { get; set; } = 180;
-        public static double DefaultHeight { get; set; } = 130;
+        public static double DefaultWidth { get; set; } = 160;
+        public static double DefaultHeight { get; set; } = 110;
 
         public BoardCard()
         {

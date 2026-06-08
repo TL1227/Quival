@@ -8,8 +8,8 @@ namespace QuivalCombatTestWPF
 
     public partial class HandCard : UserControl
     {
-        public static double DefaultWidth { get; set; } = 200;
-        public static double DefaultHeight { get; set; } = 250;
+        public static double DefaultWidth { get; set; } = 170;
+        public static double DefaultHeight { get; set; } = 220;
         public int Id { get; set; }
 
         public HandCard(int cardId)

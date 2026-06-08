@@ -28,7 +28,7 @@ public partial class CombatZone : UserControl
         Opacity = highlight ? 0.5 : 1 ;
     }
 
-    public void UpdateCombatZone(List<CreatureCard> newCards, LayoutCanvas layout, LayoutCanvas )
+    public void UpdateCombatZone(List<CreatureCard> newCards, LayoutCanvas layout, Position[] slotPositions)
     {
         //remove items not in the card list
         var newCardIds = newCards.Select(c => c.Id);
@@ -54,8 +54,8 @@ public partial class CombatZone : UserControl
                 int i = GetSlotIndexFromCardId(newCard.Id);
                 if (SummonedCards[i] != null)
                 {
-                    SummonedCards[i].HealthLabel.Content = newCard.CurrentHealth;
-                    SummonedCards[i].HasActed = newCard.HasActed;
+                    SummonedCards[i]!.HealthLabel.Content = newCard.CurrentHealth;
+                    SummonedCards[i]!.HasActed = newCard.HasActed;
                 }
             }
             else
@@ -66,22 +66,22 @@ public partial class CombatZone : UserControl
                     if (SummonedCards[i] == null)
                     {
                         SummonedCards[i] = Mapper.MapToBoardCard(newCard);
-                        SummonedCards[i].MouseLeftButtonDown += HandleClick;
+                        SummonedCards[i]!.MouseLeftButtonDown += HandleClick;
                         layout.Canvas.Children.Add(SummonedCards[i]);
-                        SummonedCards[i].SetPos(layout.SummonSlots[]);
+                        SummonedCards[i]!.SetPos(slotPositions[i]);
 
                         break;
                     }
                 }
             }
         }
-
     }
+
     public int RemoveCardFromZone(int cardId, LayoutCanvas layout)
     {
         for (int i = 0; i < SummonedCards.Length; i++)
         {
-            if (SummonedCards[i] != null && SummonedCards[i].Id == cardId)
+            if (SummonedCards[i] != null && SummonedCards[i]!.Id == cardId)
             {
                 layout.Canvas.Children.Remove(SummonedCards[i]);
                 SummonedCards[i] = null;

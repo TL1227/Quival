@@ -6,9 +6,6 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Threading;
 
 namespace QuivalCombatTestWPF
 {
@@ -265,8 +262,8 @@ namespace QuivalCombatTestWPF
             var gs = CurrentGameState;
 
             //TODO: rework this with the new layout canvas
-            CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id], Layout);
-            CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId], Layout);
+            CombatZones[PlayerSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.PlayerState.Id], Layout, Layout.SummonSlots[PlayerSide]);
+            CombatZones[OpponentSide].UpdateCombatZone(gs.BoardState.SummonedCreatures[gs.OpponentId], Layout, Layout.SummonSlots[OpponentSide]);
 
             PlayerResources.HealthPoints.Content = gs.PlayerState.HealthPoints;
             OpponentResources.HealthPoints.Content = gs.OpponentHealthPoints;
@@ -275,7 +272,6 @@ namespace QuivalCombatTestWPF
             OpponentResources.ManaPoints.Content = gs.OpponentManaPoints;
 
             Card?[] blockingCreatures = [ gs.PlayerState.BlockingCreature, gs.OpponentBlockCard ];
-
             for (int i = 0; i < 2; i++)
             {
                 if (blockingCreatures[i] == null)
@@ -284,8 +280,11 @@ namespace QuivalCombatTestWPF
                 }
                 else if (blockingCreatures[i] is CreatureCard cc)
                 {
-                    var blockingCreature = Mapper.MapToBoardCard(cc);
-                    BlockZones[i].AddCardToBlockZone(blockingCreature, Layout, Layout.BlockAreas[i]);
+                    if (BlockZones[i].CurrentCard != null && BlockZones[i].CurrentCard!.Id != cc.Id)
+                    {
+                        var blockingCreature = Mapper.MapToBoardCard(cc);
+                        BlockZones[i].AddCardToBlockZone(blockingCreature, Layout, Layout.BlockAreas[i]);
+                    }
                 }
             }
 
