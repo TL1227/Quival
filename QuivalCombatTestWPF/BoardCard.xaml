@@ -8,39 +8,44 @@
              d:DesignHeight="180" d:DesignWidth="150"
              Width="180" Height="150"
              x:Name="Root">
-    <Grid x:Name="CardBackground" Background="Coral" Margin="10" >
-        <Grid x:Name="CardContent" Margin="10,0,10,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
+    <Border x:Name="Border" >
+        <Border.Effect>
+            <DropShadowEffect x:Name="ShadowEffect"  BlurRadius="30" ShadowDepth="0" Opacity="0"></DropShadowEffect>
+        </Border.Effect>
+        <Grid x:Name="CardBackground" Background="Coral" Margin="5" >
+            <Grid x:Name="CardContent" Margin="10,0,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
 
-            <Grid Name="TopGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Label Margin="0,10,0,10" Background="Cornsilk" Grid.ColumnSpan="3" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="14"></Label>
+                <Grid Name="TopGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Margin="0,10,0,10" Background="Cornsilk" Grid.ColumnSpan="3" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="14"></Label>
+                </Grid>
+
+                <DockPanel Grid.Row="1" Background="White">
+                </DockPanel>
+
+                <Grid Grid.Row="2" Name="BottomGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Margin="0,5,0,10" Background="Black" Foreground="White" Grid.Column="0" x:Name="DebugId" FontSize="14"/>
+                    <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="14"/>
+                    <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="14"/>
+                    <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="14"/>
+                </Grid>
             </Grid>
-
-            <DockPanel Grid.Row="1" Background="White">
-            </DockPanel>
-
-            <Grid Grid.Row="2" Name="BottomGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <Label Margin="0,5,0,10" Background="Black" Foreground="White" Grid.Column="0" x:Name="DebugId" FontSize="14"/>
-                <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="14"/>
-                <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="14"/>
-                <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="14"/>
-            </Grid>
+            <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>
         </Grid>
-        <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>
-    </Grid>
+    </Border>
 </UserControl>

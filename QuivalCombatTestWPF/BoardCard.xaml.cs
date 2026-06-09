@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using QuivalCombatTestWPF.Colours;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -197,6 +198,12 @@ namespace QuivalCombatTestWPF
 
         public void RemoveHighlight()
         {
+            Border.Background = Brushes.Transparent;
+            ShadowEffect.Opacity = 0.0;
+        }
+
+        public void Highlight()
+        {
             Overlay.Background = Brushes.Transparent;
             Overlay.Opacity = 0.0;
         }
@@ -229,6 +236,15 @@ namespace QuivalCombatTestWPF
                 Top = Canvas.GetTop(this),
                 Left = Canvas.GetLeft(this)
             };
+        }
+
+        private Color BrushToDrawingColor(SolidColorBrush br)
+        {
+            return Color.FromArgb(
+                br.Color.A,
+                br.Color.R,
+                br.Color.G,
+                br.Color.B);
         }
     }
 }

@@ -13,11 +13,9 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="2" BorderBrush="Aquamarine" BorderThickness="3">
+        <Border Grid.Column="1" BorderBrush="Aquamarine" BorderThickness="3">
             <Grid x:Name="BlockArea" ClipToBounds="False" />
         </Border>
     </Grid>

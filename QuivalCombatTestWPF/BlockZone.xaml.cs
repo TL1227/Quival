@@ -23,6 +23,7 @@ namespace QuivalCombatTestWPF
         {
             card.SetPos(blockArea);
             layout.Canvas.Children.Add(card);
+            card.MouseLeftButtonDown += HandleClick;
             CurrentCard = card;
         }
 
@@ -55,7 +56,9 @@ namespace QuivalCombatTestWPF
         {
             if (obj is BoardCard bc && bc.HasActed)
             {
-                return;
+                //TODO: this will need to handle clicking on targets
+                //      but for now we can just treat it like the block zone
+                ZoneClicked?.Invoke(obj, args);
             }
             else
             {

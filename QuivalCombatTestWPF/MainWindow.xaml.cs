@@ -463,7 +463,8 @@ namespace QuivalCombatTestWPF
                 {
                     UnselectAll();
 
-                    card.Overlay.Opacity = 0.4;
+                    card.Highlight();
+                    //card.Overlay.Opacity = 0.4;
                     SelectedCard = card;
 
                     PlayerBlockZone.SetHighlighted(true);
