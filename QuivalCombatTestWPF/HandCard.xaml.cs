@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using QuivalCombatTestWPF.Colours;
 
 namespace QuivalCombatTestWPF
 {
@@ -25,6 +26,11 @@ namespace QuivalCombatTestWPF
         {
             Overlay.Background = Brushes.Transparent;
             Overlay.Opacity = 0.0;
+        }
+        public void Highlight()
+        {
+            Overlay.Background = QuivalColour.HighlightColour;
+            Overlay.Opacity = 0.4;
         }
 
         public void SetPos(Position p)

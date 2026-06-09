@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
              d:DesignHeight="180" d:DesignWidth="150"
-             Width="180" Height="150">
+             Width="180" Height="150"
+             x:Name="Root">
     <Grid x:Name="CardBackground" Background="Coral" Margin="10" >
         <Grid x:Name="CardContent" Margin="10,0,10,0">
             <Grid.RowDefinitions>
@@ -34,6 +35,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
+                <Label Margin="0,5,0,10" Background="Black" Foreground="White" Grid.Column="0" x:Name="DebugId" FontSize="14"/>
                 <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="14"/>
                 <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="14"/>
                 <Label Margin="0,5,0,10" Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="14"/>

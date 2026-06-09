@@ -28,23 +28,6 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
-        public void SetHand(List<HandCard> hand)
-        {
-            HandGrid.Children.Clear();
-
-            for (int i = 0; i < hand.Count; i++)
-            {
-                Grid.SetColumn(hand[i], i);
-                hand[i].MouseLeftButtonDown += HandleClick;
-                HandGrid.Children.Add(hand[i]);
-            }
-        }
-
-        public void ClearHand()
-        {
-            HandGrid.Children.Clear();
-        }
-
         public void ClearAllHighlightedCards()
         {
             foreach (var card in HandGrid.Children)

@@ -56,6 +56,9 @@ public partial class CombatZone : UserControl
                 {
                     SummonedCards[i]!.HealthLabel.Content = newCard.CurrentHealth;
                     SummonedCards[i]!.HasActed = newCard.HasActed;
+
+                    if (newCard.CurrentHealth < newCard.Health)
+                        SummonedCards[i]!.HealthLabel.Foreground = Brushes.Red;
                 }
             }
             else
@@ -179,7 +182,7 @@ public partial class CombatZone : UserControl
     public void ClearHighlightedCards()
     {
         foreach (var card in SummonedCards)
-            if (card != null)
+            if (card != null && !card.HasActed)
                 card.Overlay.Opacity = 0.0; 
     }
 

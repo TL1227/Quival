@@ -369,7 +369,7 @@ public class Match
 
         foreach (var player in Players)
         {
-            player.Mana += BoardState.GetCurrentMana();
+            player.Mana = BoardState.GetCurrentMana();
             player.DrawCard(1);
         }
 

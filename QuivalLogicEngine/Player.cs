@@ -10,7 +10,7 @@ public class Player
     public int Mana { get; set; }
     public List<Card> Hand { get; set; }
     public List<Card> Deck { get; set; }
-
+    public int StartingHandSize { get; set; } = 4;
     public Card? CardToPlay { get; set; }
     public QuivalTurn? SubmittedTurn { get; set; }
 
@@ -64,7 +64,7 @@ public class Player
 
     private void GetStartingHand()
     {
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < StartingHandSize; i++)
         {
             Hand.Add(Deck[0]);
             Deck.RemoveAt(0);

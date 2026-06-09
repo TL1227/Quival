@@ -25,8 +25,6 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="GameEventLog" Grid.Column="1" TextWrapping="WrapWithOverflow"/>
-
             <local:PlayerResource x:Name="OpponentResources"/>
             <Grid x:Name="OpponentSummonZone" Grid.Column="1" Grid.RowSpan="2"></Grid>
 
@@ -44,7 +42,7 @@
 
             <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
 
-            <local:Counter x:Name="Counter" Grid.Row="2" Grid.Column="2"></local:Counter>
+            <local:Counter x:Name="Counter" Grid.Row="2" Grid.Column="2" Grid.RowSpan="2"></local:Counter>
 
             <Button 
             x:Name="CastSpellButton" 

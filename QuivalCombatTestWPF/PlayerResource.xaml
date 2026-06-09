@@ -17,7 +17,7 @@
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
             Content="20"
-            FontSize="50"
+            FontSize="45"
             Background="SeaGreen" />
             
         <Label 
@@ -26,7 +26,7 @@
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
             Content="0"
-            FontSize="50"
+            FontSize="45"
             Background="CornflowerBlue" />
     </Grid>
 </UserControl>

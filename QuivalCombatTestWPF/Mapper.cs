@@ -56,6 +56,7 @@ namespace QuivalCombatTestWPF
                 Id = card.Id,
                 HasActed = card.HasActed,
             };
+            bc.DebugId.Content = card.Id;
 
             Debug.WriteLine($"Mapper: card id {card.Id} has acted is {card.HasActed}");
 

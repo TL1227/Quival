@@ -8,7 +8,7 @@ namespace QuivalCombatTestWPF
 {
     public partial class BoardCard : UserControl
     {
-        public required int Id { get; set; }
+        public required int Id { get; set ; }
 
         private bool hasActed;
         public required bool HasActed
@@ -32,6 +32,7 @@ namespace QuivalCombatTestWPF
 
             Width = DefaultWidth;
             Height = DefaultHeight;
+            DebugId.Content = Id;
         }
 
         #region Animation

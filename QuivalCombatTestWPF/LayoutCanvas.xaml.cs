@@ -1,6 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
 using System.Windows.Controls;
-using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF;
 
