@@ -11,16 +11,7 @@ namespace QuivalCombatTestWPF
     {
         public required int Id { get; set ; }
 
-        private bool hasActed;
-        public required bool HasActed
-        {
-            get => hasActed;
-            set
-            {
-                Debug.WriteLine($"[SETTER] Card {Id} Has acted == {value}");
-                hasActed = value;
-            }
-        }
+        public required bool HasActed {  get; set ; }
 
         public static int BlankId = -1;
 
@@ -230,21 +221,11 @@ namespace QuivalCombatTestWPF
 
         public Position GetPos()
         {
-            Debug.WriteLine($"[GETPOS] CardId {Id} Top {Canvas.GetTop(this)} Left{Canvas.GetLeft(this)}");
             return new()
             {
                 Top = Canvas.GetTop(this),
                 Left = Canvas.GetLeft(this)
             };
-        }
-
-        private Color BrushToDrawingColor(SolidColorBrush br)
-        {
-            return Color.FromArgb(
-                br.Color.A,
-                br.Color.R,
-                br.Color.G,
-                br.Color.B);
         }
     }
 }
