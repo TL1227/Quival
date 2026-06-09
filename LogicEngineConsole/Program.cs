@@ -40,7 +40,7 @@ namespace LogicEngineConsole
                 },
                 new CreatureCard(){
                     Name = "BFG",
-                    Description = "\"The 'F' don't stand for friendly mate\" - BFG",
+                    Description = "If BFG attacks on round 3, increase attack by 2 for the rest of the round.",
                     Cost = 3,
                     Attack = 2,
                     Health = 4,
@@ -61,7 +61,7 @@ namespace LogicEngineConsole
                                         Conditional.Round3
                                     }
                                 }
-                            }
+                            },
                         }
                     }
                 },

@@ -224,6 +224,12 @@ public class Match
             player.SubmittedTurn = null;
         }
 
+        //remove attack buffs
+        foreach (var creatures in BoardState.SummonedCreatures)
+            foreach (var creature in creatures)
+                creature.AttackBuff = 0;
+
+
         //TODO: I think that we should do the calculating which players can and can't move next turn here
         //currently it's all being done client side which is stupid
 
@@ -283,20 +289,20 @@ public class Match
 
                 if (otherPlayer.BlockingCreature == null)
                 {
-                    otherPlayer.HealthPoints -= attackingCreature.Attack;
+                    otherPlayer.HealthPoints -= attackingCreature.GetAttackDamage();
                 }
                 else
                 {
                     var blockingCreature = otherPlayer.BlockingCreature;
 
-                    blockingCreature.CurrentHealth -= attackingCreature.Attack;
+                    blockingCreature.CurrentHealth -= attackingCreature.GetAttackDamage();
                     if (blockingCreature.CurrentHealth <= 0)
                     {
                         EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
                         otherPlayer.BlockingCreature = null;
                     }
 
-                    attackingCreature.CurrentHealth -= blockingCreature.Attack;
+                    attackingCreature.CurrentHealth -= blockingCreature.GetAttackDamage();
                     if (attackingCreature.CurrentHealth <= 0)
                     {
                         EventMessage(new CreatureDeathEvent(attackingCreature.Id, attackingCreature.Name!));
@@ -345,13 +351,58 @@ public class Match
         }
     }
 
+    //abilities
     private void ProcessTriggeredAbilities(Card card, Trigger trigger)
     {
         var abilities = card.Abilities.Where(a => a.Trigger == trigger);
-        
+
         foreach (var ability in abilities)
         {
-            //process
+            //NOTE: just checking one action/condition for now
+            if (ConditionalMet(ability.Actions[0].Conditionals[0]))
+            {
+                if (ability.Actions[0].Intent == Intent.AttackBuff)
+                {
+                    if (ability.Actions[0].TargetType == TargetType.Self)
+                    {
+                        if (card is CreatureCard cc) //Maybe make IBuffable()
+                        {
+                            var action = ability.Actions[0];
+
+                            cc.AttackBuff = action.Value;
+
+                            CardActionEvent message = new()
+                            {
+                                Intent = action.Intent,
+                                TargetCardId = card.Id,
+                                Value = action.Value,
+                            };
+
+                            EventMessage(message);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private bool ConditionalMet(Conditional condition)
+    {
+        switch (condition)
+        {
+            case Conditional.None:
+                return true;
+            case Conditional.Round1:
+                return RoundCount == 1;
+            case Conditional.Round2:
+                return RoundCount == 2;
+            case Conditional.Round3:
+                return RoundCount == 3;
+            case Conditional.Round4:
+                return RoundCount == 4;
+            case Conditional.Round5:
+                return RoundCount == 5;
+            default: return true;
         }
     }
 

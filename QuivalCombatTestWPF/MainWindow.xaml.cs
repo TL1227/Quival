@@ -85,6 +85,8 @@ namespace QuivalCombatTestWPF
             var blockSwapEvents = cgs.GameEvents.OfType<BlockSwapEvent>().ToList();
             await PlayBlockSwapAnimations(blockSwapEvents);
 
+            //TODO: some kind of buff animation
+
             var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList();
             await PlayAttackAnimations(attackEvents);
 

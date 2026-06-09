@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using QuivalLogicEngine.Cards;
+using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Client
 {
@@ -11,6 +12,7 @@ namespace QuivalLogicEngine.Client
     [JsonDerivedType(typeof(BothPlayersOutOfMovesEvent), "BothPlayersOutOfMovesEvent")]
     [JsonDerivedType(typeof(NewRound), "NewRound")]
     [JsonDerivedType(typeof(NewTurn), "NewTurn")]
+    [JsonDerivedType(typeof(CardActionEvent), "CardActionEvent")]
     public abstract class EventMessage
     {
         public abstract string GetString();
@@ -116,6 +118,38 @@ namespace QuivalLogicEngine.Client
         public override string GetString()
         {
             return $"Both players are out of moves!";
+        }
+    }
+    public class CardActionEvent : EventMessage
+    {
+        public Intent Intent { get; set; }
+        public int Value;
+        public int ActionCardId;
+        public int TargetCardId;
+
+        public override string GetString()
+        {
+            switch (Intent)
+            {
+                case Intent.None:
+                    break;
+                case Intent.AttackBuff:
+                    return $"{TargetCardId} gets attack buff of {Value}";
+                case Intent.DamageAbsorbToken:
+                    break;
+                case Intent.DirectDamage:
+                    break;
+                case Intent.DrawCard:
+                    break;
+                case Intent.RushDown:
+                    break;
+                case Intent.RestoreAction:
+                    break;
+                default:
+                    break;
+            }
+
+            return "CardActionUnknown";
         }
     }
 
