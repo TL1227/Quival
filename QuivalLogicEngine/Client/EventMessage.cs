@@ -15,12 +15,12 @@ namespace QuivalLogicEngine.Client
     [JsonDerivedType(typeof(CardActionEvent), "CardActionEvent")]
     public abstract class EventMessage
     {
+        public int PlayerId { get; set; }
         public abstract string GetString();
     }
 
     public class AttackEvent : EventMessage
     {
-        public int PlayerId { get; set; }
         public int CreatureId { get; set; }
         public string  CreatureName { get; set; }
 
@@ -38,7 +38,6 @@ namespace QuivalLogicEngine.Client
     }
     public class SummonEvent : EventMessage
     {
-        public int PlayerId { get; set; }
         public int CreatureId { get; set; }
         public string CreatureName { get; set; }
 
@@ -74,7 +73,6 @@ namespace QuivalLogicEngine.Client
 
     public class MoveToBlockZoneEvent : EventMessage
     {
-        public int PlayerId { get; set; }
         public int CreatureId { get; set; }
         public string CreatureName { get; set; }
 
@@ -93,7 +91,6 @@ namespace QuivalLogicEngine.Client
     
     public class BlockSwapEvent : EventMessage
     {
-        public int PlayerId { get; set; }
         public int CreatureId { get; set; }
         public string CreatureName { get; set; }
         public int OldCreatureId { get; set; }
@@ -113,6 +110,7 @@ namespace QuivalLogicEngine.Client
             return $"{CreatureName} replaced {OldCreatureName} in the block zone";
         }
     }
+
     public class BothPlayersOutOfMovesEvent : EventMessage
     {
         public override string GetString()
@@ -120,12 +118,13 @@ namespace QuivalLogicEngine.Client
             return $"Both players are out of moves!";
         }
     }
+
     public class CardActionEvent : EventMessage
     {
         public Intent Intent { get; set; }
-        public int Value;
-        public int ActionCardId;
-        public int TargetCardId;
+        public int Value { get; set; }
+        public int ActionCardId { get; set; }
+        public int TargetCardId { get; set; }
 
         public override string GetString()
         {

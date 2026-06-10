@@ -85,8 +85,6 @@ namespace QuivalCombatTestWPF
             var blockSwapEvents = cgs.GameEvents.OfType<BlockSwapEvent>().ToList();
             await PlayBlockSwapAnimations(blockSwapEvents);
 
-            //TODO: some kind of buff animation
-
             var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList();
             await PlayAttackAnimations(attackEvents);
 
@@ -158,16 +156,25 @@ namespace QuivalCombatTestWPF
                 attackEvents.Where(e => e.PlayerId != MyPlayerId).ToList()
             ];
 
+            var attackBuffs = CurrentGameState.GameEvents.OfType<CardActionEvent>().Where(c => c.Intent == Intent.AttackBuff).ToList();
+
             for (int i = 0; i < events.Count; i++)
             {
                 foreach (var eve in events[i])
                 {
-                    foreach (var summonedCard in CombatZones[i].SummonedCards)
+                    var attackingBoardCard = CombatZones[i].SummonedCards.SingleOrDefault(c => c != null && c.Id == eve.CreatureId);
                     {
-                        if (summonedCard != null && summonedCard.Id == eve.CreatureId)
-                        {
-                            await Animation.MoveToPointAndBack(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[OppositeSide(i)]);
-                        }
+                        //play attack buff flash
+                        foreach (var buffevent in attackBuffs)
+                            if (buffevent.TargetCardId == attackingBoardCard.Id)
+                            {
+                                await attackingBoardCard.FlashUp(Brushes.Aquamarine);
+                                attackingBoardCard.AttackLabel.Content = attackingBoardCard.GetAttackFromLabel() + buffevent.Value;
+                                attackingBoardCard.AttackLabel.Foreground = Brushes.Aquamarine;
+                                await attackingBoardCard.FlashDown(Brushes.Aquamarine);
+                            }
+
+                        await Animation.MoveToPointAndBack(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide(i)]);
                     }
                 }
             }
@@ -342,6 +349,18 @@ namespace QuivalCombatTestWPF
             //TODO: both sides
             PlayerSummonZone.Children.Clear();
             OpponentSummonZone.Children.Clear();
+        }
+
+        private CreatureCard? GetSummonedCreatureById(int id)
+        {
+            foreach (var summonedCreatures in CurrentGameState.BoardState.SummonedCreatures)
+                foreach (var creature in summonedCreatures)
+                {
+                    if (creature.Id == id)
+                        return creature;
+                }
+
+            return null;
         }
 
         private bool SummonedCardsCantMove()

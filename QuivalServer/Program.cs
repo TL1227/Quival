@@ -46,6 +46,25 @@ internal class Program
 
         Decks = [new List<Card>(), new List<Card>()];
 
+        var json = File.ReadAllText("..\\..\\..\\..\\QuivalCardsDebug.json");
+        Card card = JsonSerializer.Deserialize<Card>(json)!;
+        for (int d = 0; d < 2; d++)
+            for (int i = 0; i < 20; i++)
+            {
+                if (card is CreatureCard cc)
+                {
+                    var j = JsonSerializer.Serialize(cc);
+                    Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
+                }
+                else if (card is SpellCard sc)
+                {
+                    continue; //TODO: just while we work on creatures
+                    var j = JsonSerializer.Serialize(sc);
+                    Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
+                }
+            }
+
+        /*
         var json = File.ReadAllText("..\\..\\..\\..\\QuivalCards.json");
         if (json == null)
         {
@@ -73,6 +92,7 @@ internal class Program
                     }
                 }
 
+        */
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();

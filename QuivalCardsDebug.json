@@ -1,0 +1,33 @@
+{
+    "Type": "creaturecard",
+    "Attack": 2,
+    "Health": 4,
+    "CurrentHealth": 0,
+    "HasActed": false,
+    "AttackBuff": 0,
+    "SetCode": "ALP",
+    "UniqueId": 5,
+    "Id": 0,
+    "PlayerId": 0,
+    "Name": "BFG",
+    "Description": "If BFG attacks on round 3, increase attack by 2 for the rest of the round.",
+    "Cost": 1,
+    "Abilities": [
+        {
+            "Trigger": 1,
+            "Actions": [
+                {
+                    "Intent": 1,
+                    "TargetType": 1,
+                    "Side": 0,
+                    "Value": 2,
+                    "Conditionals": [
+                        1
+                    ]
+                }
+            ],
+            "ChoiceType": 0,
+            "ChoiceNumber": 0
+        }
+    ]
+}

@@ -43,8 +43,15 @@ public class Player
     {
         for (int i = 0; i < number; i++) 
         {
-            Hand.Add(Deck[0]);
-            Deck.RemoveAt(0);
+            if (Deck.Count <= 0)
+            {
+                //TODO: figure out what happens if we run out of cards
+            }
+            else
+            {
+                Hand.Add(Deck[0]);
+                Deck.RemoveAt(0);
+            }
         }
     }
 

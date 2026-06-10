@@ -1,5 +1,6 @@
 ﻿using QuivalCombatTestWPF.Colours;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -226,6 +227,85 @@ namespace QuivalCombatTestWPF
                 Top = Canvas.GetTop(this),
                 Left = Canvas.GetLeft(this)
             };
+        }
+        public int GetAttackFromLabel()
+        {
+            return (int)AttackLabel.Content;
+        }
+
+        public Task Flash(Brush Brush)
+        {
+            double animationSpeed = 0.4;
+            Overlay.Background = Brush;
+
+            DoubleAnimation anim = new()
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                AutoReverse = true,
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
+
+        public Task FlashUp(Brush Brush)
+        {
+            double animationSpeed = 0.2;
+            Overlay.Background = Brush;
+
+            DoubleAnimation anim = new()
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
+        public Task FlashDown(Brush Brush)
+        {
+            double animationSpeed = 0.2;
+            Overlay.Background = Brush;
+
+            DoubleAnimation anim = new()
+            {
+                To = 0.0,
+                From = 1.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
         }
     }
 }
