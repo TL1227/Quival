@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuivalCombatTestWPF"
         mc:Ignorable="d"
-        Title="Quival" Height="1080" Width="1920"
-        WindowState="Maximized">
+        Title="Quival" Height="1080" Width="1920" >
 
     <Grid>
         <Grid x:Name="BattleField" Margin="10">

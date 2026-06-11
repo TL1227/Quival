@@ -38,12 +38,14 @@ namespace QuivalCombatTestWPF
             handcard.CardNameLabel.Content = card.Name;
             handcard.CardDescriptionLabel.Text = card.Description;
             handcard.CostContent.Content = card.Cost;
+            handcard.Tag = card;
 
             if (card is CreatureCard cc)
             {
                 handcard.AttackLabel.Content = cc.Attack;
                 handcard.HealthLabel.Content = cc.Health;
                 handcard.CardBackground.Background = GetColor(cc.Attack);
+                handcard.Tag = cc;
             }
 
             return handcard;

@@ -51,10 +51,10 @@
 
     public enum ChoiceType
     {
-        None,
-        And,
+        And, //NOTE: And is the default
         Or,
-        PickNumber
+        PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
+        PickUpTo
     }
 
     public class Ability
@@ -69,6 +69,7 @@
     {
         public Intent Intent { get; set; }
         public TargetType TargetType { get; set; }
+        public int NumberOfTargets { get; set; }
         public Side Side { get; set; }
         public int Value { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();

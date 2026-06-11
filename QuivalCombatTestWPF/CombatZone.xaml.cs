@@ -213,7 +213,7 @@ public partial class CombatZone : UserControl
     {
         if (obj is BoardCard card)
         {
-            if (card != null && card.HasActed == false)
+            if (card != null)
             {
                 CardClicked?.Invoke(obj, args);
             }

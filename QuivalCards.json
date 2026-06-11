@@ -87,6 +87,7 @@
             {
               "Intent": 1,
               "TargetType": 1,
+              "NumberOfTargets": 0,
               "Side": 0,
               "Value": 2,
               "Conditionals": [
@@ -131,6 +132,7 @@
             {
               "Intent": 3,
               "TargetType": 2,
+              "NumberOfTargets": 1,
               "Side": 1,
               "Value": 2,
               "Conditionals": []

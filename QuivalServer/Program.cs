@@ -31,6 +31,8 @@ internal class Program
 
     internal static Match Match;
 
+    internal static bool UseDebugCards = false;
+
     static async Task Main(string[] args)
     {
         Console.WriteLine($"Quival Server Version {CurrentVersion}");
@@ -46,38 +48,12 @@ internal class Program
 
         Decks = [new List<Card>(), new List<Card>()];
 
-        var json = File.ReadAllText("..\\..\\..\\..\\QuivalCardsDebug.json");
-        Card card = JsonSerializer.Deserialize<Card>(json)!;
-        for (int d = 0; d < 2; d++)
-            for (int i = 0; i < 20; i++)
-            {
-                if (card is CreatureCard cc)
-                {
-                    var j = JsonSerializer.Serialize(cc);
-                    Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
-                }
-                else if (card is SpellCard sc)
-                {
-                    continue; //TODO: just while we work on creatures
-                    var j = JsonSerializer.Serialize(sc);
-                    Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
-                }
-            }
-
-        /*
-        var json = File.ReadAllText("..\\..\\..\\..\\QuivalCards.json");
-        if (json == null)
+        if (UseDebugCards)
         {
-            Console.WriteLine("Can't find QuivalCards.json!");
-            return;
-        }
-
-        Set currentSet = JsonSerializer.Deserialize<Set>(json)!;
-
-        //add 4 copies of each card for each deck
-        for (int d = 0; d < 2; d++)
-            foreach(var card in currentSet.Cards)
-                for (int i = 0; i < 4; i++)
+            var json = File.ReadAllText("..\\..\\..\\..\\QuivalCardsDebug.json");
+            Card card = JsonSerializer.Deserialize<Card>(json)!;
+            for (int d = 0; d < 2; d++)
+                for (int i = 0; i < 20; i++)
                 {
                     if (card is CreatureCard cc)
                     {
@@ -86,13 +62,41 @@ internal class Program
                     }
                     else if (card is SpellCard sc)
                     {
-                        continue; //TODO: just while we work on creatures
                         var j = JsonSerializer.Serialize(sc);
                         Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
                     }
                 }
+        }
+        else
+        {
+            var json = File.ReadAllText("..\\..\\..\\..\\QuivalCards.json");
+            if (json == null)
+            {
+                Console.WriteLine("Can't find QuivalCards.json!");
+                return;
+            }
 
-        */
+            Set currentSet = JsonSerializer.Deserialize<Set>(json)!;
+
+            //add 4 copies of each card for each deck
+            for (int d = 0; d < 2; d++)
+                foreach (var card in currentSet.Cards)
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (card is CreatureCard cc)
+                        {
+                            var j = JsonSerializer.Serialize(cc);
+                            Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
+                            break;
+                        }
+                        else if (card is SpellCard sc)
+                        {
+                            var j = JsonSerializer.Serialize(sc);
+                            Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
+                        }
+                    }
+        }
+
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();

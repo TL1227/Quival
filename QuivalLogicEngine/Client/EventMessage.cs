@@ -124,7 +124,7 @@ namespace QuivalLogicEngine.Client
         public Intent Intent { get; set; }
         public int Value { get; set; }
         public int ActionCardId { get; set; }
-        public int TargetCardId { get; set; }
+        public List<int> TargetsCardIds { get; set; } = new();
 
         public override string GetString()
         {
@@ -133,7 +133,8 @@ namespace QuivalLogicEngine.Client
                 case Intent.None:
                     break;
                 case Intent.AttackBuff:
-                    return $"{TargetCardId} gets attack buff of {Value}";
+                    //TODO: build this list properly 
+                    return $"{TargetsCardIds} gets attack buff of {Value}";
                 case Intent.DamageAbsorbToken:
                     break;
                 case Intent.DirectDamage:

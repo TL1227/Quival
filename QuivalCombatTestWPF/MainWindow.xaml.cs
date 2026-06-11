@@ -40,6 +40,8 @@ namespace QuivalCombatTestWPF
         public int PlayerSide = (int)Side.Player;
         public int OpponentSide = (int)Side.Opponent;
 
+        public CardSelector? CardSelector { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -163,10 +165,11 @@ namespace QuivalCombatTestWPF
                 foreach (var eve in events[i])
                 {
                     var attackingBoardCard = CombatZones[i].SummonedCards.SingleOrDefault(c => c != null && c.Id == eve.CreatureId);
+                    if (attackingBoardCard != null)
                     {
                         //play attack buff flash
                         foreach (var buffevent in attackBuffs)
-                            if (buffevent.TargetCardId == attackingBoardCard.Id)
+                            if (buffevent.TargetsCardIds.Contains(attackingBoardCard.Id))
                             {
                                 await attackingBoardCard.FlashUp(Brushes.Aquamarine);
                                 attackingBoardCard.AttackLabel.Content = attackingBoardCard.GetAttackFromLabel() + buffevent.Value;
@@ -458,17 +461,41 @@ namespace QuivalCombatTestWPF
         {
             if (SelectedCard != null && SelectedCard is HandCard hc)
             {
-                QuivalTurn turn = new()
+                Card cardToCast = (Card)hc.Tag;
+                var castAbility = cardToCast.Abilities.SingleOrDefault(a => a.Trigger == QuivalLogicEngine.Cards.Trigger.Cast);
+                if (castAbility != null)
                 {
-                    TurnType = TurnType.Cast,
-                    CardToPlayId = hc.Id
-                };
+                    var cardActions = castAbility.Actions.Where(a => a.TargetType != TargetType.None).ToList();
 
-                Client.SubmitTurn(turn);
+                    List<NumberOfIntents> actionIntents = new();
+                    foreach (var action in cardActions)
+                    {
+                        actionIntents.Add(new NumberOfIntents
+                        {
+                            Intent = action.Intent,
+                            Number = action.NumberOfTargets
+                        });
+                    }
 
-                QuivalColour.ChangetoPurpleHighlights();
-                CastSpellButton.Content = "Cast";
-                SelectedCard = null;
+                    CardSelector = new(actionIntents);
+                    Layout.Canvas.Children.Add(CardSelector);
+                    Canvas.SetLeft(CardSelector, 100);
+                    Canvas.SetTop(CardSelector, 100);
+                }
+                else
+                {
+                    QuivalTurn turn = new()
+                    {
+                        TurnType = TurnType.Cast,
+                        CardToPlayId = hc.Id
+                    };
+
+                    Client.SubmitTurn(turn);
+
+                    QuivalColour.ChangetoPurpleHighlights();
+                    CastSpellButton.Content = "Cast";
+                    SelectedCard = null;
+                }
             }
         }
 
@@ -476,20 +503,33 @@ namespace QuivalCombatTestWPF
         {
             if (sender is BoardCard card)
             {
-                if (SelectedCard != null)
+                if (CardSelector != null)
+                {
+                    var result = CardSelector.SelectCard(card.Id);
+                    if (result != null)
+                    {
+                        Layout.Canvas.Children.Remove(CardSelector);
+                        CardSelector = null;
+                        //TODO: play the turn
+                    }
+                }
+                else if (SelectedCard != null)
                 {
                     CombatZone_PlayerZoneClicked(sender, e);
                 }
                 else if (CombatZones[PlayerSide].CardIsSummonedByPlayer(card))
                 {
-                    UnselectAll();
+                    if (!card.HasActed)
+                    {
+                        UnselectAll();
 
-                    card.Highlight();
-                    //card.Overlay.Opacity = 0.4;
-                    SelectedCard = card;
+                        card.Highlight();
+                        //card.Overlay.Opacity = 0.4;
+                        SelectedCard = card;
 
-                    PlayerBlockZone.SetHighlighted(true);
-                    OpponentBlockZone.SetHighlighted(true);
+                        PlayerBlockZone.SetHighlighted(true);
+                        OpponentBlockZone.SetHighlighted(true);
+                    }
                 }
             }
         }
@@ -497,6 +537,16 @@ namespace QuivalCombatTestWPF
         //BlockZones
         private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
         {
+            if (sender is BoardCard cc)
+            {
+                var result = CardSelector?.SelectCard(cc.Id);
+                if (result != null)
+                {
+                    Layout.Canvas.Children.Remove(CardSelector);
+                    CardSelector = null;
+                    //TODO: play the turn
+                }
+            }
             if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
                 QuivalTurn turn = new()
@@ -516,7 +566,17 @@ namespace QuivalCombatTestWPF
 
         private void OpponentBlockZone_ZoneClicked(object? sender, EventArgs e)
         {
-            if (SelectedCard != null && SelectedCard is BoardCard bc)
+            if (sender is BoardCard cc)
+            {
+                var result = CardSelector?.SelectCard(cc.Id);
+                if (result != null)
+                {
+                    Layout.Canvas.Children.Remove(CardSelector);
+                    CardSelector = null;
+                    //TODO: play the turn
+                }
+            }
+            else if (SelectedCard != null && SelectedCard is BoardCard bc)
             {
                 if (CombatZones[PlayerSide].CardIsSummonedByPlayer(bc))
                 {
@@ -540,8 +600,7 @@ namespace QuivalCombatTestWPF
         {
             if (sender is HandCard card)
             {
-                //TODO: get this from some card lookup, not the client UI
-                int cost = int.Parse(card.CostContent.Content.ToString()!);
+                int cost = ((Card)card.Tag).Cost;
                 int mana = CurrentGameState.PlayerState.ManaPoints;
 
                 if (cost > mana)

@@ -88,6 +88,7 @@ namespace LogicEngineConsole
                                 {
                                     Intent = Intent.DirectDamage,
                                     TargetType = TargetType.Damageable,
+                                    NumberOfTargets = 1,
                                     Side = Side.Any,
                                     Value = 2,
                                 }

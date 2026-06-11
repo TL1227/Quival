@@ -9,7 +9,6 @@ public class Match
 {
     private List<Player> Players { get; set; }
     private List<ICardIntent> CardIntents { get; set; }
-    //public List<ICardIntent> SuccessfulIntents { get; set; }
     private BoardState BoardState { get; set; }
     private List<EventMessage> EventMessages { get; set; }
     private int TurnCount { get; set; }
@@ -354,56 +353,98 @@ public class Match
     //abilities
     private void ProcessTriggeredAbilities(Card card, Trigger trigger)
     {
-        var abilities = card.Abilities.Where(a => a.Trigger == trigger);
+        var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
 
-        foreach (var ability in abilities)
+        if (ability == null) 
         {
-            //NOTE: just checking one action/condition for now
-            if (ConditionalMet(ability.Actions[0].Conditionals[0]))
+            Console.WriteLine($"Couldn't find trigger {trigger.ToString()} on the card {card.Name}");
+            return;
+        }
+
+        foreach (var action in GetActions(ability))
+        {
+            if (ConditionalsMet(action.Conditionals))
             {
-                if (ability.Actions[0].Intent == Intent.AttackBuff)
+
+                //TODO: I think the targets List will probably get filled by the user.
+                //      We could just get it from the player's submitted turn.
+                List<Card> targets = new();
+                if (action.TargetType == TargetType.Self)
                 {
-                    if (ability.Actions[0].TargetType == TargetType.Self)
-                    {
-                        if (card is CreatureCard cc) //Maybe make IBuffable()
-                        {
-                            var action = ability.Actions[0];
-
-                            cc.AttackBuff = action.Value;
-
-                            CardActionEvent message = new()
-                            {
-                                Intent = action.Intent,
-                                TargetCardId = card.Id,
-                                Value = action.Value,
-                            };
-
-                            EventMessage(message);
-                        }
-                    }
+                    targets.Add(card);
                 }
+
+                ProcessAction(targets, action.Value, action.Intent);
+
+                CardActionEvent message = new()
+                {
+                    Intent = action.Intent,
+                    TargetsCardIds = targets.Select(c => c.Id).ToList(),
+                    Value = action.Value
+                };
+
+                EventMessage(message);
             }
         }
     }
 
-    private bool ConditionalMet(Conditional condition)
+    private List<CardAction> GetActions(Ability ability)
     {
-        switch (condition)
+        List<CardAction> actions = new();
+
+        switch (ability.ChoiceType)
         {
-            case Conditional.None:
-                return true;
-            case Conditional.Round1:
-                return RoundCount == 1;
-            case Conditional.Round2:
-                return RoundCount == 2;
-            case Conditional.Round3:
-                return RoundCount == 3;
-            case Conditional.Round4:
-                return RoundCount == 4;
-            case Conditional.Round5:
-                return RoundCount == 5;
-            default: return true;
+            case ChoiceType.And:
+            {
+                actions = ability.Actions;
+                break;
+            }
+            default:
+                Console.WriteLine($"The choice type {ability.ChoiceType.ToString()} has not yet been implemented");
+            break;
         }
+
+        return actions;
+    }
+
+    private void ProcessAction(List<Card> targets, int value, Intent intent)
+    {
+        switch (intent)
+        {
+            case Intent.AttackBuff: 
+            {
+                foreach (var target in targets)
+                    if (target is CreatureCard creature)
+                        creature.AttackBuff += value;
+                break;
+            } 
+        }
+    }
+
+    private bool ConditionalsMet(List<Conditional> conditionals)
+    {
+        if (conditionals.Count <= 0)
+            return true;
+
+        List<bool> passes = new();
+        foreach (var condition in conditionals)
+        {
+            switch (condition)
+            {
+                case Conditional.None: passes.Add(true); break;
+                case Conditional.Round1: passes.Add(RoundCount == 1); break;
+                case Conditional.Round2: passes.Add(RoundCount == 2); break;
+                case Conditional.Round3: passes.Add(RoundCount == 3); break;
+                case Conditional.Round4: passes.Add(RoundCount == 4); break;
+                case Conditional.Round5: passes.Add(RoundCount == 5); break;
+                default: 
+                    passes.Add(true); 
+                    Console.WriteLine($"The condition {condition.ToString()} has not yet been implemented");
+                break;
+            }
+        }
+
+        return !passes.Contains(false); 
     }
 
     private void NextTurn()
