@@ -249,7 +249,7 @@ public class Match
             {
                 player.Mana -= player.CardToPlay.Cost;
 
-                if (player.CardToPlay is CreatureCard creature) 
+                if (player.CardToPlay is CreatureCard creature)
                 {
                     if (BoardState.CreatureSlotFree(player.Id))
                     {
@@ -260,12 +260,16 @@ public class Match
                         creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
 
-                        ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast);
+                        ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
                     }
                     else
                     {
                         Console.WriteLine($"[ERROR]: Not enough room on {creature.PlayerId} board for {creature.Id}");
                     }
+                }
+                else if (player.CardToPlay is SpellCard spell)
+                {
+                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
@@ -282,7 +286,7 @@ public class Match
 
             if (player.CardToPlay is CreatureCard attackingCreature)
             {
-                ProcessTriggeredAbilities(player.CardToPlay, Trigger.Attack);
+                ProcessTriggeredAbilities(player.CardToPlay, Trigger.Attack, player.SubmittedTurn.SelectedCardIds);
 
                 EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
 
@@ -331,7 +335,7 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.MoveToBlockZone);
+                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
                 }
                 else
                 {
@@ -344,14 +348,14 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.BlockSwap);
+                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.BlockSwap, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessTriggeredAbilities(Card card, Trigger trigger)
+    private void ProcessTriggeredAbilities(Card card, Trigger trigger, Dictionary<Intent, List<int>> targetedCards)
     {
         var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
 
@@ -365,14 +369,7 @@ public class Match
         {
             if (ConditionalsMet(action.Conditionals))
             {
-
-                //TODO: I think the targets List will probably get filled by the user.
-                //      We could just get it from the player's submitted turn.
-                List<Card> targets = new();
-                if (action.TargetType == TargetType.Self)
-                {
-                    targets.Add(card);
-                }
+                List<Card> targets = GetTargets(card, action.TargetType, targetedCards[action.Intent]);
 
                 ProcessAction(targets, action.Value, action.Intent);
 
@@ -386,6 +383,30 @@ public class Match
                 EventMessage(message);
             }
         }
+    }
+
+    private List<Card> GetTargets(Card self, TargetType targetType, List<int> targets)
+    {
+        List<Card> targetsResult = new();
+
+        if (targetType == TargetType.Self)
+        {
+            targetsResult.Add(self);
+        }
+        else
+        {
+            foreach (var target in targets)
+            {
+                var card = GetCardFromId(target);
+
+                if (card != null)
+                {
+                    targetsResult.Add(card);
+                }
+            }
+        }
+
+        return targetsResult;
     }
 
     private List<CardAction> GetActions(Ability ability)
@@ -416,6 +437,13 @@ public class Match
                 foreach (var target in targets)
                     if (target is CreatureCard creature)
                         creature.AttackBuff += value;
+                break;
+            } 
+            case Intent.DirectDamage: 
+            {
+                foreach (var target in targets)
+                    if (target is CreatureCard creature)
+                        creature.Health -= value;
                 break;
             } 
         }

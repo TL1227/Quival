@@ -1,13 +1,14 @@
 ﻿using QuivalLogicEngine.Cards;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace QuivalCombatTestWPF
 {
     internal static class Mapper
     {
+        /*
         public static List<HandCard> MapToHandCards(List<Card> cards)
         {
             List<HandCard> result = new();
@@ -31,6 +32,7 @@ namespace QuivalCombatTestWPF
 
             return result;
         }
+        */
 
         public static HandCard MapToHandCard(Card card)
         {
@@ -51,7 +53,7 @@ namespace QuivalCombatTestWPF
             return handcard;
         }
 
-        public static BoardCard MapToBoardCard(CreatureCard card)
+        public static BoardCard MapToBoardCard(CreatureCard card, MouseButtonEventHandler onClick)
         {
             BoardCard bc = new()
             { 
@@ -59,6 +61,7 @@ namespace QuivalCombatTestWPF
                 HasActed = card.HasActed,
             };
             bc.DebugId.Content = card.Id;
+            bc.MouseLeftButtonDown += onClick;
 
             Debug.WriteLine($"Mapper: card id {card.Id} has acted is {card.HasActed}");
 

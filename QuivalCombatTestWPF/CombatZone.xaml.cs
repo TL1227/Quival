@@ -28,7 +28,7 @@ public partial class CombatZone : UserControl
         Opacity = highlight ? 0.5 : 1 ;
     }
 
-    public void UpdateCombatZone(List<CreatureCard> newCards, LayoutCanvas layout, Position[] slotPositions)
+    public void UpdateCombatZone(List<CreatureCard> newCards, LayoutCanvas layout, Position[] slotPositions, MouseButtonEventHandler onClick)
     {
         //remove items not in the card list
         var newCardIds = newCards.Select(c => c.Id);
@@ -72,7 +72,7 @@ public partial class CombatZone : UserControl
                 {
                     if (SummonedCards[i] == null)
                     {
-                        SummonedCards[i] = Mapper.MapToBoardCard(newCard);
+                        SummonedCards[i] = Mapper.MapToBoardCard(newCard, onClick);
                         SummonedCards[i]!.MouseLeftButtonDown += HandleClick;
                         layout.Canvas.Children.Add(SummonedCards[i]);
                         SummonedCards[i]!.SetPos(slotPositions[i]);
