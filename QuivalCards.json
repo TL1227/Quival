@@ -14,7 +14,7 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Desmond Future Knight",
-      "Description": "\u0022One of these days Samson, I\u0027ll be a knight. Just gotta muck out the stable first!\u0022 - Desmond",
+      "Description": "",
       "Cost": 2,
       "Abilities": []
     },
@@ -46,7 +46,7 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Defender",
-      "Description": "\u0022I\u0027m gonna block your ass!\u0022 - Defender",
+      "Description": "",
       "Cost": 2,
       "Abilities": []
     },
@@ -62,7 +62,7 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Aggression",
-      "Description": "\u0022GRAAAAAAAAAAAAHHHHH\u0022 - Aggression",
+      "Description": "",
       "Cost": 2,
       "Abilities": []
     },
@@ -78,7 +78,7 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "BFG",
-      "Description": "If BFG attacks on round 3, increase attack by 2 for the rest of the round.",
+      "Description": "If BFG attacks on round 3, BFG deals 4 damage",
       "Cost": 3,
       "Abilities": [
         {
@@ -123,7 +123,7 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Zap",
-      "Description": "",
+      "Description": "Deal 2 damage to any target",
       "Cost": 1,
       "Abilities": [
         {

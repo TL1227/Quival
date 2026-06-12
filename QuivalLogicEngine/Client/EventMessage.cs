@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Client
@@ -6,6 +7,7 @@ namespace QuivalLogicEngine.Client
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
     [JsonDerivedType(typeof(AttackEvent), "attackevent")]
     [JsonDerivedType(typeof(SummonEvent), "summonevent")]
+    [JsonDerivedType(typeof(CastEvent), "castevent")]
     [JsonDerivedType(typeof(CreatureDeathEvent), "creaturedeathevent")]
     [JsonDerivedType(typeof(MoveToBlockZoneEvent), "movetoblockzoneenevent")]
     [JsonDerivedType(typeof(BlockSwapEvent), "blockswapevent")]
@@ -36,6 +38,7 @@ namespace QuivalLogicEngine.Client
             return $"Player {PlayerId} attacks with {CreatureName}";
         }
     }
+
     public class SummonEvent : EventMessage
     {
         public int CreatureId { get; set; }
@@ -54,20 +57,20 @@ namespace QuivalLogicEngine.Client
         }
     }
 
-    public class CreatureDeathEvent : EventMessage
-    {
-        public int CreatureId { get; set; }
-        public string CreatureName { get; set; }
 
-        public CreatureDeathEvent(int creatureId, string creatureName)
+    public class CastEvent : EventMessage
+    {
+        public SpellCard CastCard { get; set; }
+
+        public CastEvent(int playerId, SpellCard castCard)
         {
-            CreatureId = creatureId;
-            CreatureName = creatureName;
+            PlayerId = playerId;
+            CastCard = castCard;
         }
 
         public override string GetString() 
         {
-            return $"{CreatureName} died!";
+            return $"Cast {CastCard.Name}";
         }
     }
 
@@ -111,48 +114,77 @@ namespace QuivalLogicEngine.Client
         }
     }
 
-    public class BothPlayersOutOfMovesEvent : EventMessage
-    {
-        public override string GetString()
-        {
-            return $"Both players are out of moves!";
-        }
-    }
 
     public class CardActionEvent : EventMessage
     {
         public Intent Intent { get; set; }
         public int Value { get; set; }
-        public int ActionCardId { get; set; }
         public List<int> TargetsCardIds { get; set; } = new();
 
         public override string GetString()
         {
-            switch (Intent)
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var target in TargetsCardIds)
             {
-                case Intent.None:
-                    break;
-                case Intent.AttackBuff:
-                    //TODO: build this list properly 
-                    return $"{TargetsCardIds} gets attack buff of {Value}";
-                case Intent.DamageAbsorbToken:
-                    break;
-                case Intent.DirectDamage:
-                    break;
-                case Intent.DrawCard:
-                    break;
-                case Intent.RushDown:
-                    break;
-                case Intent.RestoreAction:
-                    break;
-                default:
-                    break;
+                switch (Intent)
+                {
+                    case Intent.None: 
+                        break;
+                    case Intent.AttackBuff:
+                        sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
+                        break;
+                    case Intent.DamageAbsorbToken:
+                        break;
+                    case Intent.DirectDamage:
+                        sb.AppendLine($"Card {target} takes {Value} damage!"); 
+                        break;
+                    case Intent.DrawCard:
+                        break;
+                    case Intent.RushDown:
+                        break;
+                    case Intent.RestoreAction:
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            return "CardActionUnknown";
+            return (sb.Length > 0) ? sb.ToString() : "CardActionUnknown";
         }
     }
 
+    //Events without player ID
+    public class CreatureDeathEvent : EventMessage
+    {
+        public int CreatureId { get; set; }
+        public string CreatureName { get; set; }
+
+        public CreatureDeathEvent(int creatureId, string creatureName)
+        {
+            PlayerId = -1;
+            CreatureId = creatureId;
+            CreatureName = creatureName;
+        }
+
+        public override string GetString() 
+        {
+            return $"{CreatureName} died!";
+        }
+    }
+
+    public class BothPlayersOutOfMovesEvent : EventMessage
+    {
+        public BothPlayersOutOfMovesEvent()
+        {
+            PlayerId = -1;
+        }
+
+        public override string GetString()
+        {
+            return $"Both players are out of moves!";
+        }
+    }
     public class NewRound : EventMessage
     {
         public int Round { get; set; }
@@ -160,6 +192,7 @@ namespace QuivalLogicEngine.Client
         public NewRound(int round)
         {
             Round = round;
+            PlayerId = -1;
         }
 
         public override string GetString()
@@ -176,6 +209,7 @@ namespace QuivalLogicEngine.Client
         {
             Turn = turn;
             Round = round;
+            PlayerId = -1;
         }
 
         public override string GetString()

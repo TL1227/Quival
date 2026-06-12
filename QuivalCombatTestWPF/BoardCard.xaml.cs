@@ -28,10 +28,17 @@ namespace QuivalCombatTestWPF
             DebugId.Content = Id;
         }
 
-        public void MarkAsActed()
+        public void MarkAsActed(bool mark)
         {
-            Overlay.Background = Brushes.Black;
-            Overlay.Opacity = 0.5;
+            if (mark)
+            {
+                Overlay.Background = Brushes.Black;
+                Overlay.Opacity = 0.5;
+            }
+            else
+            {
+                Overlay.Opacity = 0.0;
+            }
         }
 
         public void MarkRed()
@@ -40,16 +47,17 @@ namespace QuivalCombatTestWPF
             Overlay.Opacity = 0.6;
         }
 
-        public void MarkSelected()
+        public void MarkSelected(bool mark)
         {
-            SelectedOverlay.Background = Brushes.MediumPurple;
-            SelectedOverlay.Opacity = 0.6;
-        }
-
-        public void UnMarkSelected()
-        {
-            SelectedOverlay.Background = Brushes.MediumPurple;
-            SelectedOverlay.Opacity = 0.0;
+            if (mark)
+            {
+                SelectedOverlay.Background = Brushes.MediumPurple;
+                SelectedOverlay.Opacity = 0.6;
+            }
+            else
+            {
+                SelectedOverlay.Opacity = 0.0;
+            }
         }
 
         public void RemoveHighlight()

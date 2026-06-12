@@ -8,7 +8,8 @@ namespace QuivalLogicEngine
         public List<int>[] BlockingCreatureIds { get; set; }
         public List<List<CreatureCard>> SummonedCreatures { get; set; }
 
-        public int[] ManaClock = [2, 3, 4, 5];
+        //public int[] ManaClock = [2, 3, 4, 5];
+        public int[] ManaClock = [5, 5, 5, 5];
         public int ManaClockIndex = 0;
 
         public BoardState() 

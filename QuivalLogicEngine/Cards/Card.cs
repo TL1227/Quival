@@ -85,11 +85,27 @@ public class CreatureCard : Card
         return Attack + AttackBuff;
     }
 
+    public bool DamageCreature(int dmg)
+    {
+        CurrentHealth -= dmg;
+        return CurrentHealth <= 0; 
+    }
+
+    public bool IsDead()
+    {
+        return CurrentHealth <= 0;
+    }
+    public bool IsAlive()
+    {
+        return CurrentHealth > 0;
+    }
+
     public override List<ICardIntent> GetIntents()
     {
         List<ICardIntent> intents = [ new Summon(Id) ];
         return intents;
     }
+
 }
 
 public class AttackCard : Card

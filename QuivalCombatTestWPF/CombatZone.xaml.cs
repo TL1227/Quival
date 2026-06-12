@@ -141,7 +141,7 @@ public partial class CombatZone : UserControl
             {
                 if (summonedCard.HasActed)
                 {
-                    summonedCard.MarkAsActed();
+                    summonedCard.MarkAsActed(true);
                 }
             }
         }
@@ -186,8 +186,16 @@ public partial class CombatZone : UserControl
     public void ClearHighlightedCards()
     {
         foreach (var card in SummonedCards)
-            if (card != null && !card.HasActed)
-                card.Overlay.Opacity = 0.0; 
+        {
+            if (card != null )
+            {
+                card.MarkSelected(false);
+
+                if (!card.HasActed)
+                    card.Overlay.Opacity = 0.0;
+            }
+
+        }
     }
 
     public List<BoardCard> GetBoardCards()

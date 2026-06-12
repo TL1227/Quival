@@ -10,6 +10,23 @@
         BlockSwap
     }
 
+
+    /*
+    NOTE: we could do something like this if we want to go full Inerfacey
+    public interface ICreatureApplicable
+    {
+        void Apply(CreatureCard creatureCard);
+    }
+
+    public class AttackBuffEffect : CardAction, ICreatureApplicable
+    {
+        public void Apply(CreatureCard creature)
+        {
+            creature.AttackBuff += Value;
+        }
+    }
+    */
+
     public enum Intent
     {
         None,
@@ -57,7 +74,7 @@
         PickUpTo
     }
 
-    public class Ability
+    public class Ability //NOTE: This should probably just be called Trigger and the enum be called TriggerType
     {
         public Trigger Trigger { get; set; }
         public List<CardAction> Actions { get; set; } = new();
@@ -65,9 +82,9 @@
         public int ChoiceNumber { get; set; }
     }
 
-    public class CardAction
+    public class CardAction //NOTE: Then this would be called Ability which is closer to what it is
     {
-        public Intent Intent { get; set; }
+        public Intent Intent { get; set; } //NOTE: intent could then be Effect, which again is more descriptive
         public TargetType TargetType { get; set; }
         public int NumberOfTargets { get; set; }
         public Side Side { get; set; }

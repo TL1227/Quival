@@ -78,6 +78,7 @@ public class Match
             state.OpponentHealthPoints = opponent.HealthPoints;
             state.OpponentManaPoints = opponent.Mana;
             state.OpponentBlockCard = opponent.BlockingCreature;
+            state.OpponentCardToPlay = opponent.CardToPlay;
         }
 
         return state;
@@ -99,8 +100,10 @@ public class Match
 
         Player player = new Player(id, deck)
         {
-            Mana = 1
+            //Mana = 1
+            Mana = 10
         };
+
 
         Players.Add(player);
     }
@@ -260,7 +263,7 @@ public class Match
                         creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
 
-                        ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
+                        ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
                     }
                     else
                     {
@@ -269,7 +272,8 @@ public class Match
                 }
                 else if (player.CardToPlay is SpellCard spell)
                 {
-                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
+                    EventMessage(new CastEvent(player.Id ,spell));
+                    ProcessTriggeredAbilities(player.Id, spell, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
@@ -282,15 +286,15 @@ public class Match
             if (player.SubmittedTurn!.TurnType != TurnType.Attack)
                 continue;
 
-            Player otherPlayer = GetOpponent(player.Id);
-
-            if (player.CardToPlay is CreatureCard attackingCreature)
+            if (player.CardToPlay is CreatureCard attackingCreature && attackingCreature.IsAlive())
             {
-                ProcessTriggeredAbilities(player.CardToPlay, Trigger.Attack, player.SubmittedTurn.SelectedCardIds);
+                Player otherPlayer = GetOpponent(player.Id);
+
+                ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Attack, player.SubmittedTurn.SelectedCardIds);
 
                 EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
 
-                if (otherPlayer.BlockingCreature == null)
+                if (otherPlayer.BlockingCreature == null || otherPlayer.BlockingCreature.IsDead())
                 {
                     otherPlayer.HealthPoints -= attackingCreature.GetAttackDamage();
                 }
@@ -326,7 +330,7 @@ public class Match
             if (player.SubmittedTurn!.TurnType != TurnType.MoveToBlock)
                 continue;
 
-            if (player.CardToPlay is CreatureCard newBlocker)
+            if (player.CardToPlay is CreatureCard newBlocker && newBlocker.IsAlive())
             {
                 if (player.BlockingCreature == null)
                 {
@@ -335,7 +339,7 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
+                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
                 }
                 else
                 {
@@ -348,14 +352,14 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.CardToPlay, Trigger.BlockSwap, player.SubmittedTurn.SelectedCardIds);
+                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.BlockSwap, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessTriggeredAbilities(Card card, Trigger trigger, Dictionary<Intent, List<int>> targetedCards)
+    private void ProcessTriggeredAbilities(int playerId, Card card, Trigger trigger, Dictionary<Intent, List<int>> targetedCards)
     {
         var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
 
@@ -375,6 +379,7 @@ public class Match
 
                 CardActionEvent message = new()
                 {
+                    PlayerId = playerId,
                     Intent = action.Intent,
                     TargetsCardIds = targets.Select(c => c.Id).ToList(),
                     Value = action.Value
@@ -430,22 +435,37 @@ public class Match
 
     private void ProcessAction(List<Card> targets, int value, Intent intent)
     {
-        switch (intent)
+        foreach (var target in targets)
         {
-            case Intent.AttackBuff: 
+            Card? card = GetCardFromId(target.Id);
+
+            if (card == null)
+                continue;
+
+            if (card is CreatureCard creature)
             {
-                foreach (var target in targets)
-                    if (target is CreatureCard creature)
-                        creature.AttackBuff += value;
-                break;
-            } 
-            case Intent.DirectDamage: 
-            {
-                foreach (var target in targets)
-                    if (target is CreatureCard creature)
-                        creature.Health -= value;
-                break;
-            } 
+                switch (intent)
+                {
+                    //TODO: maybe being able to do Intent.Apply(creature); rather than a switch would be good?
+                    case Intent.AttackBuff:
+                        {
+                            creature.AttackBuff += value;
+                            break;
+                        }
+                    case Intent.DirectDamage:
+                        {
+                            bool hasDied = creature.DamageCreature(value);
+
+                            if (hasDied)
+                            {
+                                CreatureDeathEvent death = new(creature.Id, creature.Name!);
+                                EventMessage(death);
+                            }
+
+                            break;
+                        }
+                }
+            }
         }
     }
 

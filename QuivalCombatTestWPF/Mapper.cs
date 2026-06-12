@@ -1,8 +1,8 @@
 ﻿using QuivalLogicEngine.Cards;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows;
 
 namespace QuivalCombatTestWPF
 {
@@ -34,20 +34,51 @@ namespace QuivalCombatTestWPF
         }
         */
 
+        public static FullCard MapToFullCard(Card card)
+        {
+            FullCard fullCard = new();
+            fullCard.CardNameLabel.Content = card.Name;
+            fullCard.CardDescriptionLabel.Text = card.Description;
+            fullCard.CostContent.Content = card.Cost;
+            fullCard.CardBackground.Background = GetColor(card);
+            fullCard.Tag = card;
+
+            fullCard.GlobalId.Content = card.UniqueId;
+
+            if (card is CreatureCard cc)
+            {
+                fullCard.AttackLabel.Content = cc.Attack;
+                fullCard.HealthLabel.Content = cc.Health;
+                fullCard.Tag = cc;
+            }
+            else if (card is SpellCard sc)
+            {
+                fullCard.BottomGrid.Visibility = Visibility.Hidden;
+                fullCard.Tag = sc;
+            }
+
+            return fullCard;
+        }
+
         public static HandCard MapToHandCard(Card card)
         {
             HandCard handcard = new(card.Id);
             handcard.CardNameLabel.Content = card.Name;
             handcard.CardDescriptionLabel.Text = card.Description;
             handcard.CostContent.Content = card.Cost;
+            handcard.CardBackground.Background = GetColor(card);
             handcard.Tag = card;
 
             if (card is CreatureCard cc)
             {
                 handcard.AttackLabel.Content = cc.Attack;
                 handcard.HealthLabel.Content = cc.Health;
-                handcard.CardBackground.Background = GetColor(cc.Attack);
                 handcard.Tag = cc;
+            }
+            else if (card is SpellCard sc)
+            {
+                handcard.BottomGrid.Visibility = Visibility.Hidden;
+                handcard.Tag = sc;
             }
 
             return handcard;
@@ -68,7 +99,7 @@ namespace QuivalCombatTestWPF
             bc.CardNameLabel.Content = card.Name;
             bc.AttackLabel.Content = card.Attack;
             bc.HealthLabel.Content = card.CurrentHealth;
-            bc.CardBackground.Background = GetColor(card.Attack);
+            bc.CardBackground.Background = GetColor(card);
 
             if(card.CurrentHealth < card.Health )
                 bc.HealthLabel.Foreground = Brushes.Red;
@@ -76,8 +107,28 @@ namespace QuivalCombatTestWPF
             return bc;
         }
 
-        private static SolidColorBrush GetColor(int attack)
+
+        private static SolidColorBrush GetColor(Card card)
         {
+            if (card is CreatureCard cc)
+            {
+                if (cc.Abilities.Count > 0)
+                {
+                    return Brushes.DarkOliveGreen;
+                }
+                else
+                {
+                    return Brushes.Coral;
+                }
+            }
+            else if (card is SpellCard sc)
+            {
+                return Brushes.RoyalBlue;
+            }
+
+            return Brushes.Salmon;
+
+            /*
             return attack switch
             {
                 0 => Brushes.DarkOliveGreen,
@@ -87,6 +138,7 @@ namespace QuivalCombatTestWPF
                 4 => Brushes.Tomato,
                 _ => Brushes.Salmon,
             };
+            */
         }
     }
 }

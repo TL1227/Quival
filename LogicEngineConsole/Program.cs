@@ -13,7 +13,7 @@ namespace LogicEngineConsole
             [
                 new CreatureCard(){
                     Name = "Desmond Future Knight",
-                    Description = "\"One of these days Samson, I'll be a knight. Just gotta muck out the stable first!\" - Desmond",
+                    Description = "",
                     Cost = 2,
                     Attack = 2,
                     Health = 2,
@@ -26,21 +26,21 @@ namespace LogicEngineConsole
                 },
                 new CreatureCard(){
                     Name = "Defender",
-                    Description = "\"I'm gonna block your ass!\" - Defender",
+                    Description = "",
                     Cost = 2,
                     Attack = 1,
                     Health = 3,
                 },
                 new CreatureCard(){
                     Name = "Aggression",
-                    Description = "\"GRAAAAAAAAAAAAHHHHH\" - Aggression",
+                    Description = "",
                     Cost = 2,
                     Attack = 3,
                     Health = 1,
                 },
                 new CreatureCard(){
                     Name = "BFG",
-                    Description = "If BFG attacks on round 3, increase attack by 2 for the rest of the round.",
+                    Description = "If BFG attacks on round 3, BFG deals 4 damage",
                     Cost = 3,
                     Attack = 2,
                     Health = 4,
@@ -75,7 +75,7 @@ namespace LogicEngineConsole
                 new SpellCard()
                 {
                     Name = "Zap",
-                    Description = "",
+                    Description = "Deal 2 damage to any target",
                     Cost = 1,
                     Abilities =
                     {
