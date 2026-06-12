@@ -274,7 +274,16 @@ namespace QuivalCombatTestWPF
                         }
                     }
 
-                    boardCard.SetPos(handcardPos);
+                    if (side == Side.Player)
+                    {
+                        boardCard.SetPos(handcardPos);
+                    }
+                    else
+                    {
+                        Position position = new() { Left = Layout.ActualWidth / 2, Top = 100 };
+                        boardCard.SetPos(position);
+                    }
+
                     int summonIndex = CombatZones[(int)side].AddCardToNextFreeSlot(boardCard, Layout);
                     await Animation.MoveToPoint(boardCard, handcardPos, Layout.SummonSlots[(int)side][summonIndex]);
                 }
