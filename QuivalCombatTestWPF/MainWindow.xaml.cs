@@ -99,7 +99,7 @@ namespace QuivalCombatTestWPF
             var opponentEvents = cgs.GameEvents.Where(e => e.PlayerId != MyPlayerId && e.PlayerId != -1 && e is not CreatureDeathEvent).ToList();
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
 
-            List<List<EventMessage>> BothEventLists = new() { opponentEvents, myEvents };
+            List<List<EventMessage>> BothEventLists = new() { myEvents, opponentEvents};
 
             for (int i = 0; i < 2; i++)
             {
@@ -111,7 +111,7 @@ namespace QuivalCombatTestWPF
                             await PlayCastAnimation((castEvent), (Side)i);
                             break;
                         case SummonEvent summonEvent:
-                            await PlayCastAnimation((summonEvent), (Side)i);
+                            await PlaySummonAnimation((summonEvent), (Side)i);
                             break;
                         default:
                             break;
@@ -252,39 +252,33 @@ namespace QuivalCombatTestWPF
             await Task.WhenAll(tasks);
         }
 
-        private async Task PlaySummonAnimation(SummonEvent summonEvent)
+        private async Task PlaySummonAnimation(SummonEvent summonEvent, Side side)
         {
-            List<Task> tasks = new();
-
-            BoardCard? cardToSummon = null;
-            foreach (CreatureCard card in CurrentGameState.BoardState.SummonedCreatures[(int)MyPlayerId])
-            {
-                if (card.Id == summonEvent.CreatureId)
-                    cardToSummon = Mapper.MapToBoardCard(card, BoardCard_Clicked);
-            }
-
+            CreatureCard? cardToSummon = CurrentGameState.BoardState.SummonedCreatures[summonEvent.PlayerId].SingleOrDefault(c => c.Id == summonEvent.CreatureId);
             if (cardToSummon != null)
             {
-                Position handcardPos = new();
-                foreach (var child in Layout.Canvas.Children)
+                var boardCard = Mapper.MapToBoardCard(cardToSummon, BoardCard_Clicked);
+                if (boardCard != null)
                 {
-                    if (child is HandCard handCard)
+                    Position handcardPos = new();
+                    foreach (var child in Layout.Canvas.Children)
                     {
-                        if (handCard.Id == cardToSummon.Id)
+                        if (child is HandCard handCard)
                         {
-                            handcardPos.Left = Canvas.GetLeft(handCard);
-                            handcardPos.Top = Canvas.GetTop(handCard);
-                            handCard.Visibility = Visibility.Hidden;
+                            if (handCard.Id == boardCard.Id)
+                            {
+                                handcardPos.Left = Canvas.GetLeft(handCard);
+                                handcardPos.Top = Canvas.GetTop(handCard);
+                                handCard.Visibility = Visibility.Hidden;
+                            }
                         }
                     }
+
+                    boardCard.SetPos(handcardPos);
+                    int summonIndex = CombatZones[(int)side].AddCardToNextFreeSlot(boardCard, Layout);
+                    await Animation.MoveToPoint(boardCard, handcardPos, Layout.SummonSlots[(int)side][summonIndex]);
                 }
-
-                cardToSummon.SetPos(handcardPos);
-                int summonIndex = CombatZones[0].AddCardToNextFreeSlot(cardToSummon, Layout);
-                tasks.Add(Animation.MoveToPoint(cardToSummon, handcardPos, Layout.PlayerSummonSlots[summonIndex]));
             }
-
-            await Task.WhenAll(tasks);
         }
 
         private async Task PlayCastAnimation(CastEvent castEvent, Side side)
