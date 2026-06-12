@@ -112,7 +112,9 @@ namespace LogicEngineConsole
                 card.SetCode = set.SetCode;
             }
 
-            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true, };
+            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+            options.Converters.Add(new JsonStringEnumConverter());
+
             string json = JsonSerializer.Serialize(set, options);
             Console.WriteLine(json);
             File.WriteAllText("..\\..\\..\\..\\QuivalCards.json", json);

@@ -105,6 +105,10 @@ namespace QuivalCombatTestWPF
         {
             return (int)AttackLabel.Content;
         }
+        public int GetCurrentHealthFromLabel()
+        {
+            return (int)HealthLabel.Content;
+        }
 
         public Task FlashUp(Brush Brush)
         {

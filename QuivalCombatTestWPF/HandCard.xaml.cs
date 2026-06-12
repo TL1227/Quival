@@ -38,5 +38,31 @@ namespace QuivalCombatTestWPF
             Canvas.SetTop(this, p.Top);
             Canvas.SetLeft(this, p.Left);
         }
+        public Task SummonIn(Brush Brush)
+        {
+            double animationSpeed = 0.4;
+            Overlay.Background = Brush;
+            Overlay.Opacity = 1.0;
+
+            DoubleAnimation anim = new()
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                Overlay.Opacity = 0.0;
+                tsc.SetResult();
+            };
+
+            Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
     }
 }

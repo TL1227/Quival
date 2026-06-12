@@ -239,48 +239,49 @@ namespace QuivalCombatTestWPF
         }
         private async Task PlayCardActionAnimation(CardActionEvent actionEvent, Side side)
         {
-            switch (actionEvent.Intent)
+            foreach (var target in actionEvent.TargetsCardIds)
             {
-                case Intent.AttackBuff:
-                    {
-                        foreach (var target in actionEvent.TargetsCardIds)
+                var targetCard = GetBoardCard(target);
+
+                switch (actionEvent.Intent)
+                {
+                    case Intent.AttackBuff:
                         {
-                            var attackingBoardCard = GetBoardCard(target);
+                            await targetCard.FlashUp(Brushes.Aquamarine);
 
-                            if (attackingBoardCard != null)
-                            {
-                                await attackingBoardCard.FlashUp(Brushes.Aquamarine);
+                            targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
+                            targetCard.AttackLabel.Foreground = Brushes.Aquamarine;
 
-                                attackingBoardCard.AttackLabel.Content = attackingBoardCard.GetAttackFromLabel() + actionEvent.Value;
-                                attackingBoardCard.AttackLabel.Foreground = Brushes.Aquamarine;
-
-                                await attackingBoardCard.FlashDown(Brushes.Aquamarine);
-                            }
+                            await targetCard.FlashDown(Brushes.Aquamarine);
                         }
-                    }
-                    break;
-                case Intent.DamageAbsorbToken:
-                    break;
-                case Intent.DirectDamage:
-                    break;
-                case Intent.DrawCard:
-                    break;
-                case Intent.RushDown:
-                    break;
-                case Intent.RestoreAction:
-                    break;
-                case Intent.None:
-                default:
-                    break;
+                        break;
+                    case Intent.DamageAbsorbToken:
+                        break;
+                    case Intent.DirectDamage:
+                        {
+                            await targetCard.FlashUp(Brushes.Red);
+                            targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() - actionEvent.Value;
+                            targetCard.HealthLabel.Foreground = Brushes.Red;
+                            await targetCard.FlashDown(Brushes.Red);
+                        }
+                        break;
+                    case Intent.DrawCard:
+                        break;
+                    case Intent.RushDown:
+                        break;
+                    case Intent.RestoreAction:
+                        break;
+                    case Intent.None:
+                    default:
+                        break;
+                }
             }
-            /*
-            */
         }
 
         private async Task PlayCastAnimation(CastEvent castEvent, Side side)
         {
             //TODO: don't hard code all this!
-            var fullCard = Mapper.MapToFullCard(castEvent.CastCard);
+            var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
             var centerY = Layout.ActualHeight / 2;
             var centerX = Layout.ActualWidth / 2;
             fullCard.SetPos(new Position() { Left = centerX - 150, Top = centerY - 200 });

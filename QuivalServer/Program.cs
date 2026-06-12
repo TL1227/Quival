@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace QuivalServer;
 
@@ -76,7 +77,10 @@ internal class Program
                 return;
             }
 
-            Set currentSet = JsonSerializer.Deserialize<Set>(json)!;
+            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            Set currentSet = JsonSerializer.Deserialize<Set>(json, options)!;
 
             //add 4 copies of each card for each deck
             for (int d = 0; d < 2; d++)
@@ -86,13 +90,13 @@ internal class Program
                         if (card is CreatureCard cc)
                         {
                             var j = JsonSerializer.Serialize(cc);
-                            Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
+                            Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j, options)!);
                             break;
                         }
                         else if (card is SpellCard sc)
                         {
                             var j = JsonSerializer.Serialize(sc);
-                            Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
+                            Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j, options)!);
                         }
                     }
         }

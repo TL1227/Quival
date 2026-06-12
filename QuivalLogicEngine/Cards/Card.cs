@@ -95,6 +95,7 @@ public class CreatureCard : Card
     {
         return CurrentHealth <= 0;
     }
+
     public bool IsAlive()
     {
         return CurrentHealth > 0;
@@ -125,21 +126,6 @@ public class AttackCard : Card
         //Maybe a function called List<ICardIntent> GetAttackingIntents(int CardId);
 
         List<ICardIntent> intents = [ new Attack(PlayerId, Id) ];
-        return intents;
-    }
-}
-
-public class BlockCard : Card
-{
-    public BlockCard(int playerId, int cardId)
-    {
-        Id = cardId;
-        PlayerId = playerId;
-    }
-
-    public override List<ICardIntent> GetIntents()
-    {
-        List<ICardIntent> intents = [ new Block(PlayerId, Id) ];
         return intents;
     }
 }
