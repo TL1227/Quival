@@ -133,10 +133,6 @@ namespace QuivalCombatTestWPF
 
             await PlayDeathAnimations(deathEvents);
 
-            //ANIMATION
-            //var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList();
-            //await PlayAttackAnimations(attackEvents);
-
             UpdateUIFromGameState();
         }
 
@@ -243,17 +239,41 @@ namespace QuivalCombatTestWPF
         }
         private async Task PlayCardActionAnimation(CardActionEvent actionEvent, Side side)
         {
-            /*
-            var attackingBoardCard = CombatZones[i].SummonedCards.SingleOrDefault(c => c != null && c.Id == eve.CreatureId);
+            switch (actionEvent.Intent)
+            {
+                case Intent.AttackBuff:
+                    {
+                        foreach (var target in actionEvent.TargetsCardIds)
+                        {
+                            var attackingBoardCard = GetBoardCard(target);
 
-            foreach (var buffevent in attackBuffs)
-                if (buffevent.TargetsCardIds.Contains(attackingBoardCard.Id))
-                {
-                    await attackingBoardCard.FlashUp(Brushes.Aquamarine);
-                    attackingBoardCard.AttackLabel.Content = attackingBoardCard.GetAttackFromLabel() + buffevent.Value;
-                    attackingBoardCard.AttackLabel.Foreground = Brushes.Aquamarine;
-                    await attackingBoardCard.FlashDown(Brushes.Aquamarine);
-                }
+                            if (attackingBoardCard != null)
+                            {
+                                await attackingBoardCard.FlashUp(Brushes.Aquamarine);
+
+                                attackingBoardCard.AttackLabel.Content = attackingBoardCard.GetAttackFromLabel() + actionEvent.Value;
+                                attackingBoardCard.AttackLabel.Foreground = Brushes.Aquamarine;
+
+                                await attackingBoardCard.FlashDown(Brushes.Aquamarine);
+                            }
+                        }
+                    }
+                    break;
+                case Intent.DamageAbsorbToken:
+                    break;
+                case Intent.DirectDamage:
+                    break;
+                case Intent.DrawCard:
+                    break;
+                case Intent.RushDown:
+                    break;
+                case Intent.RestoreAction:
+                    break;
+                case Intent.None:
+                default:
+                    break;
+            }
+            /*
             */
         }
 
@@ -267,7 +287,7 @@ namespace QuivalCombatTestWPF
             Layout.Canvas.Children.Add(fullCard);
 
             await fullCard.SummonIn(Brushes.Aquamarine);
-            await Task.Delay(3000);
+            await Task.Delay(1000);
 
             Layout.Canvas.Children.Remove(fullCard);
         }

@@ -373,7 +373,7 @@ public class Match
         {
             if (ConditionalsMet(action.Conditionals))
             {
-                List<Card> targets = GetTargets(card, action.TargetType, targetedCards[action.Intent]);
+                List<Card> targets = GetTargets(card, action, targetedCards);
 
                 ProcessAction(targets, action.Value, action.Intent);
 
@@ -390,17 +390,17 @@ public class Match
         }
     }
 
-    private List<Card> GetTargets(Card self, TargetType targetType, List<int> targets)
+    private List<Card> GetTargets(Card self, CardAction cardAction, Dictionary<Intent, List<int>> targets)
     {
         List<Card> targetsResult = new();
 
-        if (targetType == TargetType.Self)
+        if (cardAction.TargetType == TargetType.Self)
         {
             targetsResult.Add(self);
         }
         else
         {
-            foreach (var target in targets)
+            foreach (var target in targets[cardAction.Intent])
             {
                 var card = GetCardFromId(target);
 

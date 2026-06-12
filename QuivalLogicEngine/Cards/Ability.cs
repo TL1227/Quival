@@ -31,6 +31,7 @@
     {
         None,
         AttackBuff,
+        AttackUpToken,
         DamageAbsorbToken,
         DirectDamage,
         DrawCard,
@@ -86,6 +87,7 @@
     {
         public Intent Intent { get; set; } //NOTE: intent could then be Effect, which again is more descriptive
         public TargetType TargetType { get; set; }
+        public bool CanTargetSelf { get; set; } = true;
         public int NumberOfTargets { get; set; }
         public Side Side { get; set; }
         public int Value { get; set; }
