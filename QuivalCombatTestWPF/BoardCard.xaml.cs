@@ -105,10 +105,71 @@ namespace QuivalCombatTestWPF
         {
             return (int)AttackLabel.Content;
         }
+
         public int GetCurrentHealthFromLabel()
         {
             return (int)HealthLabel.Content;
         }
+
+        public void TakeDamage(int dmg)
+        {
+            Flash(Brushes.Red);
+            Shake();
+            HealthLabel.Content = GetCurrentHealthFromLabel() - dmg;
+            HealthLabel.Foreground = Brushes.Red;
+        }
+
+        public Task Flash(Brush Brush)
+        {
+            double animationSpeed = 0.1;
+            Overlay.Background = Brush;
+
+            DoubleAnimation anim = new()
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                AutoReverse = true,
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
+
+        public Task Shake()
+        {
+            double animationSpeed = 0.1;
+
+            DoubleAnimation anim = new()
+            {
+                From = GetPos().Left,
+                To = GetPos().Left + 5.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn},
+                AutoReverse = true,
+                FillBehavior = FillBehavior.Stop,
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            BeginAnimation(Canvas.LeftProperty, anim);
+
+            return tsc.Task;
+        }
+
 
         public Task FlashUp(Brush Brush)
         {

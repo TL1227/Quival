@@ -19,12 +19,15 @@ namespace QuivalLogicEngine.Client
     {
         public int PlayerId { get; set; }
         public abstract string GetString();
+
+        public List<CardActionEvent> CardActionEvents { get; set; } = new();
     }
 
     public class AttackEvent : EventMessage
     {
         public int CreatureId { get; set; }
         public string  CreatureName { get; set; }
+        public int BlockingCreatureId { get; set; }
 
         public AttackEvent(int playerId, int creatureId, string creatureName)
         {

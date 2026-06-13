@@ -95,45 +95,62 @@ namespace QuivalCombatTestWPF
 
             UnselectAll();
 
-            var myEvents = cgs.GameEvents.Where(e => e.PlayerId == MyPlayerId && e is not CreatureDeathEvent).ToList();
-            var opponentEvents = cgs.GameEvents.Where(e => e.PlayerId != MyPlayerId && e.PlayerId != -1 && e is not CreatureDeathEvent).ToList();
+            var castEvents = cgs.GameEvents.OfType<CastEvent>().ToList<EventMessage>();
+            await AnimateEvents(castEvents);
+
+            var summonEvents = cgs.GameEvents.OfType<SummonEvent>().ToList<EventMessage>();
+            await AnimateEvents(summonEvents);
+
+            var blockEvents = cgs.GameEvents.OfType<MoveToBlockZoneEvent>().ToList<EventMessage>();
+            await AnimateEvents(blockEvents);
+
+            var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList<EventMessage>();
+            await AnimateEvents(attackEvents);
+
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
-
-            List<List<EventMessage>> BothEventLists = new() { myEvents, opponentEvents};
-
-            for (int i = 0; i < 2; i++)
-            {
-                foreach (var e in BothEventLists[i])
-                {
-                    switch (e)
-                    {
-                        case CastEvent castEvent:
-                            await PlayCastAnimation((castEvent), (Side)i);
-                            break;
-                        case SummonEvent summonEvent:
-                            await PlaySummonAnimation((summonEvent), (Side)i);
-                            break;
-                        case MoveToBlockZoneEvent moveToBlockZoneEvent:
-                            await PlayBlockAnimation((moveToBlockZoneEvent), (Side)i);
-                            break;
-                        case BlockSwapEvent blockSwapEvent:
-                            await PlayBlockSwapAnimation((blockSwapEvent), (Side)i);
-                            break;
-                        case AttackEvent attackEvent:
-                            await PlayAttackAnimation((attackEvent), (Side)i);
-                            break;
-                        case CardActionEvent cardActionEvent:
-                            await PlayCardActionAnimation((cardActionEvent), (Side)i);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
             await PlayDeathAnimations(deathEvents);
 
             UpdateUIFromGameState();
+        }
+
+        private async Task AnimateEvents(List<EventMessage> events)
+        {
+            //NOTE: if we want to swap the order the animations play, here's where to do it
+            var opponentEvents = events.Where(e => e.PlayerId != MyPlayerId && e.PlayerId != -1).ToList();
+            foreach (var opponentEvent in opponentEvents)
+            {
+                await PlayEventAnimation(opponentEvent, Side.Opponent);
+            }
+
+            var myEvents = events.Where(e => e.PlayerId == MyPlayerId).ToList();
+            foreach (var myEvent in myEvents)
+            {
+                await PlayEventAnimation(myEvent, Side.Player);
+            }
+        }
+
+        private async Task PlayEventAnimation(EventMessage eventMessage, Side side)
+        {
+            switch (eventMessage)
+            {
+                case CastEvent castEvent:
+                    await PlayCastAnimation(castEvent, side);
+                    break;
+                case SummonEvent summonEvent:
+                    await PlaySummonAnimation(summonEvent, side);
+                    break;
+                case MoveToBlockZoneEvent moveToBlockZoneEvent:
+                    await PlayBlockAnimation(moveToBlockZoneEvent, side);
+                    break;
+                case BlockSwapEvent blockSwapEvent:
+                    await PlayBlockSwapAnimation(blockSwapEvent, side);
+                    break;
+                case AttackEvent attackEvent:
+                    await PlayAttackAnimation(attackEvent, side);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private async Task PlayBlockSwapAnimation(BlockSwapEvent blockSwapEvent, Side side)
@@ -175,7 +192,33 @@ namespace QuivalCombatTestWPF
             var attackingBoardCard = GetBoardCard(attackEvent.CreatureId);
 
             if (attackingBoardCard != null)
-                await Animation.MoveToPointAndBack(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
+            {
+                foreach (var action in attackEvent.CardActionEvents)
+                {
+                    await PlayCardActionAnimation(action, side);
+                }
+
+                Position originalPos = attackingBoardCard.GetPos();
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
+
+                var attackingCreature = (CreatureCard)attackingBoardCard.Tag;
+                if (attackingCreature != null)
+                {
+                    var blockingBoardCard = GetBoardCard(attackEvent.BlockingCreatureId);
+                    if (blockingBoardCard != null)
+                    {
+                        blockingBoardCard.TakeDamage(attackingCreature.GetAttackDamage());
+
+                        var blockingCreature = (CreatureCard)blockingBoardCard.Tag;
+                        if (blockingCreature != null)
+                        {
+                            attackingBoardCard.TakeDamage(blockingCreature.GetAttackDamage());
+                        }
+                    }
+                }
+
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, System.Windows.Media.Animation.EasingMode.EaseOut);
+            }
         }
 
         private async Task PlayDeathAnimations(List<CreatureDeathEvent> deathEvents)
@@ -260,8 +303,10 @@ namespace QuivalCombatTestWPF
                     case Intent.DirectDamage:
                         {
                             await targetCard.FlashUp(Brushes.Red);
+
                             targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() - actionEvent.Value;
                             targetCard.HealthLabel.Foreground = Brushes.Red;
+
                             await targetCard.FlashDown(Brushes.Red);
                         }
                         break;
@@ -284,13 +329,21 @@ namespace QuivalCombatTestWPF
             var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
             var centerY = Layout.ActualHeight / 2;
             var centerX = Layout.ActualWidth / 2;
-            fullCard.SetPos(new Position() { Left = centerX - 150, Top = centerY - 200 });
             Layout.Canvas.Children.Add(fullCard);
 
             await fullCard.SummonIn(Brushes.Aquamarine);
-            await Task.Delay(1000);
+
+            await Task.Delay(500);
+
+            foreach (var action in castEvent.CardActionEvents)
+            {
+                await PlayCardActionAnimation(action, side);
+            }
+
+            await Task.Delay(500);
 
             Layout.Canvas.Children.Remove(fullCard);
+
         }
         #endregion
 
@@ -380,18 +433,6 @@ namespace QuivalCombatTestWPF
             //TODO: both sides
             PlayerSummonZone.Children.Clear();
             OpponentSummonZone.Children.Clear();
-        }
-
-        private CreatureCard? GetSummonedCreatureById(int id)
-        {
-            foreach (var summonedCreatures in CurrentGameState.BoardState.SummonedCreatures)
-                foreach (var creature in summonedCreatures)
-                {
-                    if (creature.Id == id)
-                        return creature;
-                }
-
-            return null;
         }
 
         private bool SummonedCardsCantMove()

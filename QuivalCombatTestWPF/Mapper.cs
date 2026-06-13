@@ -100,6 +100,7 @@ namespace QuivalCombatTestWPF
             bc.AttackLabel.Content = card.Attack;
             bc.HealthLabel.Content = card.CurrentHealth;
             bc.CardBackground.Background = GetColor(card);
+            bc.Tag = card;
 
             if(card.CurrentHealth < card.Health )
                 bc.HealthLabel.Foreground = Brushes.Red;

@@ -48,7 +48,7 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
-        public static Task MoveToPoint(BoardCard boardCard, Position start, Position end)
+        public static Task MoveToPoint(BoardCard boardCard, Position start, Position end, EasingMode easingMode = EasingMode.EaseIn)
         {
             double animationSpeed = 0.6;
 
@@ -57,7 +57,7 @@ namespace QuivalCombatTestWPF
                 From = start.Top,
                 To = end.Top,
                 Duration = TimeSpan.FromSeconds(animationSpeed),
-                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn }
+                EasingFunction = new CubicEase() { EasingMode = easingMode }
             };
 
             DoubleAnimation xAnim = new()
@@ -65,7 +65,7 @@ namespace QuivalCombatTestWPF
                 From = start.Left,
                 To = end.Left,
                 Duration = TimeSpan.FromSeconds(animationSpeed),
-                EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = EasingMode.EaseIn },
+                EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
             };
 
             TaskCompletionSource tsc = new();

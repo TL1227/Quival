@@ -292,7 +292,7 @@ public class Match
 
                 ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Attack, player.SubmittedTurn.SelectedCardIds);
 
-                EventMessage(new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!));
+                var attackEvent = new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!);
 
                 if (otherPlayer.BlockingCreature == null || otherPlayer.BlockingCreature.IsDead())
                 {
@@ -301,6 +301,8 @@ public class Match
                 else
                 {
                     var blockingCreature = otherPlayer.BlockingCreature;
+
+                    attackEvent.BlockingCreatureId = blockingCreature.Id;
 
                     blockingCreature.CurrentHealth -= attackingCreature.GetAttackDamage();
                     if (blockingCreature.CurrentHealth <= 0)
@@ -318,6 +320,7 @@ public class Match
                 }
                 attackingCreature.HasActed = true;
 
+                EventMessage(attackEvent);
                 //Possible after damage trigger could go here
             }
         }
@@ -375,17 +378,10 @@ public class Match
             {
                 List<Card> targets = GetTargets(card, action, targetedCards);
 
-                ProcessAction(targets, action.Value, action.Intent);
+                ProcessAction(playerId, targets, action.Value, action.Intent);
 
-                CardActionEvent message = new()
-                {
-                    PlayerId = playerId,
-                    Intent = action.Intent,
-                    TargetsCardIds = targets.Select(c => c.Id).ToList(),
-                    Value = action.Value
-                };
 
-                EventMessage(message);
+                //EventMessage(message);
             }
         }
     }
@@ -433,32 +429,32 @@ public class Match
         return actions;
     }
 
-    private void ProcessAction(List<Card> targets, int value, Intent intent)
+    private void ProcessAction(int playerId, List<Card> targets, int value, Intent intent)
     {
         foreach (var target in targets)
         {
-            Card? card = GetCardFromId(target.Id);
+            Card? targetedCard = GetCardFromId(target.Id);
 
-            if (card == null)
+            if (targetedCard == null)
                 continue;
 
-            if (card is CreatureCard creature)
+            if (targetedCard is CreatureCard targetCreature)
             {
                 switch (intent)
                 {
                     //TODO: maybe being able to do Intent.Apply(creature); rather than a switch would be good?
                     case Intent.AttackBuff:
                         {
-                            creature.AttackBuff += value;
+                            targetCreature.AttackBuff += value;
                             break;
                         }
                     case Intent.DirectDamage:
                         {
-                            bool hasDied = creature.DamageCreature(value);
+                            bool hasDied = targetCreature.DamageCreature(value);
 
                             if (hasDied)
                             {
-                                CreatureDeathEvent death = new(creature.Id, creature.Name!);
+                                CreatureDeathEvent death = new(targetCreature.Id, targetCreature.Name!);
                                 EventMessage(death);
                             }
 
@@ -466,6 +462,16 @@ public class Match
                         }
                 }
             }
+
+            CardActionEvent message = new()
+            {
+                PlayerId = playerId,
+                Intent = intent,
+                TargetsCardIds = targets.Select(c => c.Id).ToList(),
+                Value = value
+            };
+
+            EventMessages.Last().CardActionEvents.Add(message);
         }
     }
 
