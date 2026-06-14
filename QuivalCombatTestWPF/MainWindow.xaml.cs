@@ -115,17 +115,18 @@ namespace QuivalCombatTestWPF
 
         private async Task AnimateEvents(List<EventMessage> events)
         {
-            //NOTE: if we want to swap the order the animations play, here's where to do it
-            var opponentEvents = events.Where(e => e.PlayerId != MyPlayerId && e.PlayerId != -1).ToList();
-            foreach (var opponentEvent in opponentEvents)
-            {
-                await PlayEventAnimation(opponentEvent, Side.Opponent);
-            }
-
             var myEvents = events.Where(e => e.PlayerId == MyPlayerId).ToList();
             foreach (var myEvent in myEvents)
             {
+                Debug.WriteLine($"PLayer {myEvent.PlayerId} [EVENT] {myEvent.GetString()}");
                 await PlayEventAnimation(myEvent, Side.Player);
+            }
+
+            var opponentEvents = events.Where(e => e.PlayerId != MyPlayerId && e.PlayerId != -1).ToList();
+            foreach (var opponentEvent in opponentEvents)
+            {
+                Debug.WriteLine($"PLayer {opponentEvent.PlayerId} [EVENT] {opponentEvent.GetString()}");
+                await PlayEventAnimation(opponentEvent, Side.Opponent);
             }
         }
 
@@ -285,6 +286,10 @@ namespace QuivalCombatTestWPF
             foreach (var target in actionEvent.TargetsCardIds)
             {
                 var targetCard = GetBoardCard(target);
+                if (targetCard == null)
+                {
+                    Debug.WriteLine($"[Action] {targetCard.Id} is null");
+                }
 
                 switch (actionEvent.Intent)
                 {
@@ -302,12 +307,7 @@ namespace QuivalCombatTestWPF
                         break;
                     case Intent.DirectDamage:
                         {
-                            await targetCard.FlashUp(Brushes.Red);
-
-                            targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() - actionEvent.Value;
-                            targetCard.HealthLabel.Foreground = Brushes.Red;
-
-                            await targetCard.FlashDown(Brushes.Red);
+                            targetCard.TakeDamage(actionEvent.Value);
                         }
                         break;
                     case Intent.DrawCard:
@@ -329,6 +329,7 @@ namespace QuivalCombatTestWPF
             var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
             var centerY = Layout.ActualHeight / 2;
             var centerX = Layout.ActualWidth / 2;
+            fullCard.SetPos(new Position() { Left = centerX, Top = centerY });
             Layout.Canvas.Children.Add(fullCard);
 
             await fullCard.SummonIn(Brushes.Aquamarine);
@@ -748,6 +749,15 @@ namespace QuivalCombatTestWPF
 
         public BoardCard? GetBoardCard(int cardId)
         {
+            foreach (var bc in Layout.Canvas.Children.OfType<BoardCard>())
+            {
+                if (bc.Id == cardId)
+                    return bc;
+            }
+
+            return null;
+            
+            /*
             UIElementCollection[] cardsGroup =
             [
                 PlayerSummonZone.Children
@@ -774,6 +784,7 @@ namespace QuivalCombatTestWPF
                             return card;
 
             return null;
+            */
         }
     }
 }

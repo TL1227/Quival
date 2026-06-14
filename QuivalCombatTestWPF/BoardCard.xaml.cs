@@ -117,12 +117,13 @@ namespace QuivalCombatTestWPF
             Shake();
             HealthLabel.Content = GetCurrentHealthFromLabel() - dmg;
             HealthLabel.Foreground = Brushes.Red;
+            Debug.WriteLine($"{Id} has taken damage");
         }
 
         public Task Flash(Brush Brush)
         {
             double animationSpeed = 0.1;
-            Overlay.Background = Brush;
+            FlashOverlay.Background = Brush;
 
             DoubleAnimation anim = new()
             {
@@ -140,7 +141,7 @@ namespace QuivalCombatTestWPF
                 tsc.SetResult();
             };
 
-            Overlay.BeginAnimation(OpacityProperty, anim);
+            FlashOverlay.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
         }

@@ -47,6 +47,7 @@
             </Grid>
             <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>
             <DockPanel x:Name="SelectedOverlay" Background="Coral" Opacity="0"></DockPanel>
+            <DockPanel x:Name="FlashOverlay" Background="Aquamarine" Opacity="0"></DockPanel>
         </Grid>
     </Border>
 </UserControl>

@@ -438,6 +438,16 @@ public class Match
             if (targetedCard == null)
                 continue;
 
+            CardActionEvent message = new()
+            {
+                PlayerId = playerId,
+                Intent = intent,
+                TargetsCardIds = targets.Select(c => c.Id).ToList(),
+                Value = value
+            };
+
+            EventMessages.Last().CardActionEvents.Add(message);
+
             if (targetedCard is CreatureCard targetCreature)
             {
                 switch (intent)
@@ -463,15 +473,6 @@ public class Match
                 }
             }
 
-            CardActionEvent message = new()
-            {
-                PlayerId = playerId,
-                Intent = intent,
-                TargetsCardIds = targets.Select(c => c.Id).ToList(),
-                Value = value
-            };
-
-            EventMessages.Last().CardActionEvents.Add(message);
         }
     }
 
