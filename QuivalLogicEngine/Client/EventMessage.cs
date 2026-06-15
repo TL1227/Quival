@@ -120,7 +120,7 @@ namespace QuivalLogicEngine.Client
 
     public class CardActionEvent : EventMessage
     {
-        public Intent Intent { get; set; }
+        public Effect Intent { get; set; }
         public int Value { get; set; }
         public List<int> TargetsCardIds { get; set; } = new();
 
@@ -132,21 +132,21 @@ namespace QuivalLogicEngine.Client
             {
                 switch (Intent)
                 {
-                    case Intent.None: 
+                    case Effect.None: 
                         break;
-                    case Intent.AttackBuff:
+                    case Effect.AttackBuff:
                         sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
                         break;
-                    case Intent.DamageAbsorbToken:
+                    case Effect.DamageAbsorbToken:
                         break;
-                    case Intent.DirectDamage:
+                    case Effect.DirectDamage:
                         sb.AppendLine($"Card {target} takes {Value} damage!"); 
                         break;
-                    case Intent.DrawCard:
+                    case Effect.DrawCard:
                         break;
-                    case Intent.RushDown:
+                    case Effect.RushDown:
                         break;
-                    case Intent.RestoreAction:
+                    case Effect.RestoreAction:
                         break;
                     default:
                         break;

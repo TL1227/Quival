@@ -18,14 +18,14 @@ namespace LogicEngineConsole
                     Attack = 2,
                     Health = 2,
                     Abilities = [
-                        new Ability()
+                        new Trigger()
                         {
-                            Trigger = Trigger.Attack,
-                            Actions =
+                            TriggerType = TriggerType.Attack,
+                            Abilities =
                             {
-                                new CardAction()
+                                new Ability()
                                 {
-                                    Intent = Intent.Heal,
+                                    Effect = Effect.Heal,
                                     TargetType = TargetType.Damageable,
                                     NumberOfTargets = 1,
                                     CanTargetSelf = false,
@@ -67,14 +67,14 @@ namespace LogicEngineConsole
                     Health = 4,
                     Abilities =
                     {
-                        new Ability()
+                        new Trigger()
                         {
-                            Trigger = Trigger.Attack,
-                            Actions =
+                            TriggerType = TriggerType.Attack,
+                            Abilities =
                             {
-                                new CardAction()
+                                new Ability()
                                 {
-                                    Intent = Intent.AttackBuff,
+                                    Effect = Effect.AttackBuff,
                                     TargetType = TargetType.Self,
                                     Value = 2,
                                     Conditionals =
@@ -100,14 +100,14 @@ namespace LogicEngineConsole
                     Cost = 1,
                     Abilities =
                     {
-                        new Ability()
+                        new Trigger()
                         {
-                            Trigger = Trigger.Cast,
-                            Actions =
+                            TriggerType = TriggerType.Cast,
+                            Abilities =
                             {
-                                new CardAction()
+                                new Ability()
                                 {
-                                    Intent = Intent.DirectDamage,
+                                    Effect = Effect.DirectDamage,
                                     TargetType = TargetType.Damageable,
                                     NumberOfTargets = 1,
                                     Side = Side.Any,

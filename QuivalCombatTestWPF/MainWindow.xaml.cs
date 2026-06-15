@@ -294,7 +294,7 @@ namespace QuivalCombatTestWPF
 
                 switch (actionEvent.Intent)
                 {
-                    case Intent.AttackBuff:
+                    case QuivalLogicEngine.Cards.Effect.AttackBuff:
                         {
                             await targetCard.FlashUp(Brushes.Aquamarine);
 
@@ -304,25 +304,25 @@ namespace QuivalCombatTestWPF
                             await targetCard.FlashDown(Brushes.Aquamarine);
                         }
                         break;
-                    case Intent.DamageAbsorbToken:
+                    case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
                         break;
-                    case Intent.DirectDamage:
+                    case QuivalLogicEngine.Cards.Effect.DirectDamage:
                         {
                             targetCard.TakeDamage(actionEvent.Value);
                         }
                         break;
-                    case Intent.Heal:
+                    case QuivalLogicEngine.Cards.Effect.Heal:
                         {
                             targetCard.Heal(actionEvent.Value);
                         }
                         break;
-                    case Intent.DrawCard:
+                    case QuivalLogicEngine.Cards.Effect.DrawCard:
                         break;
-                    case Intent.RushDown:
+                    case QuivalLogicEngine.Cards.Effect.RushDown:
                         break;
-                    case Intent.RestoreAction:
+                    case QuivalLogicEngine.Cards.Effect.RestoreAction:
                         break;
-                    case Intent.None:
+                    case QuivalLogicEngine.Cards.Effect.None:
                     default:
                         break;
                 }
@@ -429,7 +429,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = QuivalLogicEngine.Cards.Trigger.EndTurn
+                    Trigger = QuivalLogicEngine.Cards.TriggerType.EndTurn
                 };
                 Client.SubmitTurn(turn);
 
@@ -526,7 +526,7 @@ namespace QuivalCombatTestWPF
         {
             QuivalTurn turn = new()
             {
-                Trigger = QuivalLogicEngine.Cards.Trigger.EndTurn
+                Trigger = QuivalLogicEngine.Cards.TriggerType.EndTurn
             };
 
             Client.SubmitTurn(turn);
@@ -539,7 +539,7 @@ namespace QuivalCombatTestWPF
         {
             CurrentTurn = new()
             {
-                Trigger = QuivalLogicEngine.Cards.Trigger.Cast,
+                Trigger = QuivalLogicEngine.Cards.TriggerType.Cast,
                 CardToPlayId = hc.Id
             };
 
@@ -648,7 +648,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = QuivalLogicEngine.Cards.Trigger.MoveToBlockZone,
+                    Trigger = QuivalLogicEngine.Cards.TriggerType.MoveToBlockZone,
                     CardToPlayId = bc.Id
                 };
 
@@ -669,7 +669,7 @@ namespace QuivalCombatTestWPF
                 {
                     QuivalTurn turn = new()
                     {
-                        Trigger = QuivalLogicEngine.Cards.Trigger.Attack,
+                        Trigger = QuivalLogicEngine.Cards.TriggerType.Attack,
                         CardToPlayId = bc.Id
                     };
 

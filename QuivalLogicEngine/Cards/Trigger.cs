@@ -1,6 +1,6 @@
 ﻿namespace QuivalLogicEngine.Cards
 {
-    public enum Trigger
+    public enum TriggerType
     {
         None,
         Attack,
@@ -11,7 +11,7 @@
         EndTurn
     }
 
-    public enum Intent
+    public enum Effect
     {
         None,
         AttackBuff,
@@ -20,7 +20,6 @@
         DirectDamage,
         Heal,
         DrawCard,
-        RushDown, //This is a keyword and might do better in it's own "Keywords" field
         RestoreAction, //so the target can perform another action this turn
     }
 
@@ -59,17 +58,17 @@
         PickUpTo
     }
 
-    public class Ability //NOTE: This should probably just be called Trigger and the enum be called TriggerType
+    public class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
     {
-        public Trigger Trigger { get; set; }
-        public List<CardAction> Actions { get; set; } = new();
+        public TriggerType TriggerType { get; set; }
+        public List<Ability> Abilities { get; set; } = new();
         public ChoiceType ChoiceType { get; set; }
         public int ChoiceNumber { get; set; }
     }
 
-    public class CardAction //NOTE: Then this would be called Ability which is closer to what it is
+    public class Ability
     {
-        public Intent Intent { get; set; } //NOTE: intent could then be Effect, which again is more descriptive
+        public Effect Effect { get; set; }
         public TargetType TargetType { get; set; }
         public bool CanTargetSelf { get; set; } = true;
         public int NumberOfTargets { get; set; }
@@ -84,7 +83,7 @@
         public int NumberToPick {  get; set; }
         public List<int> SelectedTargets { get; set; } = new();
         public TargetType TargetType { get; set; }
-        public Trigger Trigger { get; set; }
-        public CardAction CardAction { get; set; } = new();
+        public TriggerType Trigger { get; set; }
+        public Ability CardAction { get; set; } = new();
     }
 }

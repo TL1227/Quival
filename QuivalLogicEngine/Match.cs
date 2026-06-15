@@ -8,7 +8,6 @@ namespace QuivalLogicEngine;
 public class Match
 {
     private List<Player> Players { get; set; }
-    private List<ICardIntent> CardIntents { get; set; }
     private BoardState BoardState { get; set; }
     private List<EventMessage> EventMessages { get; set; }
     private int TurnCount { get; set; }
@@ -25,7 +24,6 @@ public class Match
     public Match()
     {
         Players = new();
-        CardIntents = new();
         BoardState = new();
         TurnCount = 1;
         RoundCount = 1;
@@ -58,7 +56,6 @@ public class Match
         {
             PlayerState = ps,
             BoardState = BoardState,
-            CardIntents = CardIntents,
             TurnCount= TurnCount,
             RoundCount= RoundCount,
             GameEvents = EventMessages
@@ -110,7 +107,7 @@ public class Match
 
     public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        if (turn.Trigger == Trigger.EndTurn)
+        if (turn.Trigger == TriggerType.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
             return;
@@ -124,19 +121,18 @@ public class Match
             return;
         }
 
-        List<CardAction> actionsThatRequireSelection = new();
-        if (turn.Trigger == Trigger.Cast)
+        List<Ability> abilitiesThatRequireSelection = new();
+        if (turn.Trigger == TriggerType.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
                 Players[playerId].SubmittedTurn = turn;
                 Players[playerId].Hand.Remove(cardToPlay);
-                Players[playerId].SubmittedTurn = turn;
 
-                var actions = GetActionsThatRequireSelection(cardToPlay, Trigger.Cast);
+                var actions = GetAbilitiesThatRequireSelection(cardToPlay, TriggerType.Cast);
 
                 if (actions != null)
-                    actionsThatRequireSelection.AddRange(actions);
+                    abilitiesThatRequireSelection.AddRange(actions);
             }
             else
             {
@@ -144,17 +140,17 @@ public class Match
                 Console.WriteLine($"they have {Players[playerId].Mana} and need {cardToPlay.Cost}");
             }
         }
-        else if (turn.Trigger == Trigger.Attack)
+        else if (turn.Trigger == TriggerType.Attack)
         {
             Players[playerId].SubmittedTurn = turn;
 
-            actionsThatRequireSelection.AddRange(GetActionsThatRequireSelection(cardToPlay, Trigger.Attack)!);
+            abilitiesThatRequireSelection.AddRange(GetAbilitiesThatRequireSelection(cardToPlay, TriggerType.Attack)!);
         }
 
-        if (actionsThatRequireSelection.Count > 0)
+        if (abilitiesThatRequireSelection.Count > 0)
         {
             Players[playerId].MakingSelections = true;
-            GetTargetsForSelection(playerId, actionsThatRequireSelection, turn.Trigger);
+            GetTargetsForSelection(playerId, abilitiesThatRequireSelection, turn.Trigger);
         }
     }
 
@@ -164,12 +160,12 @@ public class Match
         Players[playerId].TargetSelections = selections;
     }
 
-    public List<CardAction>? GetActionsThatRequireSelection(Card card, Trigger trigger)
+    public List<Ability>? GetAbilitiesThatRequireSelection(Card card, TriggerType trigger)
     {
-        var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
+        var ability = card.Abilities.SingleOrDefault(a => a.TriggerType == trigger);
         if (ability != null)
         {
-            return ability.Actions.Where(a => a.NumberOfTargets > 0).ToList();
+            return ability.Abilities.Where(a => a.NumberOfTargets > 0).ToList();
         }
         else
         {
@@ -177,7 +173,7 @@ public class Match
         }
     }
 
-    public void GetTargetsForSelection(int playerId, List<CardAction> actions, Trigger trigger)
+    public void GetTargetsForSelection(int playerId, List<Ability> actions, TriggerType trigger)
     {
         foreach (var action in actions)
         {
@@ -250,8 +246,8 @@ public class Match
 
     private bool BothPlayersHaveEndedTheirTurn()
     {
-        return Players[0].SubmittedTurn!.Trigger == Trigger.EndTurn &&
-                Players[1].SubmittedTurn!.Trigger == Trigger.EndTurn;
+        return Players[0].SubmittedTurn!.Trigger == TriggerType.EndTurn &&
+                Players[1].SubmittedTurn!.Trigger == TriggerType.EndTurn;
     }
 
     public void ProcessCards()
@@ -313,7 +309,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != Trigger.Cast)
+            if (player.SubmittedTurn!.Trigger != TriggerType.Cast)
                 continue;
 
             if (player.CardToPlay != null)
@@ -343,7 +339,7 @@ public class Match
                 {
                     EventMessage(new CastEvent(player.Id ,spell));
                     var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                    ProcessTriggeredAbilities(player.Id, spell, Trigger.Cast, targets);
+                    ProcessTriggeredAbilities(player.Id, spell, TriggerType.Cast, targets);
                 }
             }
         }
@@ -412,7 +408,7 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
+                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, TriggerType.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
                 }
                 else
                 {
@@ -425,16 +421,16 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.BlockSwap, player.SubmittedTurn.SelectedCardIds);
+                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, TriggerType.BlockSwap, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessTriggeredAbilities(int playerId, Card card, Trigger trigger, List<TargetSelection> targetSelections)
+    private void ProcessTriggeredAbilities(int playerId, Card card, TriggerType trigger, List<TargetSelection> targetSelections)
     {
-        var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
+        var ability = card.Abilities.SingleOrDefault(a => a.TriggerType == trigger);
 
         if (ability == null) 
         {
@@ -448,7 +444,7 @@ public class Match
             {
                 List<Card> targets = GetTargets(card, action, targetSelections);
 
-                ProcessAction(playerId, targets, action.Value, action.Intent);
+                ProcessAction(playerId, targets, action.Value, action.Effect);
 
 
                 //EventMessage(message);
@@ -456,7 +452,7 @@ public class Match
         }
     }
 
-    private List<Card> GetTargets(Card self, CardAction cardAction, List<TargetSelection> targetSelections)
+    private List<Card> GetTargets(Card self, Ability cardAction, List<TargetSelection> targetSelections)
     {
         List<Card> targetsResult = new();
 
@@ -483,15 +479,15 @@ public class Match
         return targetsResult;
     }
 
-    private List<CardAction> GetActions(Ability ability)
+    private List<Ability> GetActions(Trigger ability)
     {
-        List<CardAction> actions = new();
+        List<Ability> actions = new();
 
         switch (ability.ChoiceType)
         {
             case ChoiceType.And:
             {
-                actions = ability.Actions;
+                actions = ability.Abilities;
                 break;
             }
             default:
@@ -502,7 +498,7 @@ public class Match
         return actions;
     }
 
-    private void ProcessAction(int playerId, List<Card> targets, int value, Intent intent)
+    private void ProcessAction(int playerId, List<Card> targets, int value, Effect intent)
     {
         foreach (var target in targets)
         {
@@ -525,12 +521,12 @@ public class Match
             {
                 switch (intent)
                 {
-                    case Intent.AttackBuff:
+                    case Effect.AttackBuff:
                         {
                             targetCreature.AttackBuff += value;
                             break;
                         }
-                    case Intent.DirectDamage:
+                    case Effect.DirectDamage:
                         {
                             bool hasDied = targetCreature.DamageCreature(value);
 
@@ -542,7 +538,7 @@ public class Match
 
                             break;
                         }
-                    case Intent.Heal:
+                    case Effect.Heal:
                         {
                             targetCreature.HealCreature(value);
                             break;
