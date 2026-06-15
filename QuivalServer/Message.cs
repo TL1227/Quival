@@ -30,6 +30,7 @@ public abstract class Message
                 "PlayBlank" => JsonSerializer.Deserialize<PlayBlank>(json),
                 "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
                 "SubmitTurn" => JsonSerializer.Deserialize<SubmitTurn>(json),
+                "MakeSelections" => JsonSerializer.Deserialize<MakeSelections>(json),
                 _ => null
             };
 
@@ -110,4 +111,9 @@ public class SubmitTurn : Message
 {
     public override string Type => "SubmitTurn";
     public required QuivalTurn Turn { get; set; }
+}
+public class MakeSelections : Message
+{
+    public override string Type => "MakeSelections";
+    public required List<TargetSelection> TargetSelections { get; set; }
 }

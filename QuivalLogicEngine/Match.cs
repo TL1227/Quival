@@ -108,12 +108,12 @@ public class Match
         Players.Add(player);
     }
 
-    public List<TargetSelection>? SubmitTurn(int playerId, QuivalTurn turn)
+    public void SubmitTurn(int playerId, QuivalTurn turn)
     {
         if (turn.TurnType == TurnType.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
-            return null;
+            return;
         }
 
         var cardToPlay = GetCardFromId(turn.CardToPlayId);
@@ -121,15 +121,22 @@ public class Match
         if (cardToPlay == null)
         {
             Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
-            return null;
+            return;
         }
 
+        List<CardAction> actionsThatRequireSelection = new();
         if (turn.TurnType == TurnType.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
                 Players[playerId].SubmittedTurn = turn;
                 Players[playerId].Hand.Remove(cardToPlay);
+                Players[playerId].SubmittedTurn = turn;
+
+                var actions = GetActionsThatRequireSelection(cardToPlay, Trigger.Cast);
+
+                if (actions != null)
+                    actionsThatRequireSelection.AddRange(actions);
             }
             else
             {
@@ -137,41 +144,60 @@ public class Match
                 Console.WriteLine($"they have {Players[playerId].Mana} and need {cardToPlay.Cost}");
             }
         }
-        else
+        else if (turn.TurnType == TurnType.Attack)
         {
             Players[playerId].SubmittedTurn = turn;
+
+            actionsThatRequireSelection.AddRange(GetActionsThatRequireSelection(cardToPlay, Trigger.Attack)!);
         }
 
-        if (Players[playerId].SubmittedTurn?.SelectedCardIds.Count > 0)
+        if (actionsThatRequireSelection.Count > 0)
         {
-            return null;
-        }
-        else
-        {
-            return CheckIfTargetsNeedSelecting(cardToPlay, Trigger.Cast);
+            Players[playerId].MakingSelections = true;
+            GetTargetsForSelection(playerId, actionsThatRequireSelection);
         }
     }
 
-    public List<TargetSelection>? CheckIfTargetsNeedSelecting(Card card, Trigger trigger)
+    public void SubmitTargetSelection(int playerId, List<TargetSelection> selections)
     {
-        List<TargetSelection> targetsToSelect = new();
+        Players[playerId].MakingSelections = false;
+        Players[playerId].TargetSelections = selections;
+    }
 
+    public List<CardAction>? GetActionsThatRequireSelection(Card card, Trigger trigger)
+    {
         var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
         if (ability != null)
         {
-            var actions = ability.Actions.Where(a => a.NumberOfTargets > 0);
-            foreach (var action in actions)
+            return ability.Actions.Where(a => a.NumberOfTargets > 0).ToList();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public void GetTargetsForSelection(int playerId, List<CardAction> actions)
+    {
+        foreach (var action in actions)
+        {
+            if (action.TargetType == TargetType.Damageable)
             {
-                if (action.TargetType == TargetType.Damageable)
-                {
-                    TargetSelection ts = new();
-                    ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures());
-                    targetsToSelect.Add(ts);
-                }
+                TargetSelection ts = new();
+                ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
+                ts.TargetType = TargetType.Damageable;
+                ts.NumberToPick = action.NumberOfTargets;
+                Players[playerId].TargetSelections.Add(ts);
             }
         }
+    }
 
-        return targetsToSelect.Count > 0 ? targetsToSelect : null;
+    public List<TargetSelection>? GetSelectionsIfPlayerNeedsThem(int playerId)
+    {
+        if (Players[playerId].MakingSelections)
+            return Players[playerId].TargetSelections;
+        else
+            return null;
     }
 
     public bool BothPlayersHaveSubmittedTurns()
@@ -190,6 +216,21 @@ public class Match
 
         return true;
     }
+
+    public bool BothPlayersHaveSubmittedTargets()
+    {
+        if (OnePlayerMode)
+            return true;
+
+        foreach (var player in Players)
+        {
+            if (player.MakingSelections == true)
+                return false;
+        }
+
+        return true;
+    }
+
 
     public void SetCardIds(List<Card> deck)
     {
@@ -248,6 +289,7 @@ public class Match
         foreach (var player in Players)
         {
             player.SubmittedTurn = null;
+            player.TargetSelections.Clear();
         }
 
         //remove attack buffs
@@ -287,6 +329,7 @@ public class Match
                         creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
 
+                        player.TargetSelections.Where(ts => ts.CardAction.)
                         ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
                     }
                     else
@@ -314,7 +357,7 @@ public class Match
             {
                 Player otherPlayer = GetOpponent(player.Id);
 
-                ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Attack, player.SubmittedTurn.SelectedCardIds);
+                //ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Attack, player.TargetSelections);
 
                 var attackEvent = new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!);
 

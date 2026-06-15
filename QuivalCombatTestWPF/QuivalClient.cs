@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text.Json;
 using QuivalServer;
 using QuivalLogicEngine.Turns;
+using QuivalLogicEngine.Cards;
 
 namespace QuivalCombatTestWPF
 {
@@ -106,6 +107,12 @@ namespace QuivalCombatTestWPF
                         Window.UpdateGameState(gameState.GameState);
                     }
                     break;
+                case MakeSelections:
+                    {
+                        MakeSelections makeSelections = (MakeSelections)message;
+                        Window.MakeSelections(makeSelections);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -133,6 +140,12 @@ namespace QuivalCombatTestWPF
         {
             SubmitTurn submitTurn = new(){Turn = turn};
             _ = SendMessageAsync(submitTurn);
+        }
+
+        public void SubmitSelection(List<TargetSelection> targetSelection)
+        {
+            MakeSelections ms = new(){TargetSelections = targetSelection};
+            _ = SendMessageAsync(ms);
         }
     }
 }

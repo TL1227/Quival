@@ -203,9 +203,8 @@ internal class Program
     {
         switch (message)
         {
-            case SubmitTurn:
+            case SubmitTurn submitTurn:
                 {
-                    SubmitTurn submitTurn = (SubmitTurn)message;
                     Console.WriteLine($"Player {playerId} submitting {submitTurn.Turn.TurnType}");
 
                     if (Match.PlayerHasSetTurn(playerId))
@@ -216,7 +215,29 @@ internal class Program
 
                     Match.SubmitTurn(playerId, submitTurn.Turn);
 
-                    if (Match.BothPlayersHaveSubmittedTurns())
+                    var selectionTargets = Match.GetSelectionsIfPlayerNeedsThem(playerId);
+                    if (selectionTargets != null)
+                    {
+                        MakeSelections ms = new() { TargetSelections = selectionTargets };
+
+                        string? gs = JsonSerializer.Serialize(ms, ms.GetType());
+                        Clients[playerId].Writer.WriteLineAsync(gs);
+                    }
+                    else
+                    {
+                        if (Match.BothPlayersHaveSubmittedTurns() && Match.BothPlayersHaveSubmittedTargets())
+                        {
+                            Console.WriteLine($"Both players have submitted turns");
+                            ProcessCards();
+                        }
+                    }
+                }
+                break;
+            case MakeSelections selections:
+                {
+                    Match.SubmitTargetSelection(playerId, selections.TargetSelections);
+
+                    if (Match.BothPlayersHaveSubmittedTurns() && Match.BothPlayersHaveSubmittedTargets())
                     {
                         Console.WriteLine($"Both players have submitted turns");
                         ProcessCards();

@@ -13,6 +13,8 @@ public class Player
     public int StartingHandSize { get; set; } = 4;
     public Card? CardToPlay { get; set; }
     public QuivalTurn? SubmittedTurn { get; set; }
+    public List<TargetSelection> TargetSelections { get; set; } = new();
+    public bool MakingSelections = false;
 
     public CreatureCard? BlockingCreature { get; set; }
 

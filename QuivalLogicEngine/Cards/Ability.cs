@@ -79,8 +79,10 @@
 
     public class TargetSelection
     {
-        public List<Card> TargetsToPickFrom { get; set; } = new();
+        public List<int> TargetsToPickFrom { get; set; } = new();
         public int NumberToPick {  get; set; }
-        public List<Card> SelectedTargets { get; set; } = new();
+        public List<int> SelectedTargets { get; set; } = new();
+        public TargetType TargetType { get; set; }
+        public CardAction? CardAction { get; set; }
     }
 }
