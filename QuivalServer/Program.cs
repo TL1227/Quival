@@ -205,7 +205,7 @@ internal class Program
         {
             case SubmitTurn submitTurn:
                 {
-                    Console.WriteLine($"Player {playerId} submitting {submitTurn.Turn.TurnType}");
+                    Console.WriteLine($"Player {playerId} submitting {submitTurn.Turn.Trigger}");
 
                     if (Match.PlayerHasSetTurn(playerId))
                     {

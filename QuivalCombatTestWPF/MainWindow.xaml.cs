@@ -429,7 +429,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    TurnType = TurnType.EndTurn
+                    Trigger = QuivalLogicEngine.Cards.Trigger.EndTurn
                 };
                 Client.SubmitTurn(turn);
 
@@ -526,7 +526,7 @@ namespace QuivalCombatTestWPF
         {
             QuivalTurn turn = new()
             {
-                TurnType = TurnType.EndTurn
+                Trigger = QuivalLogicEngine.Cards.Trigger.EndTurn
             };
 
             Client.SubmitTurn(turn);
@@ -539,7 +539,7 @@ namespace QuivalCombatTestWPF
         {
             CurrentTurn = new()
             {
-                TurnType = TurnType.Cast,
+                Trigger = QuivalLogicEngine.Cards.Trigger.Cast,
                 CardToPlayId = hc.Id
             };
 
@@ -648,7 +648,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    TurnType = TurnType.MoveToBlock,
+                    Trigger = QuivalLogicEngine.Cards.Trigger.MoveToBlockZone,
                     CardToPlayId = bc.Id
                 };
 
@@ -669,7 +669,7 @@ namespace QuivalCombatTestWPF
                 {
                     QuivalTurn turn = new()
                     {
-                        TurnType = TurnType.Attack,
+                        Trigger = QuivalLogicEngine.Cards.Trigger.Attack,
                         CardToPlayId = bc.Id
                     };
 

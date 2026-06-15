@@ -7,7 +7,8 @@
         Cast,
         PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
         MoveToBlockZone,
-        BlockSwap
+        BlockSwap,
+        EndTurn
     }
 
     public enum Intent
@@ -83,6 +84,7 @@
         public int NumberToPick {  get; set; }
         public List<int> SelectedTargets { get; set; } = new();
         public TargetType TargetType { get; set; }
-        public CardAction? CardAction { get; set; }
+        public Trigger Trigger { get; set; }
+        public CardAction CardAction { get; set; } = new();
     }
 }

@@ -110,7 +110,7 @@ public class Match
 
     public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        if (turn.TurnType == TurnType.EndTurn)
+        if (turn.Trigger == Trigger.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
             return;
@@ -125,7 +125,7 @@ public class Match
         }
 
         List<CardAction> actionsThatRequireSelection = new();
-        if (turn.TurnType == TurnType.Cast)
+        if (turn.Trigger == Trigger.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
@@ -144,7 +144,7 @@ public class Match
                 Console.WriteLine($"they have {Players[playerId].Mana} and need {cardToPlay.Cost}");
             }
         }
-        else if (turn.TurnType == TurnType.Attack)
+        else if (turn.Trigger == Trigger.Attack)
         {
             Players[playerId].SubmittedTurn = turn;
 
@@ -154,7 +154,7 @@ public class Match
         if (actionsThatRequireSelection.Count > 0)
         {
             Players[playerId].MakingSelections = true;
-            GetTargetsForSelection(playerId, actionsThatRequireSelection);
+            GetTargetsForSelection(playerId, actionsThatRequireSelection, turn.Trigger);
         }
     }
 
@@ -177,7 +177,7 @@ public class Match
         }
     }
 
-    public void GetTargetsForSelection(int playerId, List<CardAction> actions)
+    public void GetTargetsForSelection(int playerId, List<CardAction> actions, Trigger trigger)
     {
         foreach (var action in actions)
         {
@@ -187,6 +187,8 @@ public class Match
                 ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
                 ts.TargetType = TargetType.Damageable;
                 ts.NumberToPick = action.NumberOfTargets;
+                ts.Trigger = trigger;
+                ts.CardAction = action;
                 Players[playerId].TargetSelections.Add(ts);
             }
         }
@@ -248,8 +250,8 @@ public class Match
 
     private bool BothPlayersHaveEndedTheirTurn()
     {
-        return Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
-                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn;
+        return Players[0].SubmittedTurn!.Trigger == Trigger.EndTurn &&
+                Players[1].SubmittedTurn!.Trigger == Trigger.EndTurn;
     }
 
     public void ProcessCards()
@@ -311,7 +313,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
+            if (player.SubmittedTurn!.Trigger != Trigger.Cast)
                 continue;
 
             if (player.CardToPlay != null)
@@ -329,8 +331,8 @@ public class Match
                         creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
 
-                        player.TargetSelections.Where(ts => ts.CardAction.)
-                        ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
+                        var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
+                        ProcessTriggeredAbilities(player.Id, player.CardToPlay, player.SubmittedTurn.Trigger, targets);
                     }
                     else
                     {
@@ -340,7 +342,8 @@ public class Match
                 else if (player.CardToPlay is SpellCard spell)
                 {
                     EventMessage(new CastEvent(player.Id ,spell));
-                    ProcessTriggeredAbilities(player.Id, spell, Trigger.Cast, player.SubmittedTurn.SelectedCardIds);
+                    var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
+                    ProcessTriggeredAbilities(player.Id, spell, Trigger.Cast, targets);
                 }
             }
         }
@@ -350,7 +353,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.TurnType != TurnType.Attack)
+            if (player.SubmittedTurn!.Trigger != TurnType.Attack)
                 continue;
 
             if (player.CardToPlay is CreatureCard attackingCreature && attackingCreature.IsAlive())
@@ -397,7 +400,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.TurnType != TurnType.MoveToBlock)
+            if (player.SubmittedTurn!.Trigger != TurnType.MoveToBlock)
                 continue;
 
             if (player.CardToPlay is CreatureCard newBlocker && newBlocker.IsAlive())
@@ -429,7 +432,7 @@ public class Match
     }
 
     //abilities
-    private void ProcessTriggeredAbilities(int playerId, Card card, Trigger trigger, Dictionary<Intent, List<int>> targetedCards)
+    private void ProcessTriggeredAbilities(int playerId, Card card, Trigger trigger, List<TargetSelection> targetSelections)
     {
         var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
 
@@ -443,7 +446,7 @@ public class Match
         {
             if (ConditionalsMet(action.Conditionals))
             {
-                List<Card> targets = GetTargets(card, action, targetedCards);
+                List<Card> targets = GetTargets(card, action, targetSelections);
 
                 ProcessAction(playerId, targets, action.Value, action.Intent);
 
@@ -453,7 +456,7 @@ public class Match
         }
     }
 
-    private List<Card> GetTargets(Card self, CardAction cardAction, Dictionary<Intent, List<int>> targets)
+    private List<Card> GetTargets(Card self, CardAction cardAction, List<TargetSelection> targetSelections)
     {
         List<Card> targetsResult = new();
 
@@ -463,13 +466,16 @@ public class Match
         }
         else
         {
-            foreach (var target in targets[cardAction.Intent])
+            foreach (var ts in targetSelections)
             {
-                var card = GetCardFromId(target);
-
-                if (card != null)
+                foreach (var target in ts.SelectedTargets.Where(st => st.))
                 {
-                    targetsResult.Add(card);
+                    var card = GetCardFromId(target);
+
+                    if (card != null)
+                    {
+                        targetsResult.Add(card);
+                    }
                 }
             }
         }
