@@ -310,6 +310,11 @@ namespace QuivalCombatTestWPF
                             targetCard.TakeDamage(actionEvent.Value);
                         }
                         break;
+                    case Intent.Heal:
+                        {
+                            targetCard.Heal(actionEvent.Value);
+                        }
+                        break;
                     case Intent.DrawCard:
                         break;
                     case Intent.RushDown:
@@ -549,7 +554,7 @@ namespace QuivalCombatTestWPF
                     actionIntents.Add(new NumberOfIntents
                     {
                         Intent = action.Intent,
-                        Number = action.NumberOfTargets
+                        Number = action.NumberOfTargets,
                     });
                 }
 
@@ -577,6 +582,8 @@ namespace QuivalCombatTestWPF
 
                 if (CardSelector != null)
                 {
+                    //if (CardSelector.GetCurrentIntent() == )
+
                     var selectionFinished = CardSelector.SelectCard(bc.Id);
                     bc.MarkSelected(true);
 
@@ -756,35 +763,17 @@ namespace QuivalCombatTestWPF
             }
 
             return null;
-            
-            /*
-            UIElementCollection[] cardsGroup =
-            [
-                PlayerSummonZone.Children
-            ];
+        }
 
-            foreach (var cards in cardsGroup)
-                foreach (var card in cards)
-                    if (card is BoardCard boardCard)
-                        if (boardCard != null && boardCard.Id == cardId)
-                            return boardCard;
-
-            List<BoardCard> otherLocations = new();
-            otherLocations.AddRange(PlayerCombatZone.GetBoardCards());
-            otherLocations.AddRange(OpponentCombatZone.GetBoardCards());
-
-            if (PlayerBlockZone.CurrentCard != null)
-                otherLocations.Add(PlayerBlockZone.CurrentCard!);
-
-            if (OpponentBlockZone.CurrentCard != null)
-                otherLocations.Add(OpponentBlockZone.CurrentCard!);
-
-            foreach (var card in otherLocations)
-                        if (card != null && card.Id == cardId)
-                            return card;
+        public HandCard? GetHandCard(int cardId)
+        {
+            foreach (var bc in Layout.Canvas.Children.OfType<HandCard>())
+            {
+                if (bc.Id == cardId)
+                    return bc;
+            }
 
             return null;
-            */
         }
     }
 }

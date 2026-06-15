@@ -52,5 +52,10 @@ namespace QuivalCombatTestWPF
 
             return null;
         }
+
+        public Intent GetCurrentIntent()
+        {
+            return RequiredCards[i].Intent;
+        }
     }
 }

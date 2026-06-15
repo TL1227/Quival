@@ -108,46 +108,70 @@ public class Match
         Players.Add(player);
     }
 
-    public void SubmitTurn(int playerId, QuivalTurn turn)
+    public List<TargetSelection>? SubmitTurn(int playerId, QuivalTurn turn)
     {
         if (turn.TurnType == TurnType.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
+            return null;
         }
-        else if (turn.TurnType == TurnType.Cast)
-        {
-            var card = GetCardFromId(turn.CardToPlayId);
 
-            if (card != null)
+        var cardToPlay = GetCardFromId(turn.CardToPlayId);
+
+        if (cardToPlay == null)
+        {
+            Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
+            return null;
+        }
+
+        if (turn.TurnType == TurnType.Cast)
+        {
+            if (cardToPlay.Cost <= Players[playerId].Mana)
             {
-                if (card.Cost <= Players[playerId].Mana)
-                {
-                    Players[playerId].SubmittedTurn = turn;
-                    Players[playerId].Hand.Remove(card);
-                }
-                else
-                {
-                    Console.WriteLine($"player {playerId} doesn't have enough mana for {turn.CardToPlayId}");
-                    Console.WriteLine($"they have {Players[playerId].Mana} and need {card.Cost}");
-                }
+                Players[playerId].SubmittedTurn = turn;
+                Players[playerId].Hand.Remove(cardToPlay);
             }
             else
             {
-                Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
+                Console.WriteLine($"player {playerId} doesn't have enough mana for {turn.CardToPlayId}");
+                Console.WriteLine($"they have {Players[playerId].Mana} and need {cardToPlay.Cost}");
             }
         }
         else
         {
-            var card = GetCardFromId(turn.CardToPlayId);
-            if (card != null)
+            Players[playerId].SubmittedTurn = turn;
+        }
+
+        if (Players[playerId].SubmittedTurn?.SelectedCardIds.Count > 0)
+        {
+            return null;
+        }
+        else
+        {
+            return CheckIfTargetsNeedSelecting(cardToPlay, Trigger.Cast);
+        }
+    }
+
+    public List<TargetSelection>? CheckIfTargetsNeedSelecting(Card card, Trigger trigger)
+    {
+        List<TargetSelection> targetsToSelect = new();
+
+        var ability = card.Abilities.SingleOrDefault(a => a.Trigger == trigger);
+        if (ability != null)
+        {
+            var actions = ability.Actions.Where(a => a.NumberOfTargets > 0);
+            foreach (var action in actions)
             {
-                Players[playerId].SubmittedTurn = turn;
-            }
-            else
-            {
-                Console.WriteLine($"Can't find player {playerId}'s card {turn.CardToPlayId} in current match");
+                if (action.TargetType == TargetType.Damageable)
+                {
+                    TargetSelection ts = new();
+                    ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures());
+                    targetsToSelect.Add(ts);
+                }
             }
         }
+
+        return targetsToSelect.Count > 0 ? targetsToSelect : null;
     }
 
     public bool BothPlayersHaveSubmittedTurns()
@@ -452,7 +476,6 @@ public class Match
             {
                 switch (intent)
                 {
-                    //TODO: maybe being able to do Intent.Apply(creature); rather than a switch would be good?
                     case Intent.AttackBuff:
                         {
                             targetCreature.AttackBuff += value;
@@ -470,9 +493,13 @@ public class Match
 
                             break;
                         }
+                    case Intent.Heal:
+                        {
+                            targetCreature.HealCreature(value);
+                            break;
+                        }
                 }
             }
-
         }
     }
 

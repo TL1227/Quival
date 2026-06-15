@@ -13,10 +13,31 @@ namespace LogicEngineConsole
             [
                 new CreatureCard(){
                     Name = "Desmond Future Knight",
-                    Description = "",
+                    Description = "If Desmond Future Knight attacks on round 2, heal any target by 2",
                     Cost = 2,
                     Attack = 2,
                     Health = 2,
+                    Abilities = [
+                        new Ability()
+                        {
+                            Trigger = Trigger.Attack,
+                            Actions =
+                            {
+                                new CardAction()
+                                {
+                                    Intent = Intent.Heal,
+                                    TargetType = TargetType.Damageable,
+                                    NumberOfTargets = 1,
+                                    CanTargetSelf = false,
+                                    Value = 2,
+                                    Conditionals =
+                                    {
+                                        Conditional.Round2
+                                    }
+                                }
+                            },
+                        }
+                    ]
                 },
                 new CreatureCard(){
                     Name = "Token",

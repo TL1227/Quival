@@ -1,4 +1,5 @@
 ﻿using QuivalCombatTestWPF.Colours;
+using QuivalLogicEngine.Cards;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
@@ -117,7 +118,18 @@ namespace QuivalCombatTestWPF
             Shake();
             HealthLabel.Content = GetCurrentHealthFromLabel() - dmg;
             HealthLabel.Foreground = Brushes.Red;
-            Debug.WriteLine($"{Id} has taken damage");
+        }
+
+        public void Heal(int amount)
+        {
+            Flash(Brushes.Green);
+            HealthLabel.Content = GetCurrentHealthFromLabel() + amount;
+            Card card = (Card)Tag;
+            if (card != null && card is CreatureCard cc)
+            {
+                if ((int)HealthLabel.Content < cc.Health)
+                    HealthLabel.Foreground = Brushes.Red;
+            }
         }
 
         public Task Flash(Brush Brush)

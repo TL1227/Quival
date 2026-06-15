@@ -10,23 +10,6 @@
         BlockSwap
     }
 
-
-    /*
-    NOTE: we could do something like this if we want to go full Inerfacey
-    public interface ICreatureApplicable
-    {
-        void Apply(CreatureCard creatureCard);
-    }
-
-    public class AttackBuffEffect : CardAction, ICreatureApplicable
-    {
-        public void Apply(CreatureCard creature)
-        {
-            creature.AttackBuff += Value;
-        }
-    }
-    */
-
     public enum Intent
     {
         None,
@@ -34,6 +17,7 @@
         AttackUpToken,
         DamageAbsorbToken,
         DirectDamage,
+        Heal,
         DrawCard,
         RushDown, //This is a keyword and might do better in it's own "Keywords" field
         RestoreAction, //so the target can perform another action this turn
@@ -51,17 +35,16 @@
 
     public enum TargetType
     {
-        None,
+        None, //You don't need to pick a target
+        Any,
         Self, //as in the card the ability belongs to
-        Damageable, //so creatures, players. This should futureproof if we have some other card type that gets given health somehow
-        CanAct, //so something that can take an action, currently this is creatures
+        Creature,
         Player,
-        Creature
+        Damageable
     }
 
     public enum Side
     {
-        None,
         Any,
         Opponent,
         Player,
@@ -92,5 +75,12 @@
         public Side Side { get; set; }
         public int Value { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();
+    }
+
+    public class TargetSelection
+    {
+        public List<Card> TargetsToPickFrom { get; set; } = new();
+        public int NumberToPick {  get; set; }
+        public List<Card> SelectedTargets { get; set; } = new();
     }
 }

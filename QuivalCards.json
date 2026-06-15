@@ -14,9 +14,28 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Desmond Future Knight",
-      "Description": "",
+      "Description": "If Desmond Future Knight attacks on round 2, heal any target by 2",
       "Cost": 2,
-      "Abilities": []
+      "Abilities": [
+        {
+          "Trigger": "Attack",
+          "Actions": [
+            {
+              "Intent": "Heal",
+              "TargetType": "Damageable",
+              "CanTargetSelf": false,
+              "NumberOfTargets": 0,
+              "Side": "Any",
+              "Value": 2,
+              "Conditionals": [
+                "Round2"
+              ]
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
+        }
+      ]
     },
     {
       "Type": "creaturecard",
@@ -89,7 +108,7 @@
               "TargetType": "Self",
               "CanTargetSelf": true,
               "NumberOfTargets": 0,
-              "Side": "None",
+              "Side": "Any",
               "Value": 2,
               "Conditionals": [
                 "Round3"

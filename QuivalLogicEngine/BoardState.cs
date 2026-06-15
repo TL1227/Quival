@@ -25,6 +25,25 @@ namespace QuivalLogicEngine
             SummonedCreatures[playerId].Add((creature));
         }
 
+        public CreatureCard? GetSummonedCreature(int cardId)
+        {
+            foreach (var sc in SummonedCreatures)
+                foreach (var s in sc)
+                    if (s.Id == cardId)
+                        return s;
+
+            return null;
+        }
+
+        public List<CreatureCard> GetAllSummonedCreatures()
+        {
+            List<CreatureCard> list = new();
+            list.AddRange(SummonedCreatures[0]);
+            list.AddRange(SummonedCreatures[1]);
+
+            return list;
+        }
+
         public int GetCurrentMana()
         {
             return ManaClock[ManaClockIndex];
