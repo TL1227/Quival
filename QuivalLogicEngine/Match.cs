@@ -73,6 +73,7 @@ public class Match
         {
             state.OpponentCardCount = opponent.Hand.Count();
             state.OpponentHealthPoints = opponent.HealthPoints;
+        Console.WriteLine($"Moving to turn {TurnCount}");
             state.OpponentManaPoints = opponent.Mana;
             state.OpponentBlockCard = opponent.BlockingCreature;
             state.OpponentCardToPlay = opponent.CardToPlay;
@@ -121,18 +122,12 @@ public class Match
             return;
         }
 
-        List<Ability> abilitiesThatRequireSelection = new();
         if (turn.Trigger == TriggerType.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
                 Players[playerId].SubmittedTurn = turn;
                 Players[playerId].Hand.Remove(cardToPlay);
-
-                var actions = GetAbilitiesThatRequireSelection(cardToPlay, TriggerType.Cast);
-
-                if (actions != null)
-                    abilitiesThatRequireSelection.AddRange(actions);
             }
             else
             {
@@ -140,17 +135,28 @@ public class Match
                 Console.WriteLine($"they have {Players[playerId].Mana} and need {cardToPlay.Cost}");
             }
         }
-        else if (turn.Trigger == TriggerType.Attack)
+        else
         {
             Players[playerId].SubmittedTurn = turn;
+        }
 
-            abilitiesThatRequireSelection.AddRange(GetAbilitiesThatRequireSelection(cardToPlay, TriggerType.Attack)!);
+        List<Ability> abilitiesThatRequireSelection = new();
+        var abilities = GetSelectableAbilities(cardToPlay, turn.Trigger);
+        if (abilities != null)
+        {
+            foreach (var ability in abilities)
+            {
+                if (ConditionalsMet(ability.Conditionals))
+                {
+                    abilitiesThatRequireSelection.AddRange(abilities);
+                }
+            }
         }
 
         if (abilitiesThatRequireSelection.Count > 0)
         {
             Players[playerId].MakingSelections = true;
-            GetTargetsForSelection(playerId, abilitiesThatRequireSelection, turn.Trigger);
+            GetTargetsForSelection(playerId, cardToPlay.Id, abilitiesThatRequireSelection, turn.Trigger);
         }
     }
 
@@ -160,12 +166,12 @@ public class Match
         Players[playerId].TargetSelections = selections;
     }
 
-    public List<Ability>? GetAbilitiesThatRequireSelection(Card card, TriggerType trigger)
+    public List<Ability>? GetSelectableAbilities(Card card, TriggerType triggerType)
     {
-        var ability = card.Abilities.SingleOrDefault(a => a.TriggerType == trigger);
-        if (ability != null)
+        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
+        if (trigger != null)
         {
-            return ability.Abilities.Where(a => a.NumberOfTargets > 0).ToList();
+            return trigger.Abilities.Where(a => a.NumberOfTargets > 0).ToList();
         }
         else
         {
@@ -173,18 +179,24 @@ public class Match
         }
     }
 
-    public void GetTargetsForSelection(int playerId, List<Ability> actions, TriggerType trigger)
+    public void GetTargetsForSelection(int playerId, int cardId, List<Ability> abilities, TriggerType trigger)
     {
-        foreach (var action in actions)
+        foreach (var ability in abilities)
         {
-            if (action.TargetType == TargetType.Damageable)
+            if (ability.TargetType == TargetType.Damageable)
             {
                 TargetSelection ts = new();
                 ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
+
+                if (!ability.CanTargetSelf)
+                    ts.TargetsToPickFrom.Remove(cardId);
+
                 ts.TargetType = TargetType.Damageable;
-                ts.NumberToPick = action.NumberOfTargets;
+                ts.NumberToPick = ability.NumberOfTargets;
                 ts.Trigger = trigger;
-                ts.CardAction = action;
+                ts.AbilityId = ability.Id;
+                ts.CardId = cardId;
+                ts.Effect = ability.Effect;
                 Players[playerId].TargetSelections.Add(ts);
             }
         }
@@ -252,15 +264,10 @@ public class Match
 
     public void ProcessCards()
     {
-        Console.WriteLine("Processing submitted Turns!");
-        
         EventMessages.Clear();
-        CardIntents.Clear();
 
         if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
-        {
             return;
-        }
 
         if (BothPlayersHaveEndedTheirTurn())
         {
@@ -282,22 +289,21 @@ public class Match
         ProcessMoveToBlockZone();
         ProcessAttacks();
 
-        //round end
+        //NextRound()
         RoundCount++;
         foreach (var player in Players)
         {
             player.SubmittedTurn = null;
             player.TargetSelections.Clear();
+
+            //TODO: I think that we should do the calculating which players can and can't move next turn here
+            //currently it's all being done client side which is stupid
         }
 
         //remove attack buffs
         foreach (var creatures in BoardState.SummonedCreatures)
             foreach (var creature in creatures)
                 creature.AttackBuff = 0;
-
-
-        //TODO: I think that we should do the calculating which players can and can't move next turn here
-        //currently it's all being done client side which is stupid
 
         if (RoundCount > MaxRounds)
         {
@@ -328,7 +334,7 @@ public class Match
                         creature.CurrentHealth = creature.Health;
 
                         var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                        ProcessTriggeredAbilities(player.Id, player.CardToPlay, player.SubmittedTurn.Trigger, targets);
+                        ProcessCardTriggers(player.Id, creature, player.SubmittedTurn.Trigger, targets);
                     }
                     else
                     {
@@ -339,7 +345,7 @@ public class Match
                 {
                     EventMessage(new CastEvent(player.Id ,spell));
                     var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                    ProcessTriggeredAbilities(player.Id, spell, TriggerType.Cast, targets);
+                    ProcessCardTriggers(player.Id, spell, player.SubmittedTurn.Trigger, targets);
                 }
             }
         }
@@ -349,16 +355,16 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TurnType.Attack)
+            if (player.SubmittedTurn!.Trigger != TriggerType.Attack)
                 continue;
 
             if (player.CardToPlay is CreatureCard attackingCreature && attackingCreature.IsAlive())
             {
                 Player otherPlayer = GetOpponent(player.Id);
 
-                //ProcessTriggeredAbilities(player.Id, player.CardToPlay, Trigger.Attack, player.TargetSelections);
-
                 var attackEvent = new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!);
+                EventMessage(attackEvent);
+                ProcessCardTriggers(player.Id, player.CardToPlay, player.SubmittedTurn.Trigger, player.TargetSelections);
 
                 if (otherPlayer.BlockingCreature == null || otherPlayer.BlockingCreature.IsDead())
                 {
@@ -386,7 +392,6 @@ public class Match
                 }
                 attackingCreature.HasActed = true;
 
-                EventMessage(attackEvent);
                 //Possible after damage trigger could go here
             }
         }
@@ -396,7 +401,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TurnType.MoveToBlock)
+            if (player.SubmittedTurn!.Trigger != TriggerType.MoveToBlockZone)
                 continue;
 
             if (player.CardToPlay is CreatureCard newBlocker && newBlocker.IsAlive())
@@ -408,7 +413,7 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, TriggerType.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
+                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
                 }
                 else
                 {
@@ -421,30 +426,30 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    ProcessTriggeredAbilities(player.Id, player.CardToPlay, TriggerType.BlockSwap, player.SubmittedTurn.SelectedCardIds);
+                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.BlockSwap, player.SubmittedTurn.SelectedCardIds);
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessTriggeredAbilities(int playerId, Card card, TriggerType trigger, List<TargetSelection> targetSelections)
+    private void ProcessCardTriggers(int playerId, Card card, TriggerType triggerType, List<TargetSelection> targetSelections)
     {
-        var ability = card.Abilities.SingleOrDefault(a => a.TriggerType == trigger);
+        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
 
-        if (ability == null) 
+        if (trigger == null) 
         {
-            Console.WriteLine($"Couldn't find trigger {trigger.ToString()} on the card {card.Name}");
+            Console.WriteLine($"Couldn't find trigger {triggerType.ToString()} on the card {card.Name}");
             return;
         }
 
-        foreach (var action in GetActions(ability))
+        foreach (var ability in GetAbilities(trigger))
         {
-            if (ConditionalsMet(action.Conditionals))
+            if (ConditionalsMet(ability.Conditionals))
             {
-                List<Card> targets = GetTargets(card, action, targetSelections);
+                List<Card> targets = GetTargets(card, ability, targetSelections);
 
-                ProcessAction(playerId, targets, action.Value, action.Effect);
+                ProcessAbility(playerId, targets, ability.Value, ability.Effect);
 
 
                 //EventMessage(message);
@@ -452,19 +457,20 @@ public class Match
         }
     }
 
-    private List<Card> GetTargets(Card self, Ability cardAction, List<TargetSelection> targetSelections)
+    private List<Card> GetTargets(Card cardToPlay, Ability ability, List<TargetSelection> targetSelections)
     {
         List<Card> targetsResult = new();
 
-        if (cardAction.TargetType == TargetType.Self)
+        if (ability.TargetType == TargetType.Self)
         {
-            targetsResult.Add(self);
+            targetsResult.Add(cardToPlay);
         }
         else
         {
-            foreach (var ts in targetSelections)
+            var targetselection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
+            if (targetselection != null)
             {
-                foreach (var target in ts.SelectedTargets.Where(st => st.))
+                foreach (var target in targetselection.SelectedTargets)
                 {
                     var card = GetCardFromId(target);
 
@@ -479,34 +485,29 @@ public class Match
         return targetsResult;
     }
 
-    private List<Ability> GetActions(Trigger ability)
+    private List<Ability> GetAbilities(Trigger trigger)
     {
         List<Ability> actions = new();
 
-        switch (ability.ChoiceType)
+        switch (trigger.ChoiceType)
         {
             case ChoiceType.And:
             {
-                actions = ability.Abilities;
+                actions = trigger.Abilities;
                 break;
             }
             default:
-                Console.WriteLine($"The choice type {ability.ChoiceType.ToString()} has not yet been implemented");
+                Console.WriteLine($"The choice type {trigger.ChoiceType.ToString()} has not yet been implemented");
             break;
         }
 
         return actions;
     }
 
-    private void ProcessAction(int playerId, List<Card> targets, int value, Effect intent)
+    private void ProcessAbility(int playerId, List<Card> targets, int value, Effect intent)
     {
-        foreach (var target in targets)
+        foreach (Card target in targets)
         {
-            Card? targetedCard = GetCardFromId(target.Id);
-
-            if (targetedCard == null)
-                continue;
-
             CardActionEvent message = new()
             {
                 PlayerId = playerId,
@@ -517,7 +518,7 @@ public class Match
 
             EventMessages.Last().CardActionEvents.Add(message);
 
-            if (targetedCard is CreatureCard targetCreature)
+            if (target is CreatureCard targetCreature)
             {
                 switch (intent)
                 {
@@ -590,6 +591,7 @@ public class Match
         {
             player.Mana = BoardState.GetCurrentMana();
             player.DrawCard(1);
+            player.MakingSelections = false;
         }
 
         BoardState.IncreaseManaClock();

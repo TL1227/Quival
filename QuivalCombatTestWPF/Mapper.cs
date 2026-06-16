@@ -113,7 +113,7 @@ namespace QuivalCombatTestWPF
         {
             if (card is CreatureCard cc)
             {
-                if (cc.Abilities.Count > 0)
+                if (cc.Triggers.Count > 0)
                 {
                     return Brushes.DarkOliveGreen;
                 }

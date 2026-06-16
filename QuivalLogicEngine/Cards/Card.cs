@@ -25,7 +25,7 @@ public abstract class Card
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int Cost { get; set; }
-    public List<Trigger> Abilities { get; set; } = new();
+    public List<Trigger> Triggers { get; set; } = new();
 
     public virtual List<ICardIntent> GetIntents()
     {

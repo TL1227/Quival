@@ -114,7 +114,7 @@ namespace QuivalCombatTestWPF
 
         public void TakeDamage(int dmg)
         {
-            Flash(Brushes.Red);
+            Flash(Brushes.Red, 0.2);
             Shake();
             HealthLabel.Content = GetCurrentHealthFromLabel() - dmg;
             HealthLabel.Foreground = Brushes.Red;
@@ -122,7 +122,7 @@ namespace QuivalCombatTestWPF
 
         public void Heal(int amount)
         {
-            Flash(Brushes.Green);
+            Flash(Brushes.LimeGreen, 0.5);
             HealthLabel.Content = GetCurrentHealthFromLabel() + amount;
             Card card = (Card)Tag;
             if (card != null && card is CreatureCard cc)
@@ -132,16 +132,15 @@ namespace QuivalCombatTestWPF
             }
         }
 
-        public Task Flash(Brush Brush)
+        public Task Flash(Brush Brush, double flashSpeed)
         {
-            double animationSpeed = 0.1;
             FlashOverlay.Background = Brush;
 
             DoubleAnimation anim = new()
             {
                 From = 0.0,
                 To = 1.0,
-                Duration = TimeSpan.FromSeconds(animationSpeed),
+                Duration = TimeSpan.FromSeconds(flashSpeed),
                 EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
                 AutoReverse = true,
                 FillBehavior = FillBehavior.Stop
@@ -187,7 +186,7 @@ namespace QuivalCombatTestWPF
         public Task FlashUp(Brush Brush)
         {
             double animationSpeed = 0.2;
-            Overlay.Background = Brush;
+            FlashOverlay.Background = Brush;
 
             DoubleAnimation anim = new()
             {
@@ -204,7 +203,7 @@ namespace QuivalCombatTestWPF
                 tsc.SetResult();
             };
 
-            Overlay.BeginAnimation(OpacityProperty, anim);
+            FlashOverlay.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
         }
@@ -212,7 +211,7 @@ namespace QuivalCombatTestWPF
         public Task FlashDown(Brush Brush)
         {
             double animationSpeed = 0.2;
-            Overlay.Background = Brush;
+            FlashOverlay.Background = Brush;
 
             DoubleAnimation anim = new()
             {
@@ -229,7 +228,7 @@ namespace QuivalCombatTestWPF
                 tsc.SetResult();
             };
 
-            Overlay.BeginAnimation(OpacityProperty, anim);
+            FlashOverlay.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
         }

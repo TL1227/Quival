@@ -49,10 +49,14 @@ internal class Program
 
         Decks = [new List<Card>(), new List<Card>()];
 
+        JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+        options.Converters.Add(new JsonStringEnumConverter());
+
         if (UseDebugCards)
         {
             var json = File.ReadAllText("..\\..\\..\\..\\QuivalCardsDebug.json");
-            Card card = JsonSerializer.Deserialize<Card>(json)!;
+            Card card = JsonSerializer.Deserialize<Card>(json, options)!;
+
             for (int d = 0; d < 2; d++)
                 for (int i = 0; i < 20; i++)
                 {
@@ -76,9 +80,6 @@ internal class Program
                 Console.WriteLine("Can't find QuivalCards.json!");
                 return;
             }
-
-            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-            options.Converters.Add(new JsonStringEnumConverter());
 
             Set currentSet = JsonSerializer.Deserialize<Set>(json, options)!;
 
@@ -227,7 +228,7 @@ internal class Program
                     {
                         if (Match.BothPlayersHaveSubmittedTurns() && Match.BothPlayersHaveSubmittedTargets())
                         {
-                            Console.WriteLine($"Both players have submitted turns");
+                            Console.WriteLine($"Processing Both Players' Turns");
                             ProcessCards();
                         }
                     }

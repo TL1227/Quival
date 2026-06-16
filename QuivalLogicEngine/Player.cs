@@ -14,7 +14,7 @@ public class Player
     public Card? CardToPlay { get; set; }
     public QuivalTurn? SubmittedTurn { get; set; }
     public List<TargetSelection> TargetSelections { get; set; } = new();
-    public bool MakingSelections = false;
+    public bool MakingSelections { get; set; } = false;
 
     public CreatureCard? BlockingCreature { get; set; }
 

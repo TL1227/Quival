@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:QuivalCombatTestWPF"
         mc:Ignorable="d"
         Title="Quival" Height="1080" Width="1920" 
-        WindowState="Maximized">
+        >
 
     <Grid>
         <Grid x:Name="BattleField" Margin="10">

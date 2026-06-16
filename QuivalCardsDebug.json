@@ -1,33 +1,36 @@
 {
-    "Type": "creaturecard",
-    "Attack": 2,
-    "Health": 4,
-    "CurrentHealth": 0,
-    "HasActed": false,
-    "AttackBuff": 0,
-    "SetCode": "ALP",
-    "UniqueId": 5,
-    "Id": 0,
-    "PlayerId": 0,
-    "Name": "BFG",
-    "Description": "If BFG attacks on round 3, increase attack by 2 for the rest of the round.",
-    "Cost": 1,
-    "Abilities": [
+      "Type": "creaturecard",
+      "Attack": 2,
+      "Health": 2,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "AttackBuff": 0,
+      "SetCode": "ALP",
+      "UniqueId": 1,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Desmond Future Knight",
+      "Description": "If Desmond Future Knight attacks on round 2, heal any target by 2",
+      "Cost": 2,
+      "Triggers": [
         {
-            "Trigger": 1,
-            "Actions": [
-                {
-                    "Intent": 1,
-                    "TargetType": 1,
-                    "Side": 0,
-                    "Value": 2,
-                    "Conditionals": [
-                        1
-                    ]
-                }
-            ],
-            "ChoiceType": 0,
-            "ChoiceNumber": 0
+          "TriggerType": "Attack",
+          "Abilities": [
+            {
+              "Id": 0,
+              "Effect": "Heal",
+              "TargetType": "Damageable",
+              "CanTargetSelf": false,
+              "NumberOfTargets": 1,
+              "Side": "Any",
+              "Value": 2,
+              "Conditionals": [
+                "Round2"
+              ]
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
         }
-    ]
-}
+      ]
+    }

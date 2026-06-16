@@ -64,10 +64,20 @@
         public List<Ability> Abilities { get; set; } = new();
         public ChoiceType ChoiceType { get; set; }
         public int ChoiceNumber { get; set; }
+
+        public Trigger()
+        {
+            int count = 0;
+            foreach (var ability in Abilities)
+            {
+                ability.Id = count++;
+            }
+        }
     }
 
     public class Ability
     {
+        public int Id { get; set; } 
         public Effect Effect { get; set; }
         public TargetType TargetType { get; set; }
         public bool CanTargetSelf { get; set; } = true;
@@ -80,10 +90,14 @@
     public class TargetSelection
     {
         public List<int> TargetsToPickFrom { get; set; } = new();
-        public int NumberToPick {  get; set; }
         public List<int> SelectedTargets { get; set; } = new();
-        public TargetType TargetType { get; set; }
         public TriggerType Trigger { get; set; }
-        public Ability CardAction { get; set; } = new();
+        public int CardId { get; set; }
+
+        //NOTE: These are all in Ability. Should we just grab a copy of it?
+        public int NumberToPick {  get; set; }
+        public TargetType TargetType { get; set; }
+        public int AbilityId { get; set; }
+        public Effect Effect { get; set; }
     }
 }

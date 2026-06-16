@@ -195,11 +195,6 @@ namespace QuivalCombatTestWPF
 
             if (attackingBoardCard != null)
             {
-                foreach (var action in attackEvent.CardActionEvents)
-                {
-                    await PlayCardActionAnimation(action, side);
-                }
-
                 Position originalPos = attackingBoardCard.GetPos();
                 await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
 
@@ -220,6 +215,11 @@ namespace QuivalCombatTestWPF
                 }
 
                 await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, System.Windows.Media.Animation.EasingMode.EaseOut);
+
+                foreach (var action in attackEvent.CardActionEvents)
+                {
+                    await PlayCardActionAnimation(action, side);
+                }
             }
         }
 
@@ -282,6 +282,7 @@ namespace QuivalCombatTestWPF
                 }
             }
         }
+
         private async Task PlayCardActionAnimation(CardActionEvent actionEvent, Side side)
         {
             foreach (var target in actionEvent.TargetsCardIds)
@@ -313,12 +314,20 @@ namespace QuivalCombatTestWPF
                         break;
                     case QuivalLogicEngine.Cards.Effect.Heal:
                         {
-                            targetCard.Heal(actionEvent.Value);
+                            await targetCard.FlashUp(Brushes.LimeGreen);
+
+                            targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() + actionEvent.Value;
+                            Card card = (Card)targetCard.Tag;
+                            if (card != null && card is CreatureCard cc)
+                            {
+                                if ((int)targetCard.HealthLabel.Content < cc.Health)
+                                    targetCard.HealthLabel.Foreground = Brushes.Red;
+                            }
+
+                            await targetCard.FlashDown(Brushes.LimeGreen);
                         }
                         break;
                     case QuivalLogicEngine.Cards.Effect.DrawCard:
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.RushDown:
                         break;
                     case QuivalLogicEngine.Cards.Effect.RestoreAction:
                         break;
@@ -331,11 +340,18 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayCastAnimation(CastEvent castEvent, Side side)
         {
-            //TODO: don't hard code all this!
+            //TODO: fix all this hard coding!!!
             var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
-            var centerY = Layout.ActualHeight / 2;
-            var centerX = Layout.ActualWidth / 2;
-            fullCard.SetPos(new Position() { Left = centerX, Top = centerY });
+
+            Position blockAreaPos = Layout.BlockAreas[(int)side];
+
+            Position summonPos = new()
+            {
+                Left = blockAreaPos.Left - 200,
+                Top = blockAreaPos.Top - 50
+            };
+
+            fullCard.SetPos(summonPos);
             Layout.Canvas.Children.Add(fullCard);
 
             await fullCard.SummonIn(Brushes.Aquamarine);
@@ -526,7 +542,7 @@ namespace QuivalCombatTestWPF
         {
             QuivalTurn turn = new()
             {
-                Trigger = QuivalLogicEngine.Cards.TriggerType.EndTurn
+                Trigger = TriggerType.EndTurn
             };
 
             Client.SubmitTurn(turn);
@@ -539,7 +555,7 @@ namespace QuivalCombatTestWPF
         {
             CurrentTurn = new()
             {
-                Trigger = QuivalLogicEngine.Cards.TriggerType.Cast,
+                Trigger = TriggerType.Cast,
                 CardToPlayId = hc.Id
             };
 
@@ -548,39 +564,6 @@ namespace QuivalCombatTestWPF
             QuivalColour.ChangetoPurpleHighlights();
             CastSpellButton.Content = "Cast";
             SelectedCard = null;
-
-            /*
-            Card cardToCast = (Card)hc.Tag;
-            var castAbility = cardToCast.Abilities.SingleOrDefault(a => a.Trigger == QuivalLogicEngine.Cards.Trigger.Cast);
-            if (castAbility != null)
-            {
-                var cardActions = castAbility.Actions.Where(a => a.TargetType != TargetType.None).ToList();
-
-                List<NumberOfIntents> actionIntents = new();
-                foreach (var action in cardActions)
-                {
-                    actionIntents.Add(new NumberOfIntents
-                    {
-                        Intent = action.Intent,
-                        Number = action.NumberOfTargets,
-                    });
-                }
-
-                CardSelector = new(actionIntents);
-                Layout.Canvas.Children.Add(CardSelector);
-                Canvas.SetLeft(CardSelector, 100);
-                Canvas.SetTop(CardSelector, 100);
-            }
-            else
-            {
-
-                Client.SubmitTurn(CurrentTurn);
-
-                QuivalColour.ChangetoPurpleHighlights();
-                CastSpellButton.Content = "Cast";
-                SelectedCard = null;
-            }
-            */
         }
 
         private void BoardCard_Clicked(object? sender, MouseButtonEventArgs e)
@@ -589,20 +572,24 @@ namespace QuivalCombatTestWPF
             {
                 if (!CanClickCards) return;
 
-                if (CardSelector != null && CardSelector.CardIsValidTarget(bc.Id))
+                if (CardSelector != null)
                 {
-                    var selectedCards = CardSelector.SelectCard(bc.Id);
-                    bc.MarkSelected(true);
-
-                    if (selectedCards != null)
+                    if (CardSelector.CardIsValidTarget(bc.Id))
                     {
-                        Layout.Canvas.Children.Remove(CardSelector);
-                        CardSelector = null;
+                        var selectedCards = CardSelector.SelectCard(bc.Id);
+                        bc.MarkSelected(true);
 
-                        if (CurrentTurn != null)
+                        if (selectedCards != null)
                         {
+                            Layout.Canvas.Children.Remove(CardSelector);
+                            CardSelector = null;
+
                             Client.SubmitSelection(selectedCards);
                         }
+                    }
+                    else
+                    {
+                        Animation.DisplayMessage("Card is not a valid target", Layout.Canvas);
                     }
 
                     e.Handled = true; //So we don't trigger other click events
@@ -611,7 +598,6 @@ namespace QuivalCombatTestWPF
                 {
 
                 }
-
             }
         }
 

@@ -106,5 +106,33 @@ namespace QuivalCombatTestWPF
 
             return tcs.Task;
         }
+
+        public static void DisplayMessage(string message, Canvas canvas)
+        {
+            //TODO: This position should probably be passed into the function
+            Label messageLabel = new();
+            messageLabel.Foreground = Brushes.Red;
+            messageLabel.Content = message;
+            messageLabel.FontSize = 30;
+            canvas.Children.Add(messageLabel);
+            Canvas.SetTop(messageLabel, 40);
+            Canvas.SetLeft(messageLabel, 800);
+            canvas.UpdateLayout();
+
+            var animation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromMilliseconds(2000),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn }
+            };
+
+            animation.Completed += (_, _) =>
+            {
+                canvas.Children.Remove(messageLabel);
+            };
+
+            messageLabel.BeginAnimation(UIElement.OpacityProperty, animation);
+        }
     }
 }

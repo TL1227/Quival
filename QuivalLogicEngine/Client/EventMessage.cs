@@ -144,8 +144,6 @@ namespace QuivalLogicEngine.Client
                         break;
                     case Effect.DrawCard:
                         break;
-                    case Effect.RushDown:
-                        break;
                     case Effect.RestoreAction:
                         break;
                     default:

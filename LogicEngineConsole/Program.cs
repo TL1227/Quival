@@ -13,11 +13,11 @@ namespace LogicEngineConsole
             [
                 new CreatureCard(){
                     Name = "Desmond Future Knight",
-                    Description = "If Desmond Future Knight attacks on round 2, heal any target by 2",
+                    Description = "If Desmond Future Knight attacks on round 2, heal any other target by 2",
                     Cost = 2,
                     Attack = 2,
                     Health = 2,
-                    Abilities = [
+                    Triggers = [
                         new Trigger()
                         {
                             TriggerType = TriggerType.Attack,
@@ -65,7 +65,7 @@ namespace LogicEngineConsole
                     Cost = 3,
                     Attack = 2,
                     Health = 4,
-                    Abilities =
+                    Triggers =
                     {
                         new Trigger()
                         {
@@ -98,7 +98,7 @@ namespace LogicEngineConsole
                     Name = "Zap",
                     Description = "Deal 2 damage to any target",
                     Cost = 1,
-                    Abilities =
+                    Triggers =
                     {
                         new Trigger()
                         {

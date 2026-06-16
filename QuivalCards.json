@@ -14,17 +14,18 @@
       "Id": 0,
       "PlayerId": 0,
       "Name": "Desmond Future Knight",
-      "Description": "If Desmond Future Knight attacks on round 2, heal any target by 2",
+      "Description": "If Desmond Future Knight attacks on round 2, heal any other target by 2",
       "Cost": 2,
-      "Abilities": [
+      "Triggers": [
         {
-          "Trigger": "Attack",
-          "Actions": [
+          "TriggerType": "Attack",
+          "Abilities": [
             {
-              "Intent": "Heal",
+              "Id": 0,
+              "Effect": "Heal",
               "TargetType": "Damageable",
               "CanTargetSelf": false,
-              "NumberOfTargets": 0,
+              "NumberOfTargets": 1,
               "Side": "Any",
               "Value": 2,
               "Conditionals": [
@@ -51,7 +52,7 @@
       "Name": "Token",
       "Description": null,
       "Cost": 1,
-      "Abilities": []
+      "Triggers": []
     },
     {
       "Type": "creaturecard",
@@ -67,7 +68,7 @@
       "Name": "Defender",
       "Description": "",
       "Cost": 2,
-      "Abilities": []
+      "Triggers": []
     },
     {
       "Type": "creaturecard",
@@ -83,7 +84,7 @@
       "Name": "Aggression",
       "Description": "",
       "Cost": 2,
-      "Abilities": []
+      "Triggers": []
     },
     {
       "Type": "creaturecard",
@@ -99,12 +100,13 @@
       "Name": "BFG",
       "Description": "If BFG attacks on round 3, BFG deals 4 damage",
       "Cost": 3,
-      "Abilities": [
+      "Triggers": [
         {
-          "Trigger": "Attack",
-          "Actions": [
+          "TriggerType": "Attack",
+          "Abilities": [
             {
-              "Intent": "AttackBuff",
+              "Id": 0,
+              "Effect": "AttackBuff",
               "TargetType": "Self",
               "CanTargetSelf": true,
               "NumberOfTargets": 0,
@@ -134,7 +136,7 @@
       "Name": "The Wall",
       "Description": "",
       "Cost": 4,
-      "Abilities": []
+      "Triggers": []
     },
     {
       "Type": "spellcard",
@@ -145,12 +147,13 @@
       "Name": "Zap",
       "Description": "Deal 2 damage to any target",
       "Cost": 1,
-      "Abilities": [
+      "Triggers": [
         {
-          "Trigger": "Cast",
-          "Actions": [
+          "TriggerType": "Cast",
+          "Abilities": [
             {
-              "Intent": "DirectDamage",
+              "Id": 0,
+              "Effect": "DirectDamage",
               "TargetType": "Damageable",
               "CanTargetSelf": true,
               "NumberOfTargets": 1,

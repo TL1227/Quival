@@ -21,7 +21,6 @@ namespace QuivalCombatTestWPF
             Height = DefaultHeight;
         }
 
-
         public void RemoveHighlight()
         {
             Overlay.Background = Brushes.Transparent;
@@ -38,6 +37,7 @@ namespace QuivalCombatTestWPF
             Canvas.SetTop(this, p.Top);
             Canvas.SetLeft(this, p.Left);
         }
+
         public Task SummonIn(Brush Brush)
         {
             double animationSpeed = 0.4;

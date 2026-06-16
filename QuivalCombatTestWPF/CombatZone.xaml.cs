@@ -68,17 +68,18 @@ public partial class CombatZone : UserControl
             else
             {
                 //Summon new newCards
-                for (int i = 0; i < 5;i++)
+                int index = GetNextFreeSummonSlotIndex();
+                if (index >= 0)
                 {
-                    if (SummonedCards[i] == null)
-                    {
-                        SummonedCards[i] = Mapper.MapToBoardCard(newCard, onClick);
-                        SummonedCards[i]!.MouseLeftButtonDown += HandleClick;
-                        layout.Canvas.Children.Add(SummonedCards[i]);
-                        SummonedCards[i]!.SetPos(slotPositions[i]);
-
-                        break;
-                    }
+                    var newBoardCard = Mapper.MapToBoardCard(newCard, onClick);
+                    newBoardCard.MouseLeftButtonDown += HandleClick;
+                    layout.Canvas.Children.Add(newBoardCard);
+                    newBoardCard.SetPos(slotPositions[index]);
+                    SummonedCards[index] = newBoardCard;
+                }
+                else if (index == -1)
+                {
+                    Debug.WriteLine("Out of useable summon slots!");
                 }
             }
         }
@@ -206,11 +207,13 @@ public partial class CombatZone : UserControl
 
     public int GetNextFreeSummonSlotIndex()
     {
+        int[] slotOrder = [ 2, 1, 3, 0, 4 ];
+
         for (int i = 0; i < SummonedCards.Length; i++)
         {
-            if (SummonedCards[i] == null) 
+            if (SummonedCards[slotOrder[i]] == null) 
             {
-                return i;
+                return slotOrder[i];
             } 
         }
 
