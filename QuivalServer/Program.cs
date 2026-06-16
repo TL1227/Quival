@@ -42,6 +42,7 @@ internal class Program
 
         TcpListener listener = new(IPAddress.Any, PortNumber);
         listener.Start();
+        Console.WriteLine($"Server running on machine {Environment.MachineName}");
         Console.WriteLine($"Server listening on port {PortNumber}");
 
         Match = new Match();
@@ -92,7 +93,6 @@ internal class Program
                         {
                             var j = JsonSerializer.Serialize(cc);
                             Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j, options)!);
-                            break;
                         }
                         else if (card is SpellCard sc)
                         {

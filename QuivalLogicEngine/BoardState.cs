@@ -6,8 +6,8 @@ namespace QuivalLogicEngine
     {
         public List<List<CreatureCard>> SummonedCreatures { get; set; }
 
-        //public int[] ManaClock = [2, 3, 4, 5];
-        public int[] ManaClock = [5, 5, 5, 5];
+        public int[] ManaClock = [2, 3, 4, 5];
+        //public int[] ManaClock = [5, 5, 5, 5];
         public int ManaClockIndex = 0;
 
         public BoardState() 
@@ -42,6 +42,13 @@ namespace QuivalLogicEngine
             list.AddRange(SummonedCreatures[1]);
 
             return list;
+        }
+
+        public void RemoveCreatureFromBoard(CreatureCard cc)
+        {
+            foreach (var creatures in SummonedCreatures)
+                if (creatures.Contains(cc))
+                    creatures.Remove(cc);
         }
 
         public int GetCurrentMana()

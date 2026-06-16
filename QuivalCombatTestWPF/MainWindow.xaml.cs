@@ -3,6 +3,7 @@ using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.Turns;
 using QuivalServer;
+using System.Data;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,6 +47,7 @@ namespace QuivalCombatTestWPF
         public QuivalTurn? CurrentTurn { get; set; }
 
         public bool CanClickCards { get; set; } = true;
+        public bool ViewingCard { get; set; } = false;
 
         public MainWindow()
         {
@@ -58,7 +60,7 @@ namespace QuivalCombatTestWPF
             PlayerCombatZone.CardClicked += CombatZone_CardClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
-            ClickBlocker.MouseLeftButtonDown += ClickBlocker_MouseLeftButtonDown;
+            ClickBlocker.MouseDown += ClickBlocker_Click;
             EndTurnButton.Click += EndTurnButton_Click;
 
             CombatZones = [PlayerCombatZone, OpponentCombatZone];
@@ -96,6 +98,7 @@ namespace QuivalCombatTestWPF
 
             UnselectAll();
 
+
             var castEvents = cgs.GameEvents.OfType<CastEvent>().ToList<EventMessage>();
             await AnimateEvents(castEvents);
 
@@ -111,7 +114,7 @@ namespace QuivalCombatTestWPF
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
             await PlayDeathAnimations(deathEvents);
 
-            UpdateUIFromGameState();
+            await UpdateUIFromGameState();
         }
 
         private async Task AnimateEvents(List<EventMessage> events)
@@ -195,6 +198,13 @@ namespace QuivalCombatTestWPF
 
             if (attackingBoardCard != null)
             {
+
+                //TODO: This is a silly hack for now. 
+                //We're going to need a way to figure out which effects should animate before the attack and which should animate after
+                foreach (var action in attackEvent.CardActionEvents)
+                    if (action.Effect == QuivalLogicEngine.Cards.Effect.AttackBuff)
+                        await PlayCardActionAnimation(action, side);
+
                 Position originalPos = attackingBoardCard.GetPos();
                 await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
 
@@ -216,10 +226,10 @@ namespace QuivalCombatTestWPF
 
                 await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, System.Windows.Media.Animation.EasingMode.EaseOut);
 
+                //More of the above silly hack
                 foreach (var action in attackEvent.CardActionEvents)
-                {
-                    await PlayCardActionAnimation(action, side);
-                }
+                    if (action.Effect != QuivalLogicEngine.Cards.Effect.AttackBuff)
+                        await PlayCardActionAnimation(action, side);
             }
         }
 
@@ -293,7 +303,7 @@ namespace QuivalCombatTestWPF
                     Debug.WriteLine($"[Action] {targetCard.Id} is null");
                 }
 
-                switch (actionEvent.Intent)
+                switch (actionEvent.Effect)
                 {
                     case QuivalLogicEngine.Cards.Effect.AttackBuff:
                         {
@@ -373,7 +383,7 @@ namespace QuivalCombatTestWPF
         public int OppositeSide(int i) => i == PlayerSide ? OpponentSide : PlayerSide;
 
         #region StateUpdates
-        public void UpdateUIFromGameState()
+        public async Task UpdateUIFromGameState()
         {
             Debug.WriteLine($"Gamestate update: Turn {CurrentGameState.TurnCount} round {CurrentGameState.RoundCount}");
             var gs = CurrentGameState;
@@ -445,7 +455,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = QuivalLogicEngine.Cards.TriggerType.EndTurn
+                    Trigger = TriggerType.EndTurn
                 };
                 Client.SubmitTurn(turn);
 
@@ -456,14 +466,32 @@ namespace QuivalCombatTestWPF
             //TODO: both sides
             PlayerSummonZone.Children.Clear();
             OpponentSummonZone.Children.Clear();
+
+            //The new turn thing is a bit buggy and I think it looks better without it
+            /*
+            var newTurn = CurrentGameState.GameEvents.OfType<NewTurn>().SingleOrDefault();
+            if (newTurn != null)
+            {
+                await Animation.DisplayTurn(Layout.Canvas);
+            }
+            */
+
+            Animation.DisplayRound(CurrentGameState.RoundCount, Layout.Canvas);
         }
 
-        private bool SummonedCardsCantMove()
+        private bool SummonedCardsCanMove()
         {
             foreach (var creature in CurrentGameState.BoardState.SummonedCreatures[CurrentGameState.PlayerState.Id])
+            {
                 if (!creature.HasActed)
+                {
+                    Debug.WriteLine($"[Player {CurrentGameState.PlayerState.Id}] {creature.Id} can still act!");
                     return true;
+                }
 
+            }
+
+            Debug.WriteLine($"[Player {CurrentGameState.PlayerState.Id}] All creatures have acted!");
             return false;
         }
 
@@ -472,15 +500,19 @@ namespace QuivalCombatTestWPF
             foreach (var card in CurrentGameState.PlayerState.Hand)
             {
                 if (card.Cost <= CurrentGameState.PlayerState.ManaPoints)
+                {
+                    Debug.WriteLine($"[Player {CurrentGameState.PlayerState.Id}] {CurrentGameState.PlayerState.ManaPoints} is enough mana for card {card.Id} (cost: {card.Cost})");
                     return true;
+                }
             }
 
+            Debug.WriteLine($"[Player {CurrentGameState.PlayerState.Id}] can't summon anything!");
             return false;
         }
 
         public bool PlayerCanMove()
         {
-            if (SummonedCardsCantMove())
+            if (SummonedCardsCanMove())
                 return true;
 
             if (PlayerHasEnoughManaToPlayACard())
@@ -533,8 +565,23 @@ namespace QuivalCombatTestWPF
         #endregion
 
         #region Clicking
-        private void ClickBlocker_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ClickBlocker_Click(object sender, MouseButtonEventArgs e)
         {
+            if (ViewingCard)
+            {
+                var fullcards = Layout.Canvas.Children.OfType<FullCard>().ToArray();
+                for (int i = 0; i < fullcards.Count(); i++)
+                {
+                    Layout.Canvas.Children.Remove(fullcards[i]);
+                }
+
+                ClickBlocker.IsHitTestVisible = false;
+                ViewingCard = false;
+            }
+            else
+            {
+
+            }
             e.Handled = true;
         }
 
@@ -568,35 +615,54 @@ namespace QuivalCombatTestWPF
 
         private void BoardCard_Clicked(object? sender, MouseButtonEventArgs e)
         {
-            if (sender is BoardCard bc)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (!CanClickCards) return;
-
-                if (CardSelector != null)
+                if (sender is BoardCard bc)
                 {
-                    if (CardSelector.CardIsValidTarget(bc.Id))
-                    {
-                        var selectedCards = CardSelector.SelectCard(bc.Id);
-                        bc.MarkSelected(true);
+                    if (!CanClickCards) return;
 
-                        if (selectedCards != null)
+                    if (CardSelector != null)
+                    {
+                        if (CardSelector.CardIsValidTarget(bc.Id))
                         {
-                            Layout.Canvas.Children.Remove(CardSelector);
-                            CardSelector = null;
+                            var selectedCards = CardSelector.SelectCard(bc.Id);
+                            bc.MarkSelected(true);
 
-                            Client.SubmitSelection(selectedCards);
+                            if (selectedCards != null)
+                            {
+                                Layout.Canvas.Children.Remove(CardSelector);
+                                CardSelector = null;
+
+                                Client.SubmitSelection(selectedCards);
+                            }
                         }
+                        else
+                        {
+                            Animation.DisplayMessage("Card is not a valid target", Layout.Canvas);
+                        }
+
+                        e.Handled = true; //So we don't trigger other click events
                     }
-                    else
+                    else if (IsInBlockZone(bc))
                     {
-                        Animation.DisplayMessage("Card is not a valid target", Layout.Canvas);
+
                     }
-
-                    e.Handled = true; //So we don't trigger other click events
                 }
-                else if (IsInBlockZone(bc))
+            }
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                if (sender is BoardCard bc)
                 {
+                    var fullcard = Mapper.MapToFullCard((Card)bc.Tag);
+                    if (fullcard != null)
+                    {
+                        Position pos = new() { Top = 400, Left = 200 };
+                        fullcard.SetPos(pos);
+                        Layout.Canvas.Children.Add(fullcard);
 
+                        ViewingCard = true;
+                        ClickBlocker.IsHitTestVisible = true;
+                    }
                 }
             }
         }
@@ -634,7 +700,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = QuivalLogicEngine.Cards.TriggerType.MoveToBlockZone,
+                    Trigger = TriggerType.MoveToBlockZone,
                     CardToPlayId = bc.Id
                 };
 
@@ -655,7 +721,7 @@ namespace QuivalCombatTestWPF
                 {
                     QuivalTurn turn = new()
                     {
-                        Trigger = QuivalLogicEngine.Cards.TriggerType.Attack,
+                        Trigger = TriggerType.Attack,
                         CardToPlayId = bc.Id
                     };
 
@@ -705,8 +771,7 @@ namespace QuivalCombatTestWPF
         public void MessageSent()
         {
             ClickBlocker.IsHitTestVisible = true;
-            CanClickCards = false;
-        }
+            CanClickCards = false; }
 
         public void MessageRecieved()
         {

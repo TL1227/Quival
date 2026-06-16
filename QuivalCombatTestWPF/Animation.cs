@@ -134,5 +134,65 @@ namespace QuivalCombatTestWPF
 
             messageLabel.BeginAnimation(UIElement.OpacityProperty, animation);
         }
+
+        public static void DisplayRound(int roundNumber, Canvas canvas)
+        {
+            //TODO: This position should probably be passed into the function
+            Label messageLabel = new();
+            messageLabel.Foreground = Brushes.White;
+            messageLabel.Background = Brushes.Black;
+            messageLabel.Content = $"ROUND {roundNumber}";
+            messageLabel.FontSize = 50;
+            canvas.Children.Add(messageLabel);
+            Canvas.SetTop(messageLabel, 10);
+            Canvas.SetLeft(messageLabel, 800);
+
+            var animation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromMilliseconds(2000),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn }
+            };
+
+            animation.Completed += (_, _) =>
+            {
+                canvas.Children.Remove(messageLabel);
+            };
+
+            messageLabel.BeginAnimation(UIElement.OpacityProperty, animation);
+        }
+
+        public static Task DisplayTurn(Canvas canvas)
+        {
+            //TODO: This position should probably be passed into the function
+            Label messageLabel = new();
+            messageLabel.Foreground = Brushes.Black;
+            messageLabel.Background = Brushes.CadetBlue;
+            messageLabel.Content = $"NEW TURN";
+            messageLabel.FontSize = 50;
+            canvas.Children.Add(messageLabel);
+            Canvas.SetTop(messageLabel, 500);
+            Canvas.SetLeft(messageLabel, 800);
+
+            var animation = new DoubleAnimation
+            {
+                To = 0.0,
+                From = 1.0,
+                Duration = TimeSpan.FromMilliseconds(2000),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+            };
+
+            TaskCompletionSource tsc = new();
+            animation.Completed += (_, _) =>
+            {
+                canvas.Children.Remove(messageLabel);
+                tsc.SetResult();
+            };
+
+            messageLabel.BeginAnimation(UIElement.OpacityProperty, animation);
+
+            return tsc.Task;
+        }
     }
 }

@@ -8,32 +8,6 @@ namespace QuivalCombatTestWPF
 {
     internal static class Mapper
     {
-        /*
-        public static List<HandCard> MapToHandCards(List<Card> cards)
-        {
-            List<HandCard> result = new();
-
-            foreach (var card in cards)
-            {
-                HandCard handcard = new(card.Id);
-                handcard.CardNameLabel.Content = card.Name;
-                handcard.CardDescriptionLabel.Text = card.Description;
-                handcard.CostContent.Content = card.Cost;
-
-                if (card is CreatureCard cc)
-                {
-                    handcard.AttackLabel.Content = cc.Attack;
-                    handcard.HealthLabel.Content = cc.Health;
-                    handcard.CardBackground.Background = GetColor(cc.Attack);
-                }
-
-                result.Add(handcard);
-            }
-
-            return result;
-        }
-        */
-
         public static FullCard MapToFullCard(Card card)
         {
             FullCard fullCard = new();
@@ -43,7 +17,15 @@ namespace QuivalCombatTestWPF
             fullCard.CardBackground.Background = GetColor(card);
             fullCard.Tag = card;
 
-            fullCard.GlobalId.Content = card.UniqueId;
+            string uniqueId = "";
+            if (card.UniqueId < 10)
+                uniqueId += "00";
+            else if (card.UniqueId < 100)
+                uniqueId += "0";
+
+            uniqueId += card.UniqueId.ToString();
+
+            fullCard.GlobalId.Content = card.SetCode + uniqueId;
 
             if (card is CreatureCard cc)
             {
@@ -92,7 +74,7 @@ namespace QuivalCombatTestWPF
                 HasActed = card.HasActed,
             };
             bc.DebugId.Content = card.Id;
-            bc.MouseLeftButtonDown += onClick;
+            bc.MouseDown += onClick;
 
             Debug.WriteLine($"Mapper: card id {card.Id} has acted is {card.HasActed}");
 
@@ -107,7 +89,6 @@ namespace QuivalCombatTestWPF
 
             return bc;
         }
-
 
         private static SolidColorBrush GetColor(Card card)
         {

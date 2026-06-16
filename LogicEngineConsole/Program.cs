@@ -117,6 +117,30 @@ namespace LogicEngineConsole
                         }
                     }
                 },
+                new SpellCard()
+                {
+                    Name = "Spring Water",
+                    Description = "Heal 2 health to any target",
+                    Cost = 2,
+                    Triggers =
+                    {
+                        new Trigger()
+                        {
+                            TriggerType = TriggerType.Cast,
+                            Abilities =
+                            {
+                                new Ability()
+                                {
+                                    Effect = Effect.Heal,
+                                    TargetType = TargetType.Damageable,
+                                    NumberOfTargets = 1,
+                                    Side = Side.Any,
+                                    Value = 2,
+                                }
+                            }
+                        }
+                    }
+                },
             ];
 
             Set set = new Set()
@@ -131,13 +155,16 @@ namespace LogicEngineConsole
             {
                 card.UniqueId = IdCounter++;
                 card.SetCode = set.SetCode;
+
+                if (card is CreatureCard cc)
+                    Console.WriteLine($"{cc.UniqueId} Attack {cc.Attack} Health {cc.Health} Cost {cc.Cost}");
             }
 
             JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
             options.Converters.Add(new JsonStringEnumConverter());
 
             string json = JsonSerializer.Serialize(set, options);
-            Console.WriteLine(json);
+            //Console.WriteLine(json);
             File.WriteAllText("..\\..\\..\\..\\QuivalCards.json", json);
         }
     }

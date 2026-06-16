@@ -73,7 +73,7 @@ public class Match
         {
             state.OpponentCardCount = opponent.Hand.Count();
             state.OpponentHealthPoints = opponent.HealthPoints;
-        Console.WriteLine($"Moving to turn {TurnCount}");
+            Console.WriteLine($"Moving to turn {TurnCount}");
             state.OpponentManaPoints = opponent.Mana;
             state.OpponentBlockCard = opponent.BlockingCreature;
             state.OpponentCardToPlay = opponent.CardToPlay;
@@ -98,8 +98,8 @@ public class Match
 
         Player player = new Player(id, deck)
         {
-            //Mana = 1
-            Mana = 10
+            Mana = 1
+            //Mana = 10
         };
 
 
@@ -382,6 +382,10 @@ public class Match
                         EventMessage(new CreatureDeathEvent(blockingCreature.Id, blockingCreature.Name!));
                         otherPlayer.BlockingCreature = null;
                     }
+                    else
+                    {
+                        //TODO: maybe trigger blocking ability?
+                    }
 
                     attackingCreature.CurrentHealth -= blockingCreature.GetAttackDamage();
                     if (attackingCreature.CurrentHealth <= 0)
@@ -391,8 +395,6 @@ public class Match
                     }
                 }
                 attackingCreature.HasActed = true;
-
-                //Possible after damage trigger could go here
             }
         }
     }
@@ -511,7 +513,7 @@ public class Match
             CardActionEvent message = new()
             {
                 PlayerId = playerId,
-                Intent = intent,
+                Effect = intent,
                 TargetsCardIds = targets.Select(c => c.Id).ToList(),
                 Value = value
             };
@@ -584,7 +586,16 @@ public class Match
         foreach (var card in MatchCards)
         {
             if (card is CreatureCard cc)
-                cc.HasActed = false;
+            {
+                if (cc.CurrentHealth <= 0)
+                {
+                    BoardState.RemoveCreatureFromBoard(cc);
+                }
+                else
+                {
+                    cc.HasActed = false;
+                }
+            }
         }
 
         foreach (var player in Players)

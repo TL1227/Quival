@@ -120,7 +120,7 @@ namespace QuivalLogicEngine.Client
 
     public class CardActionEvent : EventMessage
     {
-        public Effect Intent { get; set; }
+        public Effect Effect { get; set; }
         public int Value { get; set; }
         public List<int> TargetsCardIds { get; set; } = new();
 
@@ -130,7 +130,7 @@ namespace QuivalLogicEngine.Client
 
             foreach (var target in TargetsCardIds)
             {
-                switch (Intent)
+                switch (Effect)
                 {
                     case Effect.None: 
                         break;

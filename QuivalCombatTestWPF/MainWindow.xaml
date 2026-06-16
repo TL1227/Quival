@@ -63,14 +63,15 @@
             Foreground="DarkRed"
             Content="End Turn"/>
 
-            <Canvas x:Name="ClickBlocker" 
-                Grid.Column="1" 
-                Grid.RowSpan="6" 
-                Background="Transparent" 
-                IsHitTestVisible="false"/>
         </Grid>
         <local:LayoutCanvas 
             x:Name="Layout">
         </local:LayoutCanvas>
+
+        <Canvas x:Name="ClickBlocker" 
+                Grid.Column="1" 
+                Grid.RowSpan="6" 
+                Background="Transparent" 
+                IsHitTestVisible="false"/>
     </Grid>
 </Window>

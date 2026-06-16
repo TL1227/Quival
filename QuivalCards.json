@@ -166,6 +166,35 @@
           "ChoiceNumber": 0
         }
       ]
+    },
+    {
+      "Type": "spellcard",
+      "SetCode": "ALP",
+      "UniqueId": 8,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Spring Water",
+      "Description": "Heal 2 health to any target",
+      "Cost": 2,
+      "Triggers": [
+        {
+          "TriggerType": "Cast",
+          "Abilities": [
+            {
+              "Id": 0,
+              "Effect": "Heal",
+              "TargetType": "Damageable",
+              "CanTargetSelf": true,
+              "NumberOfTargets": 1,
+              "Side": "Any",
+              "Value": 2,
+              "Conditionals": []
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
+        }
+      ]
     }
   ]
 }
