@@ -26,7 +26,7 @@ namespace QuivalCombatTestWPF
         {
             try
             {
-                TcpClient Client = new TcpClient(Environment.MachineName, 5005);
+                TcpClient Client = new TcpClient("TOSHLENOVO", 5005);
                 var Stream = Client.GetStream();
                 Writer = new StreamWriter(Stream, Encoding.UTF8) { AutoFlush = true };
                 Reader = new StreamReader(Stream, Encoding.UTF8);

@@ -750,7 +750,8 @@ namespace QuivalCombatTestWPF
                 }
                 else
                 {
-                    int cost = ((Card)card.Tag).Cost;
+                    var originalCard = ((Card)card.Tag);
+                    int cost = originalCard.Cost;
                     int mana = CurrentGameState.PlayerState.ManaPoints;
 
                     if (cost > mana)
@@ -758,11 +759,17 @@ namespace QuivalCombatTestWPF
 
                     UnselectAll();
 
-                    if (CombatZones[PlayerSide].GetNumberOfSummonedCards() < MaxSummonedCards)
+                    //cant summon card if summon zone is full
+                    if (originalCard is CreatureCard)
                     {
-                        card.Highlight();
-                        SelectedCard = card;
+                        if (CombatZones[PlayerSide].GetNumberOfSummonedCards() < MaxSummonedCards)
+                        {
+                            return;
+                        }
                     }
+
+                    card.Highlight();
+                    SelectedCard = card;
                 }
             }
         }
