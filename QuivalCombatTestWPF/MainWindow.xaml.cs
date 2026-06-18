@@ -656,7 +656,7 @@ namespace QuivalCombatTestWPF
                     var fullcard = Mapper.MapToFullCard((Card)bc.Tag);
                     if (fullcard != null)
                     {
-                        Position pos = new() { Top = 400, Left = 200 };
+                        Position pos = new() { Top = 200, Left = 200 };
                         fullcard.SetPos(pos);
                         Layout.Canvas.Children.Add(fullcard);
 
@@ -761,12 +761,8 @@ namespace QuivalCombatTestWPF
 
                     //cant summon card if summon zone is full
                     if (originalCard is CreatureCard)
-                    {
-                        if (CombatZones[PlayerSide].GetNumberOfSummonedCards() < MaxSummonedCards)
-                        {
+                        if (CombatZones[PlayerSide].GetNumberOfSummonedCards() >= MaxSummonedCards)
                             return;
-                        }
-                    }
 
                     card.Highlight();
                     SelectedCard = card;

@@ -15,7 +15,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="1" Background="Aquamarine" Opacity="0.5">
+        <Border Grid.Column="1" Background="Transparent" Opacity="0.5">
             <Grid x:Name="BlockArea" ClipToBounds="False" />
         </Border>
     </Grid>
