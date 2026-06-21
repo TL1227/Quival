@@ -195,6 +195,47 @@
           "ChoiceNumber": 0
         }
       ]
+    },
+    {
+      "Type": "spellcard",
+      "SetCode": "ALP",
+      "UniqueId": 9,
+      "Id": 0,
+      "PlayerId": 0,
+      "Name": "Mega Flare",
+      "Description": "Deal 1 damage to any target. If cast on Round 5, deal 4 more damage",
+      "Cost": 5,
+      "Triggers": [
+        {
+          "TriggerType": "Cast",
+          "Abilities": [
+            {
+              "Id": 0,
+              "Effect": "DirectDamage",
+              "TargetType": "Damageable",
+              "CanTargetSelf": true,
+              "NumberOfTargets": 1,
+              "Side": "Any",
+              "Value": 1,
+              "Conditionals": []
+            },
+            {
+              "Id": 1,
+              "Effect": "DirectDamage",
+              "TargetType": "UseFirst",
+              "CanTargetSelf": true,
+              "NumberOfTargets": 0,
+              "Side": "Any",
+              "Value": 4,
+              "Conditionals": [
+                "Round2"
+              ]
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
+        }
+      ]
     }
   ]
 }

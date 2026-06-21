@@ -141,6 +141,37 @@ namespace LogicEngineConsole
                         }
                     }
                 },
+                new SpellCard()
+                {
+                    Name = "Mega Flare",
+                    Description = "Deal 1 damage to any target. If cast on Round 4, deal 3 more damage",
+                    Cost = 4,
+                    Triggers =
+                    {
+                        new Trigger()
+                        {
+                            TriggerType = TriggerType.Cast,
+                            Abilities =
+                            {
+                                new Ability()
+                                {
+                                    Effect = Effect.DirectDamage,
+                                    TargetType = TargetType.Damageable,
+                                    NumberOfTargets = 1,
+                                    Side = Side.Any,
+                                    Value = 1,
+                                },
+                                new Ability()
+                                {
+                                    Effect = Effect.DirectDamage,
+                                    TargetType = TargetType.UseFirst,
+                                    Value = 3,
+                                    Conditionals = [ Conditional.Round4 ]
+                                }
+                            },
+                        }
+                    }
+                },
             ];
 
             Set set = new Set()
@@ -155,6 +186,12 @@ namespace LogicEngineConsole
             {
                 card.UniqueId = IdCounter++;
                 card.SetCode = set.SetCode;
+
+                //assign ability Ids
+                int abilityId = 0;
+                foreach (var trigger in card.Triggers)
+                    foreach (var ability in trigger.Abilities)
+                        ability.Id = abilityId++;
 
                 if (card is CreatureCard cc)
                     Console.WriteLine($"{cc.UniqueId} Attack {cc.Attack} Health {cc.Health} Cost {cc.Cost}");

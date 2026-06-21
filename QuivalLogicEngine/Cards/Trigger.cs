@@ -40,7 +40,8 @@
         Self, //as in the card the ability belongs to
         Creature,
         Player,
-        Damageable
+        Damageable,
+        UseFirst, //use this when you want to just use the target from the first ability in the trigger
     }
 
     public enum Side

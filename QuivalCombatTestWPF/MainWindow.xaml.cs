@@ -2,7 +2,7 @@
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.Turns;
-using QuivalServer;
+using QuivalLogicEngine.Messages;
 using System.Data;
 using System.Diagnostics;
 using System.Windows;
@@ -107,6 +107,9 @@ namespace QuivalCombatTestWPF
 
             var blockEvents = cgs.GameEvents.OfType<MoveToBlockZoneEvent>().ToList<EventMessage>();
             await AnimateEvents(blockEvents);
+
+            var blockSwapEvents = cgs.GameEvents.OfType<BlockSwapEvent>().ToList<EventMessage>();
+            await AnimateEvents(blockSwapEvents);
 
             var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList<EventMessage>();
             await AnimateEvents(attackEvents);
@@ -366,10 +369,9 @@ namespace QuivalCombatTestWPF
 
             await fullCard.SummonIn(Brushes.Aquamarine);
 
-            await Task.Delay(500);
-
             foreach (var action in castEvent.CardActionEvents)
             {
+                await Task.Delay(500);
                 await PlayCardActionAnimation(action, side);
             }
 

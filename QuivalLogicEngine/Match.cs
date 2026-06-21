@@ -188,6 +188,16 @@ public class Match
                 TargetSelection ts = new();
                 ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
 
+                if (Players[0].BlockingCreature != null)
+                {
+                    ts.TargetsToPickFrom.Add(Players[0].BlockingCreature.Id);
+                }
+
+                if (Players[1].BlockingCreature != null)
+                {
+                    ts.TargetsToPickFrom.Add(Players[1].BlockingCreature.Id);
+                }
+
                 if (!ability.CanTargetSelf)
                     ts.TargetsToPickFrom.Remove(cardId);
 
@@ -452,9 +462,6 @@ public class Match
                 List<Card> targets = GetTargets(card, ability, targetSelections);
 
                 ProcessAbility(playerId, targets, ability.Value, ability.Effect);
-
-
-                //EventMessage(message);
             }
         }
     }
@@ -462,24 +469,30 @@ public class Match
     private List<Card> GetTargets(Card cardToPlay, Ability ability, List<TargetSelection> targetSelections)
     {
         List<Card> targetsResult = new();
-
+        TargetSelection? targetSelection;
+        
         if (ability.TargetType == TargetType.Self)
         {
             targetsResult.Add(cardToPlay);
         }
+        if (ability.TargetType == TargetType.UseFirst)
+        {
+            targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == 0);
+        }
         else
         {
-            var targetselection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
-            if (targetselection != null)
-            {
-                foreach (var target in targetselection.SelectedTargets)
-                {
-                    var card = GetCardFromId(target);
+            targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
+        }
 
-                    if (card != null)
-                    {
-                        targetsResult.Add(card);
-                    }
+        if (targetSelection != null)
+        {
+            foreach (var target in targetSelection.SelectedTargets)
+            {
+                var card = GetCardFromId(target);
+
+                if (card != null)
+                {
+                    targetsResult.Add(card);
                 }
             }
         }

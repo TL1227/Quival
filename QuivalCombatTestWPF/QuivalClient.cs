@@ -2,7 +2,7 @@
 using System.Text;
 using System.Net.Sockets;
 using System.Text.Json;
-using QuivalServer;
+using QuivalLogicEngine.Messages;
 using QuivalLogicEngine.Turns;
 using QuivalLogicEngine.Cards;
 

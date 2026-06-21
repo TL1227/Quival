@@ -3,7 +3,7 @@ using QuivalLogicEngine.Client;
 using QuivalLogicEngine.Turns;
 using System.Text.Json;
 
-namespace QuivalServer;
+namespace QuivalLogicEngine.Messages;
 
 public abstract class Message
 {
