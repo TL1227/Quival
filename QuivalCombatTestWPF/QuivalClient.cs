@@ -14,13 +14,13 @@ namespace QuivalCombatTestWPF
     {
         private StreamWriter? Writer;
         private StreamReader? Reader;
-        private MainWindow Window;
+        private MatchView MatchView;
         private Guid Clientguid;
         private Guid Serverguid;
 
-        public QuivalClient(MainWindow window)
+        public QuivalClient(MatchView matchView)
         {
-            Window = window;
+            MatchView = matchView;
             Clientguid = Guid.NewGuid();
         }
 
@@ -70,7 +70,7 @@ namespace QuivalCombatTestWPF
 
             await Writer.WriteLineAsync(toSend);
 
-            Window.MessageSent();
+            MatchView.MessageSent();
         }
 
         public async Task RecieveMessages() 
@@ -97,19 +97,19 @@ namespace QuivalCombatTestWPF
                 case HandUpdate:
                     {
                         HandUpdate handUpdate = (HandUpdate)message;
-                        Window.UpdateHand(handUpdate.Cards);
+                        MatchView.UpdateHand(handUpdate.Cards);
                     }
                     break;
                 case GameStateUpdate:
                     {
                         GameStateUpdate gameState = (GameStateUpdate)message;
-                        Window.UpdateGameState(gameState.GameState);
+                        MatchView.UpdateGameState(gameState.GameState);
                     }
                     break;
                 case MakeSelections:
                     {
                         MakeSelections makeSelections = (MakeSelections)message;
-                        Window.MakeSelections(makeSelections);
+                        MatchView.MakeSelections(makeSelections);
                     }
                     break;
                 default:
@@ -145,6 +145,40 @@ namespace QuivalCombatTestWPF
         {
             MakeSelections ms = new(){TargetSelections = targetSelection};
             _ = SendMessageAsync(ms);
+        }
+
+        public static bool SubmitRoomCreationRequest(string name)
+        {
+            try
+            {
+                TcpClient Client = new TcpClient(Environment.MachineName, 5005);
+                var Stream = Client.GetStream();
+                StreamWriter writer = new StreamWriter(Stream, Encoding.UTF8) { AutoFlush = true };
+                StreamReader reader = new StreamReader(Stream, Encoding.UTF8);
+
+                CreateRoomRequest request = new()
+                {
+                    RoomName = name
+                };
+
+                writer.WriteLine(request);
+                string? result = reader.ReadLine();
+
+                if (result != null)
+                {
+                    Message? recieved = Message.GetMessageFromJson(result);
+                    if (recieved is CreateRoomRequest response)
+                    {
+                        return response.Success;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+
+            return false;
         }
     }
 }

@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="QuivalCombatTestWPF.MatchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCombatTestWPF"
+             mc:Ignorable="d" 
+             d:DesignHeight="1920" d:DesignWidth="1080">
+    <Grid>
+        <Grid x:Name="BattleField" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
+                <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>
+                <RowDefinition x:Name="OpponentCombatZoneRow" Height="1*"/>
+                <RowDefinition x:Name="PlayerCombatZoneRow" Height="1*"/>
+                <RowDefinition x:Name="PlayerBlockZoneRow" Height="*"></RowDefinition>
+                <RowDefinition x:Name="PlayerHandZone" Height="*"></RowDefinition>
+                <RowDefinition x:Name="PlayerLifeRow" Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition x:Name="CombatZoneColumn" Width="7*"/>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <local:PlayerResource x:Name="OpponentResources"/>
+            <Grid x:Name="OpponentSummonZone" Grid.Column="1" Grid.RowSpan="2"></Grid>
+
+            <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
+
+            <local:CombatZone x:Name="OpponentCombatZone" Grid.Column="1" Grid.Row="2"/>
+            <local:CombatZone x:Name="PlayerCombatZone" Grid.Column="1" Grid.Row="3"/>
+
+            <local:BlockZone x:Name="PlayerBlockZone" Grid.Row="4" Grid.Column="1"/>
+
+            <Grid Grid.Row="5" Grid.Column="1" Grid.RowSpan="2">
+                <local:HandZone x:Name="HandZone" Grid.Column="1" Grid.Row="1"/>
+                <Grid x:Name="PlayerSummonZone"></Grid>
+            </Grid>
+
+            <local:PlayerResource Grid.Row="6" x:Name="PlayerResources"/>
+
+            <local:Counter x:Name="Counter" Grid.Row="2" Grid.Column="2" Grid.RowSpan="2"></local:Counter>
+
+            <Button 
+            x:Name="CastSpellButton" 
+            Margin="5"
+            Width="110" Height="40"
+            Grid.Row="4" Grid.Column="2" 
+            FontSize="20"
+            Background="CornflowerBlue"
+            Foreground="DarkBlue"/>
+
+            <Button 
+            x:Name="EndTurnButton" 
+            Margin="5"
+            Width="110" Height="40"
+            Grid.Row="5" Grid.Column="2" 
+            FontSize="20"
+            Background="Coral"
+            Foreground="DarkRed"
+            Content="End Turn"/>
+
+        </Grid>
+        <local:LayoutCanvas 
+            x:Name="Layout">
+        </local:LayoutCanvas>
+
+        <Canvas x:Name="ClickBlocker" 
+                Grid.Column="1" 
+                Grid.RowSpan="6" 
+                Background="Transparent" 
+                IsHitTestVisible="false"/>
+    </Grid>
+</UserControl>

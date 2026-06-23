@@ -32,6 +32,7 @@ public abstract class Message
                 "GameStateUpdate" => JsonSerializer.Deserialize<GameStateUpdate>(json),
                 "SubmitTurn" => JsonSerializer.Deserialize<SubmitTurn>(json),
                 "MakeSelections" => JsonSerializer.Deserialize<MakeSelections>(json),
+                "CreateRoomRequest" => JsonSerializer.Deserialize<CreateRoomRequest>(json),
                 _ => null
             };
 
@@ -122,8 +123,16 @@ public class SubmitTurn : Message
     public override string Type => "SubmitTurn";
     public required QuivalTurn Turn { get; set; }
 }
+
 public class MakeSelections : Message
 {
     public override string Type => "MakeSelections";
     public required List<TargetSelection> TargetSelections { get; set; }
+}
+
+public class CreateRoomRequest : Message
+{
+    public override string Type => "CreateRoomRequest";
+    public required string RoomName { get; set; }
+    public bool Success { get; set; } = false;
 }
