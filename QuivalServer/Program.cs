@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace QuivalServer;
 
@@ -19,22 +18,16 @@ internal class PlayerClient
     internal required StreamWriter Writer;
 }
 
-
 internal class Program
 {
     internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
     internal static int PortNumber = 5005;
-    internal static List<Card>[] Decks;
-    internal static PlayerClient[] Clients;
-    internal static int ClientCount = 0;
     internal static int RoomCount = 0;
     internal static List<Room> Rooms = new();
 
     internal static IDataAccessor DataAccessor { get; set; }
 
     internal static Guid ServerGuid;
-
-    internal static Match Match;
 
     internal static bool UseDebugCards = false;
 
@@ -49,12 +42,6 @@ internal class Program
         Console.WriteLine($"Server running on machine {Environment.MachineName}");
         Console.WriteLine($"Server listening on port {PortNumber}");
 
-        Match = new Match();
-        Clients = new PlayerClient[2];
-
-        Decks = [ new List<Card>(), new List<Card>() ];
-        //InitDecks();
-
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
@@ -67,12 +54,6 @@ internal class Program
     {
         try
         {
-            if (Clients[0] != null && Clients[1] != null)
-            {
-                Console.WriteLine($"Someome tried to connect but the room's full :(");
-                return;
-            }
-
             NetworkStream stream = client.GetStream();
             StreamReader streamReader = new(stream, Encoding.UTF8);
             StreamWriter streamWriter = new(stream, Encoding.UTF8) { AutoFlush = true };
@@ -98,7 +79,6 @@ internal class Program
             PlayerClient playerClient = new()
             {
                 Client = client,
-                Id = ClientCount,
                 Guid = initialMessage.ClientGuid,
                 Reader = streamReader,
                 Writer = streamWriter
@@ -147,112 +127,12 @@ internal class Program
                 Rooms.Add(newRoom);
                 newRoom.AddPlayer(playerClient, deck);
             }
-
-            /*
-            if (Clients[ClientCount] == null)
-            {
-                Match.SetPlayer(playerClient.Id, Decks[playerClient.Id]);
-
-                //send connection message back with server guid populated
-                initialMessage.ServerGuid = ServerGuid;
-                string jsonMessage = JsonSerializer.Serialize(initialMessage);
-                streamWriter.WriteLine(jsonMessage);
-
-                Clients[ClientCount] = playerClient;
-                Console.WriteLine($"Accepting Player {Clients[0].Id + 1}");
-                ClientCount++;
-
-                if (Clients[0] != null && Clients[1] != null)
-                {
-                    foreach (var cli in Clients)
-                    {
-                        if (client == null)
-                            continue;
-
-                        GameStateUpdate update = new()
-                        {
-                            GameState = Match.GetGameState(cli.Id)
-                        };
-
-                        string? gs = JsonSerializer.Serialize(update, update.GetType());
-                        cli.Writer.WriteLineAsync(gs);
-                    }
-                }
-
-                string? message;
-                while ((message = streamReader.ReadLine()) != null)
-                {
-                    var parsedMessage = Message.GetMessageFromJson(message);
-
-                    if (parsedMessage != null)
-                    {
-                        HandleMessageStatic(parsedMessage, playerClient.Id, streamWriter, );
-                    }
-                }
-            }
-            */
-
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error: {e}");
             client.Close();
             //Console.WriteLine($"Closed client connection: {client}");
-        }
-    }
-
-    static void InitDecks()
-    {
-        JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-        options.Converters.Add(new JsonStringEnumConverter());
-
-        if (UseDebugCards)
-        {
-            var json = File.ReadAllText("..\\..\\..\\..\\QuivalCardsDebug.json");
-            Card card = JsonSerializer.Deserialize<Card>(json, options)!;
-
-            for (int d = 0; d < 2; d++)
-                for (int i = 0; i < 20; i++)
-                {
-                    if (card is CreatureCard cc)
-                    {
-                        var j = JsonSerializer.Serialize(cc);
-                        Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j)!);
-                    }
-                    else if (card is SpellCard sc)
-                    {
-                        var j = JsonSerializer.Serialize(sc);
-                        Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j)!);
-                    }
-                }
-        }
-        else
-        {
-            var json = File.ReadAllText("..\\..\\..\\..\\QuivalCards.json");
-            if (json == null)
-            {
-                Console.WriteLine("Can't find QuivalCards.json!");
-                return;
-            }
-
-            Set currentSet = JsonSerializer.Deserialize<Set>(json, options)!;
-
-            //add 4 copies of each card for each deck
-            for (int d = 0; d < 2; d++)
-                foreach (var card in currentSet.Cards)
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (card is CreatureCard cc)
-                        {
-                            var j = JsonSerializer.Serialize(cc);
-                            Decks[d].Add(JsonSerializer.Deserialize<CreatureCard>(j, options)!);
-                        }
-                        else if (card is SpellCard sc)
-                        {
-                            var j = JsonSerializer.Serialize(sc);
-                            Decks[d].Add(JsonSerializer.Deserialize<SpellCard>(j, options)!);
-                        }
-                    }
         }
     }
 
