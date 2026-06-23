@@ -5,6 +5,8 @@ using System.Text.Json;
 using QuivalLogicEngine.Messages;
 using QuivalLogicEngine.Turns;
 using QuivalLogicEngine.Cards;
+using System.Configuration;
+using System.Diagnostics;
 
 namespace QuivalCombatTestWPF
 {
@@ -22,16 +24,17 @@ namespace QuivalCombatTestWPF
             Clientguid = Guid.NewGuid();
         }
 
-        public async Task<bool> ConnectToServer()
+        public async Task<bool> ConnectToServer(List<string> deckIds)
         {
             try
             {
-                TcpClient Client = new TcpClient("TOSHLENOVO", 5005);
+                TcpClient Client = new TcpClient(Environment.MachineName, 5005);
                 var Stream = Client.GetStream();
                 Writer = new StreamWriter(Stream, Encoding.UTF8) { AutoFlush = true };
                 Reader = new StreamReader(Stream, Encoding.UTF8);
 
                 ConnectionRequest connectionRequest = new(Clientguid);
+                connectionRequest.DeckUniqueIds = deckIds;
 
                 string req = JsonSerializer.Serialize<ConnectionRequest>(connectionRequest);
 
@@ -44,7 +47,7 @@ namespace QuivalCombatTestWPF
 
                 var message = Message.GetMessageFromJson(response);
 
-                if (response != null && message is ConnectionRequest accept)
+                if (response != null && message is ConnectedToRoom accept)
                 {
                     Serverguid = accept.ServerGuid;
                     _ = RecieveMessages();
@@ -91,10 +94,6 @@ namespace QuivalCombatTestWPF
         {
             switch (message)
             {
-                case ConnectionRequest:
-                    {
-                    }
-                    break;
                 case HandUpdate:
                     {
                         HandUpdate handUpdate = (HandUpdate)message;

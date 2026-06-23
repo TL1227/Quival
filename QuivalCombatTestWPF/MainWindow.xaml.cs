@@ -1,14 +1,14 @@
 ﻿using QuivalCombatTestWPF.Colours;
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Client;
-using QuivalLogicEngine.Turns;
 using QuivalLogicEngine.Messages;
+using QuivalLogicEngine.Turns;
 using System.Data;
 using System.Diagnostics;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows;
 
 namespace QuivalCombatTestWPF
 {
@@ -71,8 +71,21 @@ namespace QuivalCombatTestWPF
 
             Layout.Loaded += (_, _) =>
             {
+                List<string> deckIds = 
+                [
+                    "ALP1", "ALP1", "ALP1", "ALP1",
+                    "ALP2", "ALP2", "ALP2", "ALP2", 
+                    "ALP3", "ALP3", "ALP3", "ALP3", 
+                    "ALP4", "ALP4", "ALP4", "ALP4", 
+                    "ALP5", "ALP5", "ALP5", "ALP5", 
+                    "ALP6", "ALP6", "ALP6", "ALP6",
+                    "ALP7", "ALP7", "ALP7", "ALP7",
+                    "ALP8", "ALP8", "ALP8", "ALP8",
+                    "ALP9", "ALP9", "ALP9", "ALP9",
+                ];
+
                 Client = new QuivalClient(this);
-                Client.ConnectToServer();
+                Client.ConnectToServer(deckIds);
             };
         }
 

@@ -23,6 +23,7 @@ public abstract class Message
             Message? message = type switch
             {
                 "Connect" => JsonSerializer.Deserialize<ConnectionRequest>(json),
+                "ConnectedToRoom" => JsonSerializer.Deserialize<ConnectedToRoom>(json),
                 "HandUpdate" => JsonSerializer.Deserialize<HandUpdate>(json),
                 "PlayCard" => JsonSerializer.Deserialize<PlayCard>(json),
                 "PlayAttack" => JsonSerializer.Deserialize<PlayAttack>(json),
@@ -48,11 +49,20 @@ public abstract class Message
 public class ConnectionRequest : Message
 {
     public override string Type => "Connect";
+    public List<string> DeckUniqueIds { get; set; } = new();
     public ConnectionRequest() { }
     public ConnectionRequest(Guid guid)
     {
         ClientGuid = guid;
     }
+}
+
+public class ConnectedToRoom : Message
+{
+    public override string Type => "ConnectedToRoom";
+    public string RoomName { get; set; }
+    public int RoomId { get; set; }
+    public int PlayerId { get; set; }
 }
 
 public class HandUpdate : Message

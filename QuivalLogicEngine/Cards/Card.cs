@@ -26,11 +26,6 @@ public abstract class Card
     public string? Description { get; set; }
     public int Cost { get; set; }
     public List<Trigger> Triggers { get; set; } = new();
-
-    public virtual List<ICardIntent> GetIntents()
-    {
-        return new List<ICardIntent>();
-    }
 }
 
 public class BlankCard : Card
@@ -38,11 +33,6 @@ public class BlankCard : Card
     public BlankCard(int playerId)
     {
         PlayerId = playerId;
-    }
-
-    public override List<ICardIntent> GetIntents()
-    {
-        return new List<ICardIntent>();
     }
 }
 
@@ -104,13 +94,6 @@ public class CreatureCard : Card
     {
         return CurrentHealth > 0;
     }
-
-    public override List<ICardIntent> GetIntents()
-    {
-        List<ICardIntent> intents = [ new Summon(Id) ];
-        return intents;
-    }
-
 }
 
 public class AttackCard : Card
@@ -122,22 +105,9 @@ public class AttackCard : Card
         Description = "Attack the opponent.";
         PlayerId = playerId;
     }
-
-    public override List<ICardIntent> GetIntents()
-    {
-        //TODO: this should look up the Id of the attacking creature and get any "if attacking" 
-        //abilities. So like DoubleUp
-        //Maybe a function called List<ICardIntent> GetAttackingIntents(int CardId);
-
-        List<ICardIntent> intents = [ new Attack(PlayerId, Id) ];
-        return intents;
-    }
 }
 
 public class SpellCard : Card
 {
-    public override List<ICardIntent> GetIntents()
-    {
-        return new List<ICardIntent>();
-    }
+    //TODO: considering this is literally nothing, maybe we should rethink this? 
 }
