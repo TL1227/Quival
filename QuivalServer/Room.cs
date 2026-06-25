@@ -41,22 +41,8 @@ internal class Room
         }
     }
 
-    private void AddToMatch(PlayerClient playerClient, List<Card> deck)
+    public void TryStartMatch()
     {
-        Match.SetPlayer(playerClient.Id, deck);
-
-        ConnectedToRoom connectedToRoom = new()
-        {
-            RoomName = Name,
-            RoomId = Id,
-            PlayerId = playerClient.Id
-        };
-
-        string jsonMessage = JsonSerializer.Serialize(connectedToRoom);
-        playerClient.Writer.WriteLine(jsonMessage);
-
-        Console.WriteLine($"Added Player {playerClient.Id} to {Name} [id: {Id}]");
-
         if (BothPlayersSet())
         {
             foreach (var player in Players)
@@ -70,20 +56,15 @@ internal class Room
                 player.Writer.WriteLineAsync(gs);
             }
         }
-
-        string? message;
-        while ((message = playerClient.Reader.ReadLine()) != null)
-        {
-            var parsedMessage = Message.GetMessageFromJson(message);
-
-            if (parsedMessage != null)
-            {
-                HandleMessage(parsedMessage, playerClient, playerClient.Writer);
-            }
-        }
     }
 
-    public void HandleMessage(Message message, PlayerClient player, StreamWriter writer)
+    private void AddToMatch(PlayerClient playerClient, List<Card> deck)
+    {
+        Match.SetPlayer(playerClient.Id, deck);
+        Console.WriteLine($"Added Player {playerClient.Id} to {Name} [id: {Id}]");
+    }
+
+    public void HandleMessage(Message message, PlayerClient player)
     {
         switch (message)
         {
@@ -126,6 +107,11 @@ internal class Room
                         Console.WriteLine($"Both players have submitted turns");
                         ProcessCards();
                     }
+                }
+                break;
+            case StartMatchRequest request:
+                {
+                    TryStartMatch();
                 }
                 break;
             default:

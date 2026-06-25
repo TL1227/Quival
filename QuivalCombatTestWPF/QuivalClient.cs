@@ -5,26 +5,26 @@ using System.Text.Json;
 using QuivalLogicEngine.Messages;
 using QuivalLogicEngine.Turns;
 using QuivalLogicEngine.Cards;
-using System.Configuration;
 using System.Diagnostics;
 
 namespace QuivalCombatTestWPF
 {
-    class QuivalClient
+    public class QuivalClient
     {
         private StreamWriter? Writer;
         private StreamReader? Reader;
-        private MatchView MatchView;
         private Guid Clientguid;
         private Guid Serverguid;
+        private MainWindow MainWindow;
 
-        public QuivalClient(MatchView matchView)
+        public QuivalClient(MainWindow window)
         {
-            MatchView = matchView;
+            MainWindow = window;
             Clientguid = Guid.NewGuid();
+            ConnectToServer();
         }
 
-        public async Task<bool> ConnectToServer(List<string> deckIds)
+        public async Task<bool> ConnectToServer()
         {
             try
             {
@@ -34,7 +34,6 @@ namespace QuivalCombatTestWPF
                 Reader = new StreamReader(Stream, Encoding.UTF8);
 
                 ConnectionRequest connectionRequest = new(Clientguid);
-                connectionRequest.DeckUniqueIds = deckIds;
 
                 string req = JsonSerializer.Serialize<ConnectionRequest>(connectionRequest);
 
@@ -47,7 +46,7 @@ namespace QuivalCombatTestWPF
 
                 var message = Message.GetMessageFromJson(response);
 
-                if (response != null && message is ConnectedToRoom accept)
+                if (response != null && message is ConnectionRequest accept)
                 {
                     Serverguid = accept.ServerGuid;
                     _ = RecieveMessages();
@@ -69,8 +68,6 @@ namespace QuivalCombatTestWPF
             string? toSend = MessageToJson(message);
 
             await Writer.WriteLineAsync(toSend);
-
-            MatchView.MessageSent();
         }
 
         public async Task RecieveMessages() 
@@ -94,22 +91,28 @@ namespace QuivalCombatTestWPF
         {
             switch (message)
             {
-                case HandUpdate:
+                case HandUpdate handUpdate:
                     {
-                        HandUpdate handUpdate = (HandUpdate)message;
-                        MatchView.UpdateHand(handUpdate.Cards);
+                        if (MainWindow.ViewContent.Content is MatchView matchView)
+                            matchView?.UpdateHand(handUpdate.Cards);
                     }
                     break;
-                case GameStateUpdate:
+                case GameStateUpdate gameState:
                     {
-                        GameStateUpdate gameState = (GameStateUpdate)message;
-                        MatchView.UpdateGameState(gameState.GameState);
+                        if (MainWindow.ViewContent.Content is MatchView matchView)
+                            matchView.UpdateGameState(gameState.GameState);
                     }
                     break;
-                case MakeSelections:
+                case MakeSelections makeSelections:
                     {
-                        MakeSelections makeSelections = (MakeSelections)message;
-                        MatchView.MakeSelections(makeSelections);
+                        if (MainWindow.ViewContent.Content is MatchView matchView)
+                            matchView.MakeSelections(makeSelections);
+                    }
+                    break;
+                case JoinRoomResponse joinRoomResponse:
+                    {
+                        if (MainWindow.ViewContent.Content is MainMenu mainMenu)
+                            mainMenu.ProcessJoinRoomResponce(joinRoomResponse);
                     }
                     break;
                 default:
@@ -149,6 +152,9 @@ namespace QuivalCombatTestWPF
 
         public static bool SubmitRoomCreationRequest(string name)
         {
+            //TODO: this all needs changing 
+
+            /*
             try
             {
                 TcpClient Client = new TcpClient(Environment.MachineName, 5005);
@@ -161,7 +167,8 @@ namespace QuivalCombatTestWPF
                     RoomName = name
                 };
 
-                writer.WriteLine(request);
+                string requestJson = JsonSerializer.Serialize(request);
+                writer.WriteLine(requestJson);
                 string? result = reader.ReadLine();
 
                 if (result != null)
@@ -177,6 +184,7 @@ namespace QuivalCombatTestWPF
             {
                 Debug.WriteLine(e);
             }
+            */
 
             return false;
         }

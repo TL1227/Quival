@@ -6,8 +6,7 @@ namespace QuivalLogicEngine
     {
         public List<List<CreatureCard>> SummonedCreatures { get; set; }
 
-        public int[] ManaClock = [2, 3, 4, 5];
-        //public int[] ManaClock = [5, 5, 5, 5];
+        public int[] ManaClock = [ 2, 3, 4, 5, 6, 7, 8, 9, 10 ];
         public int ManaClockIndex = 0;
 
         public BoardState() 

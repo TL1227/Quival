@@ -28,6 +28,7 @@ namespace QuivalCombatTestWPF
     public partial class MatchView : UserControl
     {
         QuivalClient Client { get; set; }
+        MainWindow MainWindow { get; set; }
         Control? SelectedCard { get; set; }
         private ClientGameState CurrentGameState { get; set; }
 
@@ -49,9 +50,11 @@ namespace QuivalCombatTestWPF
         public bool CanClickCards { get; set; } = true;
         public bool ViewingCard { get; set; } = false;
 
-        public MatchView()
+        public MatchView(QuivalClient client)
         {
             InitializeComponent();
+
+            Client = client;
 
             PlayerBlockZone.Side = Side.Player;
             OpponentBlockZone.Side = Side.Opponent;
@@ -69,23 +72,9 @@ namespace QuivalCombatTestWPF
 
             KeyDown += MainWindow_KeyDown;
 
-            Layout.Loaded += (_, _) =>
+            Layout.Loaded += async (_, _) =>
             {
-                List<string> deckIds = 
-                [
-                    "ALP1", "ALP1", "ALP1", "ALP1",
-                    "ALP2", "ALP2", "ALP2", "ALP2", 
-                    "ALP3", "ALP3", "ALP3", "ALP3", 
-                    "ALP4", "ALP4", "ALP4", "ALP4", 
-                    "ALP5", "ALP5", "ALP5", "ALP5", 
-                    "ALP6", "ALP6", "ALP6", "ALP6",
-                    "ALP7", "ALP7", "ALP7", "ALP7",
-                    "ALP8", "ALP8", "ALP8", "ALP8",
-                    "ALP9", "ALP9", "ALP9", "ALP9",
-                ];
-
-                Client = new QuivalClient(this);
-                Client.ConnectToServer(deckIds);
+                await Client.SendMessageAsync(new StartMatchRequest());
             };
         }
 

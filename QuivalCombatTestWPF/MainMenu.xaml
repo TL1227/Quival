@@ -27,5 +27,15 @@
             <Button FontSize="20" Content="Quit" x:Name="QuitGameButton"></Button>
         </StackPanel>
 
+        <Label x:Name="MessageLabel" 
+            Grid.Column="1" Grid.Row="2" 
+            VerticalAlignment="Center" HorizontalAlignment="Center"
+            Opacity="0.0"
+            FontSize="30"
+               Foreground="Purple"
+               >
+        </Label>
+    
+
     </Grid>
 </UserControl>

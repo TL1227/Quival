@@ -12,6 +12,7 @@ public abstract class Message
     public abstract string Type { get; }
     public Guid ClientGuid { get; set; }
     public Guid ServerGuid { get; set; }
+    public string ToJson() => JsonSerializer.Serialize(this, GetType());
 
     public static Message? GetMessageFromJson(string json)
     {
@@ -33,6 +34,9 @@ public abstract class Message
                 "SubmitTurn" => JsonSerializer.Deserialize<SubmitTurn>(json),
                 "MakeSelections" => JsonSerializer.Deserialize<MakeSelections>(json),
                 "CreateRoomRequest" => JsonSerializer.Deserialize<CreateRoomRequest>(json),
+                "JoinRoomRequest" => JsonSerializer.Deserialize<JoinRoomRequest>(json),
+                "JoinRoomResponse" => JsonSerializer.Deserialize<JoinRoomResponse>(json),
+                "StartMatchRequest" => JsonSerializer.Deserialize<StartMatchRequest>(json),
                 _ => null
             };
 
@@ -135,4 +139,22 @@ public class CreateRoomRequest : Message
     public override string Type => "CreateRoomRequest";
     public required string RoomName { get; set; }
     public bool Success { get; set; } = false;
+}
+
+public class JoinRoomRequest : Message
+{
+    public override string Type => "JoinRoomRequest";
+    public List<string> CardIds { get; set; } = new();
+    public bool JoinRandom { get; set; } = false;
+}
+
+public class JoinRoomResponse : Message
+{
+    public override string Type => "JoinRoomResponse";
+    public bool Success { get; set; }
+}
+
+public class StartMatchRequest : Message
+{
+    public override string Type => "StartMatchRequest";
 }

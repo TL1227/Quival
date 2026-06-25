@@ -16,20 +16,22 @@ internal class PlayerClient
     internal List<Card> Deck;
     internal required StreamReader Reader;
     internal required StreamWriter Writer;
+    internal Room? CurrentRoom;
 }
 
 internal class Program
 {
-    internal static Version CurrentVersion { get; set; } = new Version(0, 1, 0);
-    internal static int PortNumber = 5005;
-    internal static int RoomCount = 0;
-    internal static List<Room> Rooms = new();
+    static internal Version CurrentVersion { get; set; } = new Version(0, 1, 0);
+    static internal int PortNumber = 5005;
+    static internal int RoomCount = 0;
+    static internal List<Room> Rooms = new();
+    static internal List<PlayerClient> Players = new();
 
-    internal static IDataAccessor DataAccessor { get; set; }
+    static internal IDataAccessor DataAccessor { get; set; }
 
-    internal static Guid ServerGuid;
+    static internal Guid ServerGuid;
 
-    internal static bool UseDebugCards = false;
+    static internal bool UseDebugCards = false;
 
     static async Task Main(string[] args)
     {
@@ -58,12 +60,12 @@ internal class Program
             StreamReader streamReader = new(stream, Encoding.UTF8);
             StreamWriter streamWriter = new(stream, Encoding.UTF8) { AutoFlush = true };
 
-            string? connectMessage = streamReader.ReadLine();
+            string? initialMessage = streamReader.ReadLine();
 
-            if (connectMessage == null)
+            if (initialMessage == null)
                 return;
 
-            var doc = JsonDocument.Parse(connectMessage);
+            var doc = JsonDocument.Parse(initialMessage);
 
             if (doc == null)
                 return;
@@ -73,59 +75,29 @@ internal class Program
             if (type != "Connect")
                 return;
 
-            ConnectionRequest initialMessage = JsonSerializer.Deserialize<ConnectionRequest>(doc)!;
-
+            ConnectionRequest connectionRequest = JsonSerializer.Deserialize<ConnectionRequest>(doc)!;
 
             PlayerClient playerClient = new()
             {
                 Client = client,
-                Guid = initialMessage.ClientGuid,
+                Guid = connectionRequest.ClientGuid,
                 Reader = streamReader,
                 Writer = streamWriter
             };
 
-            DataAccessor = new JsonDataAccess();
-            List<Card> deck = new();
-            foreach (var card in initialMessage.DeckUniqueIds)
-            {
-                Card? c = DataAccessor.GetCard(card);
-                if (c != null)
-                {
-                    deck.Add(c);
-                }
-                else
-                {
-                    //TODO: send a message back to client saying the deck is invalid
-                }
-            }
+            Players.Add(playerClient);
 
-            if (!ValidateDeck(deck))
-            {
-                //TODO: send a message back to client saying the deck is invalid
-            }
+            playerClient.Writer.WriteLine(connectionRequest.ToJson());
 
-            //create first room if none found
-            if (Rooms.Count <= 0)
+            string? message;
+            while ((message = playerClient.Reader.ReadLine()) != null)
             {
-                var newRoom = new Room() { Id = RoomCount++ };
-                newRoom.Name = $"Room {newRoom.Id}";
-                Rooms.Add(newRoom);
-                newRoom.AddPlayer(playerClient, deck);
-            }
-            else 
-            {
-                //find a free room
-                foreach (var room in Rooms)
+                var parsedMessage = Message.GetMessageFromJson(message);
+
+                if (parsedMessage != null)
                 {
-                    bool success = room.AddPlayer(playerClient, deck);
-                    if (success) break;
+                    HandleMessage(parsedMessage, playerClient);
                 }
-
-                //if no room found
-                var newRoom = new Room() { Id = RoomCount++ };
-                newRoom.Name = $"Room {newRoom.Id}";
-                Rooms.Add(newRoom);
-                newRoom.AddPlayer(playerClient, deck);
             }
         }
         catch (Exception e)
@@ -133,6 +105,86 @@ internal class Program
             Console.WriteLine($"Error: {e}");
             client.Close();
             //Console.WriteLine($"Closed client connection: {client}");
+        }
+    }
+
+    public static JoinRoomResponse JoinRandomRoom(PlayerClient playerClient, List<string> cardIds)
+    {
+        List<Card> deck = new();
+        DataAccessor = new JsonDataAccess();
+        foreach (var card in cardIds)
+        {
+            Card? c = DataAccessor.GetCard(card);
+            if (c != null)
+            {
+                deck.Add(c);
+            }
+            else
+            {
+                //TODO: send a message back to client saying the deck is invalid
+                return new JoinRoomResponse() { Success = false };
+            }
+        }
+
+        if (!ValidateDeck(deck))
+        {
+            //TODO: send a message back to client saying the deck is invalid
+            return new JoinRoomResponse() { Success = false };
+        }
+
+        //find a free room
+        foreach (var room in Rooms)
+        {
+            bool success = room.AddPlayer(playerClient, deck);
+            if (success)
+            {
+                playerClient.CurrentRoom = room;
+                return new JoinRoomResponse() { Success = true };
+            }
+        }
+
+        var newRoom = new Room() { Id = RoomCount++ };
+        newRoom.Name = $"Room {newRoom.Id}";
+        Rooms.Add(newRoom);
+        newRoom.AddPlayer(playerClient, deck);
+        playerClient.CurrentRoom = newRoom;
+
+        return new JoinRoomResponse() { Success = true };
+    }
+
+    public static void SendRoomJoinResponse(PlayerClient playerClient)
+    {
+    }
+
+    public static void HandleMessage(Message message, PlayerClient player)
+    {
+        if (player.CurrentRoom != null)
+        {
+            player.CurrentRoom.HandleMessage(message, player);
+        }
+        else
+        {
+            switch (message)
+            {
+                case CreateRoomRequest request:
+                    //TODO: handle this one day
+                    break;
+                case JoinRoomRequest request:
+                    if (request.JoinRandom == true)
+                    {
+                        var response = JoinRandomRoom(player, request.CardIds);
+                        player.Writer.WriteLine(response.ToJson());
+                    }
+                    else
+                    {
+                        JoinRoomResponse response = new();
+                        response.Success = false;
+                        player.Writer.WriteLine(response.ToJson());
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
