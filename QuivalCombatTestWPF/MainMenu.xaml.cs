@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Messages;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -21,18 +22,13 @@ namespace QuivalCombatTestWPF
         {
             StartMatchButton.IsEnabled = false;
 
-            List<string> deckIds =
-            [
-                "ALP1", "ALP1", "ALP1", "ALP1",
-                "ALP2", "ALP2", "ALP2", "ALP2",
-                "ALP3", "ALP3", "ALP3", "ALP3",
-                "ALP4", "ALP4", "ALP4", "ALP4",
-                "ALP5", "ALP5", "ALP5", "ALP5",
-                "ALP6", "ALP6", "ALP6", "ALP6",
-                "ALP7", "ALP7", "ALP7", "ALP7",
-                "ALP8", "ALP8", "ALP8", "ALP8",
-                "ALP9", "ALP9", "ALP9", "ALP9",
-            ];
+            List<string> deckIds = new();
+
+            string deckLocation = "..\\Decks\\Default.txt";
+            string[] lines = File.ReadAllLines(deckLocation);
+
+            foreach (var line in lines)
+                deckIds.Add(line.Split('#')[0].Trim());
 
             JoinRoomRequest joinRoomRequest = new JoinRoomRequest();
             joinRoomRequest.JoinRandom = true;

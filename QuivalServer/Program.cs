@@ -1,5 +1,4 @@
-﻿using QuivalLogicEngine;
-using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Messages;
 using System.Net;
 using System.Net.Sockets;

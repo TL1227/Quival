@@ -337,8 +337,9 @@ public class Match
 
                         EventMessage(new SummonEvent(player.Id, creature.Id, creature.Name!));
 
-                        creature.HasActed = true;
                         creature.CurrentHealth = creature.Health;
+                        //creature.HasActed = true;
+                        //creature.SummonedThisTurn = true;
 
                         var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
                         ProcessCardTriggers(player.Id, creature, player.SubmittedTurn.Trigger, targets);

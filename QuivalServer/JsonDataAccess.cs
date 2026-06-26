@@ -17,10 +17,11 @@ namespace QuivalServer
 
         public JsonDataAccess() 
         {
-            var json = File.ReadAllText("QuivalCards.json");
+            string cardsLocation = "..\\Cards\\QuivalCards.json";
+            var json = File.ReadAllText(cardsLocation);
             if (json == null)
             {
-                Console.WriteLine("Can't find QuivalCards.json!");
+                Console.WriteLine($"Can't find {cardsLocation}");
                 return;
             }
 

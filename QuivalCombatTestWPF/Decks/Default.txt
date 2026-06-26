@@ -1,0 +1,36 @@
+ALP1 # Desmond Future Knight 
+ALP1 # Desmond Future Knight 
+ALP1 # Desmond Future Knight 
+ALP1 # Desmond Future Knight 
+ALP2 # Token
+ALP2 # Token
+ALP2 # Token
+ALP2 # Token
+ALP3 # Defender
+ALP3 # Defender
+ALP3 # Defender
+ALP3 # Defender
+ALP4 # Aggression
+ALP4 # Aggression
+ALP4 # Aggression
+ALP4 # Aggression
+ALP5 # BFG
+ALP5 # BFG
+ALP5 # BFG
+ALP5 # BFG
+ALP6 # The Wall
+ALP6 # The Wall
+ALP6 # The Wall
+ALP6 # The Wall
+ALP7 # Zap
+ALP7 # Zap
+ALP7 # Zap
+ALP7 # Zap
+ALP8 # Spring Water
+ALP8 # Spring Water
+ALP8 # Spring Water
+ALP8 # Spring Water
+ALP9 # Mega Flare
+ALP9 # Mega Flare
+ALP9 # Mega Flare
+ALP9 # Mega Flare

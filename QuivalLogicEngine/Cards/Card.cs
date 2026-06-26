@@ -42,6 +42,7 @@ public class CreatureCard : Card
     public int Health { get; set; }
     public int CurrentHealth { get; set; }
     public bool HasActed { get; set; }
+    public bool SummonedThisTurn { get; set; }
     public int AttackBuff { get; set; }
 
     public CreatureCard() { }

@@ -1,0 +1,9 @@
+ALP1 # Desmond Future Knight 
+ALP2 # Token
+ALP3 # Defender
+ALP4 # Aggression
+ALP5 # BFG
+ALP6 # The Wall
+ALP7 # Zap
+ALP8 # Spring Water
+ALP9 # Mega Flare

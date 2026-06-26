@@ -6,10 +6,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <AssemblyName>Quival</AssemblyName>
+    <BaseOutputPath>bin</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\QuivalLogicEngine\QuivalLogicEngine.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <DeckFiles Include="Decks\*" />
+  </ItemGroup>
+
+	<Target Name="CopyDecks" AfterTargets="Build">
+		<Copy SourceFiles="@(DeckFiles)" DestinationFolder="$(TargetDir)..\Decks" />
+	</Target>
+
+	<Target Name="CopyDecksOnPublish" AfterTargets="Publish">
+		<Copy SourceFiles="@(DeckFiles)" DestinationFolder="$(PublishDir)..\Decks" />
+	</Target>
 
 </Project>

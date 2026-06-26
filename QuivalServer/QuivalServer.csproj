@@ -13,9 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="QuivalCards.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <QuivalCards Include="QuivalCards.json"/>
   </ItemGroup>
 
+	<Target Name="CopyDecks" AfterTargets="Build">
+		<Copy SourceFiles="@(QuivalCards)" DestinationFolder="$(TargetDir)..\Cards\" />
+	</Target>
+
+	<Target Name="CopyDecksOnPublish" AfterTargets="Publish">
+		<Copy SourceFiles="@(QuivalCards)" DestinationFolder="$(PublishDir)..\Cards\" />
+	</Target>
 </Project>
