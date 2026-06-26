@@ -14,7 +14,7 @@ public class Set
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
 [JsonDerivedType(typeof(CreatureCard), "creaturecard")]
 [JsonDerivedType(typeof(AttackCard), "attackcard")]
-[JsonDerivedType(typeof(BlankCard), "blankcard")]
+[JsonDerivedType(typeof(PlayerCard), "playercard")]
 [JsonDerivedType(typeof(SpellCard), "spellcard")]
 public abstract class Card
 {
@@ -28,12 +28,8 @@ public abstract class Card
     public List<Trigger> Triggers { get; set; } = new();
 }
 
-public class BlankCard : Card
+public class PlayerCard : Card
 {
-    public BlankCard(int playerId)
-    {
-        PlayerId = playerId;
-    }
 }
 
 public class CreatureCard : Card

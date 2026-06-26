@@ -72,10 +72,47 @@ namespace QuivalCombatTestWPF
 
             KeyDown += MainWindow_KeyDown;
 
+            PlayerResources.MouseLeftButtonDown += PlayerResources_MouseLeftButtonDown;
+            OpponentResources.MouseLeftButtonDown += OpponentResources_MouseLeftButtonDown;
+
             Layout.Loaded += async (_, _) =>
             {
                 await Client.SendMessageAsync(new StartMatchRequest());
             };
+        }
+
+        private void PlayerResources_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (CardSelector != null)
+            {
+                var id = (int)MyPlayerId;
+                if (CardSelector.CardIsValidTarget(id))
+                {
+                    var selectedCards = CardSelector.SelectCard(id);
+                    if (selectedCards != null)
+                    {
+                        CardSelector = null;
+                        Client.SubmitSelection(selectedCards);
+                    }
+                }
+            }
+        }
+
+        private void OpponentResources_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (CardSelector != null)
+            {
+                var id = OppositeSide((int)MyPlayerId);
+                if (CardSelector.CardIsValidTarget(id))
+                {
+                    var selectedCards = CardSelector.SelectCard(id);
+                    if (selectedCards != null)
+                    {
+                        CardSelector = null;
+                        Client.SubmitSelection(selectedCards);
+                    }
+                }
+            }
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -303,52 +340,77 @@ namespace QuivalCombatTestWPF
             foreach (var target in actionEvent.TargetsCardIds)
             {
                 var targetCard = GetBoardCard(target);
+
                 if (targetCard == null)
                 {
-                    Debug.WriteLine($"[Action] {targetCard.Id} is null");
+                    if (target == 0 || target == 1)
+                    {
+                        //handle the player thing
+                        switch (actionEvent.Effect)
+                        {
+                            case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                                {
+                                    //damage player animation
+                                }
+                                break;
+                            case QuivalLogicEngine.Cards.Effect.Heal:
+                                {
+                                    //heal player animation
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Can't find target with id of {target}");
+                    }
                 }
-
-                switch (actionEvent.Effect)
+                else
                 {
-                    case QuivalLogicEngine.Cards.Effect.AttackBuff:
-                        {
-                            await targetCard.FlashUp(Brushes.Aquamarine);
-
-                            targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
-                            targetCard.AttackLabel.Foreground = Brushes.Aquamarine;
-
-                            await targetCard.FlashDown(Brushes.Aquamarine);
-                        }
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.DirectDamage:
-                        {
-                            targetCard.TakeDamage(actionEvent.Value);
-                        }
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.Heal:
-                        {
-                            await targetCard.FlashUp(Brushes.LimeGreen);
-
-                            targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() + actionEvent.Value;
-                            Card card = (Card)targetCard.Tag;
-                            if (card != null && card is CreatureCard cc)
+                    switch (actionEvent.Effect)
+                    {
+                        case QuivalLogicEngine.Cards.Effect.AttackBuff:
                             {
-                                if ((int)targetCard.HealthLabel.Content < cc.Health)
-                                    targetCard.HealthLabel.Foreground = Brushes.Red;
-                            }
+                                await targetCard.FlashUp(Brushes.Aquamarine);
 
-                            await targetCard.FlashDown(Brushes.LimeGreen);
-                        }
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.DrawCard:
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.RestoreAction:
-                        break;
-                    case QuivalLogicEngine.Cards.Effect.None:
-                    default:
-                        break;
+                                targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
+                                targetCard.AttackLabel.Foreground = Brushes.Aquamarine;
+
+                                await targetCard.FlashDown(Brushes.Aquamarine);
+                            }
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                            {
+                                targetCard.TakeDamage(actionEvent.Value);
+                            }
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.Heal:
+                            {
+                                await targetCard.FlashUp(Brushes.LimeGreen);
+
+                                targetCard.HealthLabel.Content = targetCard.GetCurrentHealthFromLabel() + actionEvent.Value;
+                                Card card = (Card)targetCard.Tag;
+                                if (card != null && card is CreatureCard cc)
+                                {
+                                    if ((int)targetCard.HealthLabel.Content < cc.Health)
+                                        targetCard.HealthLabel.Foreground = Brushes.Red;
+                                }
+
+                                await targetCard.FlashDown(Brushes.LimeGreen);
+                            }
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.DrawCard:
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.RestoreAction:
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.None:
+                        default:
+                            break;
+                    }
                 }
             }
         }

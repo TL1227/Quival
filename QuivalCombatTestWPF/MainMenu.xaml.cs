@@ -24,11 +24,18 @@ namespace QuivalCombatTestWPF
 
             List<string> deckIds = new();
 
-            string deckLocation = "..\\Decks\\Default.txt";
-            string[] lines = File.ReadAllLines(deckLocation);
+            try
+            {
+                string deckLocation = $"{AppContext.BaseDirectory}\\..\\Decks\\Default.txt";
+                string[] lines = File.ReadAllLines(deckLocation);
 
-            foreach (var line in lines)
-                deckIds.Add(line.Split('#')[0].Trim());
+                foreach (var line in lines)
+                    deckIds.Add(line.Split('#')[0].Trim());
+            }
+            catch (Exception erro)
+            {
+                MessageBox.Show(erro.ToString());
+            }
 
             JoinRoomRequest joinRoomRequest = new JoinRoomRequest();
             joinRoomRequest.JoinRandom = true;

@@ -13,8 +13,8 @@ public class Match
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
 
-    //NOTE: We start at 1 so we can keep '0' as an unassigned card id
-    private int CardIdTotal = 1;
+    //NOTE: We start at 2 so we can use 0 and 1 as cards representing the player
+    private int CardIdTotal = 2;
 
     private List<Card> MatchCards;
     private int MaxRounds = 5;
@@ -93,10 +93,12 @@ public class Match
         SetCardIds(deck);
         MatchCards.AddRange(deck);
 
+        PlayerCard pc = new() { Id = id };
+        MatchCards.Add(pc);
+
         Player player = new Player(id, deck)
         {
             Mana = 1
-            //Mana = 10
         };
 
 
@@ -184,6 +186,10 @@ public class Match
             {
                 TargetSelection ts = new();
                 ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
+
+                //try getting the card ides 
+                var testing = MatchCards.OfType<PlayerCard>().Select(c => c.Id).ToList();
+                ts.TargetsToPickFrom.AddRange(testing);
 
                 if (Players[0].BlockingCreature != null)
                 {
@@ -555,6 +561,23 @@ public class Match
                     case Effect.Heal:
                         {
                             targetCreature.HealCreature(value);
+                            break;
+                        }
+                }
+            }
+            else if (target is PlayerCard playerCard)
+            {
+                switch (intent)
+                {
+                    //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
+                    case Effect.DirectDamage:
+                        {
+                            Players[playerCard.Id].HealthPoints -= value;
+                            break;
+                        }
+                    case Effect.Heal:
+                        {
+                            Players[playerCard.Id].HealthPoints += value;
                             break;
                         }
                 }

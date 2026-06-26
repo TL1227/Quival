@@ -18,7 +18,7 @@ namespace QuivalCombatTestWPF
         private void UpdateLabel()
         {
             CardSelectorLabel.Content = 
-                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} cards to {GetSelectMessageFromEffect(TargetSelections[index].Effect)}";
+                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} targets to {GetSelectMessageFromEffect(TargetSelections[index].Effect)}";
         }
 
         private string GetSelectMessageFromEffect(Effect effect)
