@@ -25,9 +25,17 @@ namespace QuivalCombatTestWPF
 
         public async Task<bool> ConnectToServer()
         {
+            var machineName = Environment.MachineName;
+
+            var machineNameFile = $"{AppContext.BaseDirectory}\\..\\MachineName.txt";
+            if (File.Exists(machineNameFile))
+            {
+                machineName = File.ReadAllText(machineNameFile);
+            }
+
             try
             {
-                TcpClient Client = new TcpClient(Environment.MachineName, 5005);
+                TcpClient Client = new TcpClient(machineName, 5005);
                 var Stream = Client.GetStream();
                 Writer = new StreamWriter(Stream, Encoding.UTF8) { AutoFlush = true };
                 Reader = new StreamReader(Stream, Encoding.UTF8);
