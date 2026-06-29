@@ -28,5 +28,7 @@
             Content="0"
             FontSize="45"
             Background="CornflowerBlue" />
+
+        <Canvas x:Name="FlashOverlay" Opacity="0.0"></Canvas>
     </Grid>
 </UserControl>

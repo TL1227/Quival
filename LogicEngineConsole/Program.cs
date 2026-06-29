@@ -27,7 +27,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = Effect.Heal,
                                     TargetType = TargetType.Damageable,
-                                    NumberOfTargets = 1,
+                                    NumberOfTargetSelectionsNeeded = 1,
                                     CanTargetSelf = false,
                                     Value = 2,
                                     Conditionals =
@@ -109,7 +109,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = Effect.DirectDamage,
                                     TargetType = TargetType.Damageable,
-                                    NumberOfTargets = 1,
+                                    NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
                                 }
@@ -133,7 +133,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = Effect.Heal,
                                     TargetType = TargetType.Damageable,
-                                    NumberOfTargets = 1,
+                                    NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
                                 }
@@ -157,7 +157,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = Effect.DirectDamage,
                                     TargetType = TargetType.Damageable,
-                                    NumberOfTargets = 1,
+                                    NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 1,
                                 },
@@ -171,6 +171,29 @@ namespace LogicEngineConsole
                             },
                         }
                     }
+                },
+                new CreatureCard(){
+                    Name = "Ping Boy",
+                    Description = "When Ping Boy enters the battlefield, opponent takes 1 damage",
+                    Cost = 2,
+                    Attack = 1,
+                    Health = 1,
+                    Triggers = 
+                    [
+                        new Trigger()
+                        {
+                            TriggerType = TriggerType.Cast,
+                            Abilities = 
+                            [
+                                new Ability()
+                                {
+                                    Effect = Effect.DirectDamage,
+                                    TargetType = TargetType.Opponent,
+                                    Value = 1
+                                }
+                            ]
+                        }
+                    ]
                 },
             ];
 

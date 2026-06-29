@@ -107,6 +107,48 @@ namespace QuivalCombatTestWPF
             return tcs.Task;
         }
 
+        public static Task DirectDamage(double xLocation, double yLocation, Canvas canvas, EasingMode easingMode = EasingMode.EaseIn)
+        {
+            Label label = new();
+            label.Height = 50;
+            label.Width = 50;
+            label.Background = Brushes.Red;
+            Canvas.SetTop(label, 540);
+            Canvas.SetLeft(label, 810);
+            canvas.Children.Add(label);
+            canvas.UpdateLayout();
+
+            double animationSpeed = 0.5;
+
+            DoubleAnimation yAnim = new()
+            {
+                From = Canvas.GetTop(label),
+                To = yLocation,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = easingMode }
+            };
+
+            DoubleAnimation xAnim = new()
+            {
+                From = Canvas.GetLeft(label),
+                To = xLocation,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
+            };
+
+            TaskCompletionSource tsc = new();
+            xAnim.Completed += (_, _) =>
+            {
+                canvas.Children.Remove(label);
+                tsc.SetResult();
+            };
+
+            label.BeginAnimation(Canvas.LeftProperty, xAnim);
+            label.BeginAnimation(Canvas.TopProperty, yAnim);
+
+            return tsc.Task;
+        }
+
         public static void DisplayMessage(string message, Canvas canvas)
         {
             //TODO: This position should probably be passed into the function

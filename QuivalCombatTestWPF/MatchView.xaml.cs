@@ -331,6 +331,14 @@ namespace QuivalCombatTestWPF
 
                     int summonIndex = CombatZones[(int)side].AddCardToNextFreeSlot(boardCard, Layout);
                     await Animation.MoveToPoint(boardCard, handcardPos, Layout.SummonSlots[(int)side][summonIndex]);
+
+                    foreach (var action in summonEvent.CardActionEvents)
+                    {
+                        await Task.Delay(500);
+                        await PlayCardActionAnimation(action, side);
+                    }
+
+                    await Task.Delay(500);
                 }
             }
         }
@@ -350,12 +358,26 @@ namespace QuivalCombatTestWPF
                         {
                             case QuivalLogicEngine.Cards.Effect.DirectDamage:
                                 {
-                                    //damage player animation
+                                    if (target == MyPlayerId)
+                                    {
+                                        Point point = PlayerResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0)); 
+                                        await Animation.DirectDamage(point.X, point.Y, Layout.Canvas);
+                                        PlayerResources.TakeDamage(actionEvent.Value);
+                                    }
+                                    else
+                                    {
+                                        Point point = OpponentResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0)); 
+                                        await Animation.DirectDamage(point.X, point.Y, Layout.Canvas);
+                                        OpponentResources.TakeDamage(actionEvent.Value);
+                                    }
                                 }
                                 break;
                             case QuivalLogicEngine.Cards.Effect.Heal:
                                 {
-                                    //heal player animation
+                                    if (target == MyPlayerId)
+                                        PlayerResources.TakeDamage(actionEvent.Value);
+                                    else
+                                        OpponentResources.TakeDamage(actionEvent.Value);
                                 }
                                 break;
                             default:

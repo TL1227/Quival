@@ -90,10 +90,10 @@ public class Match
 
     public void SetPlayer(int id, List<Card> deck)
     {
-        SetCardIds(deck);
+        SetCardIds(deck, id);
         MatchCards.AddRange(deck);
 
-        PlayerCard pc = new() { Id = id };
+        PlayerCard pc = new() { Id = id, PlayerId = id };
         MatchCards.Add(pc);
 
         Player player = new Player(id, deck)
@@ -170,7 +170,7 @@ public class Match
         var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
         if (trigger != null)
         {
-            return trigger.Abilities.Where(a => a.NumberOfTargets > 0).ToList();
+            return trigger.Abilities.Where(a => a.NumberOfTargetSelectionsNeeded > 0).ToList();
         }
         else
         {
@@ -193,19 +193,19 @@ public class Match
 
                 if (Players[0].BlockingCreature != null)
                 {
-                    ts.TargetsToPickFrom.Add(Players[0].BlockingCreature.Id);
+                    ts.TargetsToPickFrom.Add(Players[0].BlockingCreature!.Id);
                 }
 
                 if (Players[1].BlockingCreature != null)
                 {
-                    ts.TargetsToPickFrom.Add(Players[1].BlockingCreature.Id);
+                    ts.TargetsToPickFrom.Add(Players[1].BlockingCreature!.Id);
                 }
 
                 if (!ability.CanTargetSelf)
                     ts.TargetsToPickFrom.Remove(cardId);
 
                 ts.TargetType = TargetType.Damageable;
-                ts.NumberToPick = ability.NumberOfTargets;
+                ts.NumberToPick = ability.NumberOfTargetSelectionsNeeded;
                 ts.Trigger = trigger;
                 ts.AbilityId = ability.Id;
                 ts.CardId = cardId;
@@ -255,11 +255,12 @@ public class Match
     }
 
 
-    public void SetCardIds(List<Card> deck)
+    public void SetCardIds(List<Card> deck, int playerId)
     {
         foreach (var card in deck)
         {
             card.Id = CardIdTotal++;
+            card.PlayerId = playerId;
             Console.WriteLine($"[EVENT] Card {card.Name} assigned Id {card.Id}");
         }
     }
@@ -478,6 +479,15 @@ public class Match
         if (ability.TargetType == TargetType.Self)
         {
             targetsResult.Add(cardToPlay);
+        }
+        if (ability.TargetType == TargetType.Opponent)
+        {
+            int opponentId = cardToPlay.PlayerId == 0 ? 1 : 0;
+            targetsResult.Add(GetCardFromId(opponentId)!);
+        }
+        if (ability.TargetType == TargetType.Player)
+        {
+            targetsResult.Add(GetCardFromId(cardToPlay.PlayerId)!);
         }
         if (ability.TargetType == TargetType.UseFirst)
         {

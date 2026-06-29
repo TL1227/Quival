@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -23,6 +24,44 @@ namespace QuivalCombatTestWPF
         public PlayerResource()
         {
             InitializeComponent();
+        }
+
+        public void TakeDamage(int dmg)
+        {
+            Flash(Brushes.Red, 0.2);
+            int currentHealth = (int)HealthPoints.Content;
+            HealthPoints.Content = currentHealth -= dmg;
+        }
+        public void HealDamage(int dmg)
+        {
+            Flash(Brushes.Green, 0.2);
+            int currentHealth = (int)HealthPoints.Content;
+            HealthPoints.Content = currentHealth -= dmg;
+        }
+
+        public Task Flash(Brush Brush, double flashSpeed)
+        {
+            FlashOverlay.Background = Brush;
+
+            DoubleAnimation anim = new()
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(flashSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                AutoReverse = true,
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                tsc.SetResult();
+            };
+
+            FlashOverlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
         }
     }
 }

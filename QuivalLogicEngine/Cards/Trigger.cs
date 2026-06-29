@@ -40,6 +40,7 @@
         Self, //as in the card the ability belongs to
         Creature,
         Player,
+        Opponent,
         Damageable,
         UseFirst, //use this when you want to just use the target from the first ability in the trigger
     }
@@ -82,7 +83,7 @@
         public Effect Effect { get; set; }
         public TargetType TargetType { get; set; }
         public bool CanTargetSelf { get; set; } = true;
-        public int NumberOfTargets { get; set; }
+        public int NumberOfTargetSelectionsNeeded { get; set; }
         public Side Side { get; set; }
         public int Value { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();

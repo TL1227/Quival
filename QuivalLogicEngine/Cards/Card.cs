@@ -21,7 +21,7 @@ public abstract class Card
     public string? SetCode { get; set; }
     public int UniqueId { get; set; }
     public int Id { get; set; }
-    public int PlayerId { get; set; }
+    public int PlayerId { get; set; } = -1;
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int Cost { get; set; }
