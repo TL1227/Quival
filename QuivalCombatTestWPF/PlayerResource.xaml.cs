@@ -34,9 +34,9 @@ namespace QuivalCombatTestWPF
         }
         public void HealDamage(int dmg)
         {
-            Flash(Brushes.Green, 0.2);
+            Flash(Brushes.MediumAquamarine, 0.2);
             int currentHealth = (int)HealthPoints.Content;
-            HealthPoints.Content = currentHealth -= dmg;
+            HealthPoints.Content = currentHealth += dmg;
         }
 
         public Task Flash(Brush Brush, double flashSpeed)

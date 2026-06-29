@@ -28,7 +28,6 @@ namespace QuivalCombatTestWPF
     public partial class MatchView : UserControl
     {
         QuivalClient Client { get; set; }
-        MainWindow MainWindow { get; set; }
         Control? SelectedCard { get; set; }
         private ClientGameState CurrentGameState { get; set; }
 
@@ -81,20 +80,30 @@ namespace QuivalCombatTestWPF
             };
         }
 
+        private void HandleCardSelectionClick(int cardId)
+        {
+            if (CardSelector.CardIsValidTarget(cardId))
+            {
+                var selectedCards = CardSelector.SelectCard(cardId);
+                if (selectedCards != null)
+                {
+                    Layout.Canvas.Children.Remove(CardSelector);
+                    CardSelector = null;
+                    Client.SubmitSelection(selectedCards);
+                }
+            }
+            else
+            {
+                Animation.DisplayMessage("Card is not a valid target", Layout.Canvas);
+            }
+        }
+
         private void PlayerResources_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (CardSelector != null)
             {
                 var id = (int)MyPlayerId;
-                if (CardSelector.CardIsValidTarget(id))
-                {
-                    var selectedCards = CardSelector.SelectCard(id);
-                    if (selectedCards != null)
-                    {
-                        CardSelector = null;
-                        Client.SubmitSelection(selectedCards);
-                    }
-                }
+                HandleCardSelectionClick(id);
             }
         }
 
@@ -103,15 +112,7 @@ namespace QuivalCombatTestWPF
             if (CardSelector != null)
             {
                 var id = OppositeSide((int)MyPlayerId);
-                if (CardSelector.CardIsValidTarget(id))
-                {
-                    var selectedCards = CardSelector.SelectCard(id);
-                    if (selectedCards != null)
-                    {
-                        CardSelector = null;
-                        Client.SubmitSelection(selectedCards);
-                    }
-                }
+                HandleCardSelectionClick(id);
             }
         }
 
@@ -361,13 +362,13 @@ namespace QuivalCombatTestWPF
                                     if (target == MyPlayerId)
                                     {
                                         Point point = PlayerResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0)); 
-                                        await Animation.DirectDamage(point.X, point.Y, Layout.Canvas);
+                                        await Animation.DirectEffect(point.X, point.Y,Layout.Canvas, Brushes.Red);
                                         PlayerResources.TakeDamage(actionEvent.Value);
                                     }
                                     else
                                     {
                                         Point point = OpponentResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0)); 
-                                        await Animation.DirectDamage(point.X, point.Y, Layout.Canvas);
+                                        await Animation.DirectEffect(point.X, point.Y,Layout.Canvas, Brushes.Red);
                                         OpponentResources.TakeDamage(actionEvent.Value);
                                     }
                                 }
@@ -375,9 +376,17 @@ namespace QuivalCombatTestWPF
                             case QuivalLogicEngine.Cards.Effect.Heal:
                                 {
                                     if (target == MyPlayerId)
-                                        PlayerResources.TakeDamage(actionEvent.Value);
+                                    {
+                                        Point point = PlayerResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
+                                        await Animation.DirectEffect(point.X, point.Y,Layout.Canvas, Brushes.Green);
+                                        PlayerResources.HealDamage(actionEvent.Value);
+                                    }
                                     else
-                                        OpponentResources.TakeDamage(actionEvent.Value);
+                                    {
+                                        Point point = PlayerResources.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
+                                        await Animation.DirectEffect(point.X, point.Y,Layout.Canvas, Brushes.Green);
+                                        OpponentResources.HealDamage(actionEvent.Value);
+                                    }
                                 }
                                 break;
                             default:
@@ -711,23 +720,7 @@ namespace QuivalCombatTestWPF
 
                     if (CardSelector != null)
                     {
-                        if (CardSelector.CardIsValidTarget(bc.Id))
-                        {
-                            var selectedCards = CardSelector.SelectCard(bc.Id);
-                            bc.MarkSelected(true);
-
-                            if (selectedCards != null)
-                            {
-                                Layout.Canvas.Children.Remove(CardSelector);
-                                CardSelector = null;
-
-                                Client.SubmitSelection(selectedCards);
-                            }
-                        }
-                        else
-                        {
-                            Animation.DisplayMessage("Card is not a valid target", Layout.Canvas);
-                        }
+                        HandleCardSelectionClick(bc.Id);
 
                         e.Handled = true; //So we don't trigger other click events
                     }

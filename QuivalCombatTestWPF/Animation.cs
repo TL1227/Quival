@@ -107,12 +107,12 @@ namespace QuivalCombatTestWPF
             return tcs.Task;
         }
 
-        public static Task DirectDamage(double xLocation, double yLocation, Canvas canvas, EasingMode easingMode = EasingMode.EaseIn)
+        public static Task DirectEffect(double xLocation, double yLocation, Canvas canvas, Brush effectColor, EasingMode easingMode = EasingMode.EaseIn)
         {
             Label label = new();
             label.Height = 50;
             label.Width = 50;
-            label.Background = Brushes.Red;
+            label.Background = effectColor;
             Canvas.SetTop(label, 540);
             Canvas.SetLeft(label, 810);
             canvas.Children.Add(label);
