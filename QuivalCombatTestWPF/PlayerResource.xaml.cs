@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace QuivalCombatTestWPF
 {
-    /// <summary>
-    /// Interaction logic for PlayerResource.xaml
-    /// </summary>
     public partial class PlayerResource : UserControl
     {
         public PlayerResource()

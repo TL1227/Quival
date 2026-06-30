@@ -7,6 +7,20 @@ namespace LogicEngineConsole
 {
     internal class Program
     {
+        /*
+         * CARD IDEAS
+         * [Cowardly Knight]   - 4/3 Gets -1 attack for every enemy creature
+         * [Rallying Knight]   - 0/3 Gets +1 attack for every ally creature
+         * [Battering Ram]     - 0/1 Attacks for 5 if attacking a blocking creature
+         * [Perfect Balance]   - SPL You sac a creature and your opponent has to 
+         * [Backup Soldier]    - 1/2 When blockwapping with a creature, heal 2 to that creature
+         * [Bubble Shield]     - SPL Add one shield to the blockzone. A shield absorbs 1 hit of damage
+         * [Overdrive Ork]     - 1/3 When you attack you can discard cards. For every card add 2 attack
+         * [Graveyard Shift]   - SPL Return a creature from the gravyard with a mana cost equal to or less than the current round number (e.g on round 2 you could return a creature with a cost of 1 or 2 but not 3+)
+         * [Draw the Curtains] - SPL Draw as many cards as the current Round minus 1. (So on round 1 it does nothing, round 2 draws 1 card etc)
+         * [Necro Wizard]      - 2/3 As long as Necro Wizard is on the battlefield. All heal spells deal damage instead.
+         */
+        
         static void Main(string[] args)
         {
             List<Card> cards =
