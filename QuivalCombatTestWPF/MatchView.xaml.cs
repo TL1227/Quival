@@ -245,7 +245,7 @@ namespace QuivalCombatTestWPF
                 //TODO: This is a silly hack for now. 
                 //We're going to need a way to figure out which effects should animate before the attack and which should animate after
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect == QuivalLogicEngine.Cards.Effect.AttackBuff)
+                    if (action.Effect == QuivalLogicEngine.Cards.Effect.AttackBuffRound)
                         await PlayCardActionAnimation(action, side);
 
                 Position originalPos = attackingBoardCard.GetPos();
@@ -271,7 +271,7 @@ namespace QuivalCombatTestWPF
 
                 //More of the above silly hack
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect != QuivalLogicEngine.Cards.Effect.AttackBuff)
+                    if (action.Effect != QuivalLogicEngine.Cards.Effect.AttackBuffRound)
                         await PlayCardActionAnimation(action, side);
             }
         }
@@ -335,8 +335,8 @@ namespace QuivalCombatTestWPF
 
                     foreach (var action in summonEvent.CardActionEvents)
                     {
-                        await Task.Delay(500);
                         await PlayCardActionAnimation(action, side);
+                        //await Task.Delay(500);
                     }
 
                     await Task.Delay(500);
@@ -402,14 +402,26 @@ namespace QuivalCombatTestWPF
                 {
                     switch (actionEvent.Effect)
                     {
-                        case QuivalLogicEngine.Cards.Effect.AttackBuff:
+                        case QuivalLogicEngine.Cards.Effect.AttackBuffRound:
                             {
                                 await targetCard.FlashUp(Brushes.Aquamarine);
-
                                 targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
                                 targetCard.AttackLabel.Foreground = Brushes.Aquamarine;
-
                                 await targetCard.FlashDown(Brushes.Aquamarine);
+                            }
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.AttackBuff:
+                            {
+                                //await targetCard.FlashUp(Brushes.Aquamarine);
+                                targetCard.AttackLabel.Content = actionEvent.Value;
+                                //await targetCard.FlashDown(Brushes.Aquamarine);
+                            }
+                            break;
+                        case QuivalLogicEngine.Cards.Effect.AttackDebuff:
+                            {
+                                //await targetCard.FlashUp(Brushes.Aquamarine);
+                                targetCard.AttackLabel.Content = actionEvent.Value;
+                                //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
                         case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
@@ -434,6 +446,7 @@ namespace QuivalCombatTestWPF
                                 await targetCard.FlashDown(Brushes.LimeGreen);
                             }
                             break;
+
                         case QuivalLogicEngine.Cards.Effect.DrawCard:
                             break;
                         case QuivalLogicEngine.Cards.Effect.RestoreAction:

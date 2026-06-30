@@ -26,6 +26,7 @@ public abstract class Card
     public string? Description { get; set; }
     public int Cost { get; set; }
     public List<Trigger> Triggers { get; set; } = new();
+    public List<Ability> PassiveAbilities { get; set; } = new();
 }
 
 public class PlayerCard : Card
@@ -39,7 +40,9 @@ public class CreatureCard : Card
     public int CurrentHealth { get; set; }
     public bool HasActed { get; set; }
     public bool SummonedThisTurn { get; set; }
-    public int AttackBuff { get; set; }
+    public int AttackBuffRound { get; set; }
+    public int AttackModifier { get; set; }
+    public Dictionary<int, int> AttackModifiers { get; set; } = new();
 
     public CreatureCard() { }
 
@@ -69,7 +72,7 @@ public class CreatureCard : Card
 
     public int GetAttackDamage()
     {
-        return Attack + AttackBuff;
+        return Attack + AttackBuffRound + AttackModifier;
     }
 
     public bool DamageCreature(int dmg)

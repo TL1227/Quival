@@ -54,11 +54,11 @@ public partial class CombatZone : UserControl
                 int i = GetSlotIndexFromCardId(newCard.Id);
                 if (SummonedCards[i] != null)
                 {
-                    SummonedCards[i]!.AttackLabel.Content = newCard.Attack;
+                    SummonedCards[i]!.AttackLabel.Content = newCard.GetAttackDamage();
                     SummonedCards[i]!.HealthLabel.Content = newCard.CurrentHealth;
                     SummonedCards[i]!.HasActed = newCard.HasActed;
 
-                    if (newCard.AttackBuff <= 0)
+                    if (newCard.AttackBuffRound <= 0)
                         SummonedCards[i]!.AttackLabel.Foreground = Brushes.Black;
 
                     if (newCard.CurrentHealth < newCard.Health)

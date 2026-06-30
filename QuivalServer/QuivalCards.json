@@ -9,11 +9,12 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 1,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Desmond Future Knight",
       "Description": "If Desmond Future Knight attacks on round 2, heal any other target by 2",
       "Cost": 2,
@@ -25,19 +26,22 @@
               "Id": 0,
               "Effect": "Heal",
               "TargetType": "Damageable",
+              "Side": "Any",
               "CanTargetSelf": false,
               "NumberOfTargetSelectionsNeeded": 1,
-              "Side": "Any",
               "Value": 2,
+              "ValueFrom": "None",
               "Conditionals": [
                 "Round2"
               ]
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
         }
-      ]
+      ],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -46,15 +50,17 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 2,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Token",
       "Description": null,
       "Cost": 1,
-      "Triggers": []
+      "Triggers": [],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -63,15 +69,17 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 3,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Defender",
       "Description": "",
       "Cost": 2,
-      "Triggers": []
+      "Triggers": [],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -80,15 +88,17 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 4,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Aggression",
       "Description": "",
       "Cost": 2,
-      "Triggers": []
+      "Triggers": [],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -97,11 +107,12 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 5,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "BFG",
       "Description": "If BFG attacks on round 3, BFG deals 4 damage",
       "Cost": 3,
@@ -111,21 +122,24 @@
           "Abilities": [
             {
               "Id": 0,
-              "Effect": "AttackBuff",
+              "Effect": "AttackBuffRound",
               "TargetType": "Self",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 0,
-              "Side": "Any",
               "Value": 2,
+              "ValueFrom": "None",
               "Conditionals": [
                 "Round3"
               ]
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
         }
-      ]
+      ],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -134,22 +148,24 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 6,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "The Wall",
       "Description": "",
       "Cost": 4,
-      "Triggers": []
+      "Triggers": [],
+      "PassiveAbilities": []
     },
     {
       "Type": "spellcard",
       "SetCode": "ALP",
       "UniqueId": 7,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Zap",
       "Description": "Deal 2 damage to any target",
       "Cost": 1,
@@ -161,24 +177,27 @@
               "Id": 0,
               "Effect": "DirectDamage",
               "TargetType": "Damageable",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 1,
-              "Side": "Any",
               "Value": 2,
+              "ValueFrom": "None",
               "Conditionals": []
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
         }
-      ]
+      ],
+      "PassiveAbilities": []
     },
     {
       "Type": "spellcard",
       "SetCode": "ALP",
       "UniqueId": 8,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Spring Water",
       "Description": "Heal 2 health to any target",
       "Cost": 2,
@@ -190,24 +209,27 @@
               "Id": 0,
               "Effect": "Heal",
               "TargetType": "Damageable",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 1,
-              "Side": "Any",
               "Value": 2,
+              "ValueFrom": "None",
               "Conditionals": []
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
         }
-      ]
+      ],
+      "PassiveAbilities": []
     },
     {
       "Type": "spellcard",
       "SetCode": "ALP",
       "UniqueId": 9,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Mega Flare",
       "Description": "Deal 1 damage to any target. If cast on Round 4, deal 3 more damage",
       "Cost": 4,
@@ -219,29 +241,33 @@
               "Id": 0,
               "Effect": "DirectDamage",
               "TargetType": "Damageable",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 1,
-              "Side": "Any",
               "Value": 1,
+              "ValueFrom": "None",
               "Conditionals": []
             },
             {
               "Id": 1,
               "Effect": "DirectDamage",
               "TargetType": "UseFirst",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 0,
-              "Side": "Any",
               "Value": 3,
+              "ValueFrom": "None",
               "Conditionals": [
                 "Round4"
               ]
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
         }
-      ]
+      ],
+      "PassiveAbilities": []
     },
     {
       "Type": "creaturecard",
@@ -250,11 +276,12 @@
       "CurrentHealth": 0,
       "HasActed": false,
       "SummonedThisTurn": false,
-      "AttackBuff": 0,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
       "SetCode": "ALP",
       "UniqueId": 10,
       "Id": 0,
-      "PlayerId": 0,
+      "PlayerId": -1,
       "Name": "Ping Boy",
       "Description": "When Ping Boy enters the battlefield, opponent takes 1 damage",
       "Cost": 2,
@@ -266,15 +293,80 @@
               "Id": 0,
               "Effect": "DirectDamage",
               "TargetType": "Opponent",
+              "Side": "Any",
               "CanTargetSelf": true,
               "NumberOfTargetSelectionsNeeded": 0,
-              "Side": "Any",
               "Value": 1,
+              "ValueFrom": "None",
               "Conditionals": []
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0
+          "ChoiceNumber": 0,
+          "Side": "Any"
+        }
+      ],
+      "PassiveAbilities": []
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 0,
+      "Health": 3,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SummonedThisTurn": false,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
+      "SetCode": "ALP",
+      "UniqueId": 11,
+      "Id": 0,
+      "PlayerId": -1,
+      "Name": "Rally Knight",
+      "Description": "Rally Knight gets \u002B1 attack for every creature you control",
+      "Cost": 3,
+      "Triggers": [],
+      "PassiveAbilities": [
+        {
+          "Id": 0,
+          "Effect": "AttackBuff",
+          "TargetType": "Self",
+          "Side": "Player",
+          "CanTargetSelf": true,
+          "NumberOfTargetSelectionsNeeded": 0,
+          "Value": 0,
+          "ValueFrom": "CreatureCount",
+          "Conditionals": []
+        }
+      ]
+    },
+    {
+      "Type": "creaturecard",
+      "Attack": 4,
+      "Health": 3,
+      "CurrentHealth": 0,
+      "HasActed": false,
+      "SummonedThisTurn": false,
+      "AttackBuffRound": 0,
+      "AttackModifier": 0,
+      "SetCode": "ALP",
+      "UniqueId": 12,
+      "Id": 0,
+      "PlayerId": -1,
+      "Name": "Cowardly Knight",
+      "Description": "Cowardly Knight gets -1 attack for every creature your opponent controls",
+      "Cost": 3,
+      "Triggers": [],
+      "PassiveAbilities": [
+        {
+          "Id": 0,
+          "Effect": "AttackDebuff",
+          "TargetType": "Self",
+          "Side": "Opponent",
+          "CanTargetSelf": true,
+          "NumberOfTargetSelectionsNeeded": 0,
+          "Value": 0,
+          "ValueFrom": "CreatureCount",
+          "Conditionals": []
         }
       ]
     }

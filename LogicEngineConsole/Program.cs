@@ -88,7 +88,7 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.AttackBuff,
+                                    Effect = Effect.AttackBuffRound,
                                     TargetType = TargetType.Self,
                                     Value = 2,
                                     Conditionals =
@@ -209,6 +209,40 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
+                new CreatureCard(){
+                    Name = "Rally Knight",
+                    Description = "Rally Knight gets +1 attack for every creature you control",
+                    Cost = 3,
+                    Attack = 0,
+                    Health = 3,
+                    PassiveAbilities = 
+                    [
+                        new Ability()
+                        {
+                            Effect = Effect.AttackBuff,
+                            TargetType = TargetType.Self,
+                            Side = Side.Player,
+                            ValueFrom = ValueFrom.CreatureCount
+                        }
+                    ]
+                },
+                new CreatureCard(){
+                    Name = "Cowardly Knight",
+                    Description = "Cowardly Knight gets -1 attack for every creature your opponent controls",
+                    Cost = 3,
+                    Attack = 4,
+                    Health = 3,
+                    PassiveAbilities = 
+                    [
+                        new Ability()
+                        {
+                            Effect = Effect.AttackDebuff,
+                            TargetType = TargetType.Self,
+                            Side = Side.Opponent,
+                            ValueFrom = ValueFrom.CreatureCount
+                        }
+                    ]
+                },
             ];
 
             Set set = new Set()
@@ -239,7 +273,7 @@ namespace LogicEngineConsole
 
             string json = JsonSerializer.Serialize(set, options);
             //Console.WriteLine(json);
-            File.WriteAllText("..\\..\\..\\..\\QuivalCards.json", json);
+            File.WriteAllText("..\\..\\..\\..\\QuivalServer\\QuivalCards.json", json);
         }
     }
 }

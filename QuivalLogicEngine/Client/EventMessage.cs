@@ -134,7 +134,7 @@ namespace QuivalLogicEngine.Client
                 {
                     case Effect.None: 
                         break;
-                    case Effect.AttackBuff:
+                    case Effect.AttackBuffRound:
                         sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
                         break;
                     case Effect.DamageAbsorbToken:

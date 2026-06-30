@@ -25,7 +25,7 @@ namespace QuivalCombatTestWPF
         {
             switch (effect)
             {
-                case QuivalLogicEngine.Cards.Effect.AttackBuff:
+                case QuivalLogicEngine.Cards.Effect.AttackBuffRound:
                     return "buff the attack of";
                 case QuivalLogicEngine.Cards.Effect.DirectDamage:
                     return "damage";

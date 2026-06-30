@@ -8,13 +8,19 @@
         PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
         MoveToBlockZone,
         BlockSwap,
-        EndTurn
+
+        //passive triggers - maybe these need to be some kind of subtype?
+        EndTurn,
+        CreatureCast,
+        CreatureDeath
     }
 
     public enum Effect
     {
         None,
+        AttackBuffRound,
         AttackBuff,
+        AttackDebuff,
         AttackUpToken,
         DamageAbsorbToken,
         DirectDamage,
@@ -60,12 +66,19 @@
         PickUpTo
     }
 
+    public enum ValueFrom
+    {
+        None,
+        CreatureCount,
+    }
+
     public class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
     {
         public TriggerType TriggerType { get; set; }
         public List<Ability> Abilities { get; set; } = new();
         public ChoiceType ChoiceType { get; set; }
         public int ChoiceNumber { get; set; }
+        public Side Side { get; set; }
 
         public Trigger()
         {
@@ -81,11 +94,15 @@
     {
         public int Id { get; set; } 
         public Effect Effect { get; set; }
+
+        //NOTE: maybe these 3 should be squashed into some kind of Target class 
         public TargetType TargetType { get; set; }
-        public bool CanTargetSelf { get; set; } = true;
-        public int NumberOfTargetSelectionsNeeded { get; set; }
         public Side Side { get; set; }
+        public bool CanTargetSelf { get; set; } = true;
+
+        public int NumberOfTargetSelectionsNeeded { get; set; }
         public int Value { get; set; }
+        public ValueFrom ValueFrom { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();
     }
 

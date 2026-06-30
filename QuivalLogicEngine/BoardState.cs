@@ -43,6 +43,11 @@ namespace QuivalLogicEngine
             return list;
         }
 
+        public List<CreatureCard> GetAllSummonedCreaturesByPlayerId(int playerId)
+        {
+            return SummonedCreatures[playerId];
+        }
+
         public void RemoveCreatureFromBoard(CreatureCard cc)
         {
             foreach (var creatures in SummonedCreatures)
