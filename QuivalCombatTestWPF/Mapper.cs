@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace QuivalCombatTestWPF
 {
@@ -16,6 +17,10 @@ namespace QuivalCombatTestWPF
             fullCard.CostContent.Content = card.Cost;
             fullCard.CardBackground.Background = GetColor(card);
             fullCard.Tag = card;
+
+            string imagePath = GetImagePath(card.Name);
+            if (imagePath != "")
+                fullCard.CardImage.Source = new BitmapImage(new Uri(imagePath));
 
             string uniqueId = "";
             if (card.UniqueId < 10)
@@ -46,10 +51,15 @@ namespace QuivalCombatTestWPF
         {
             HandCard handcard = new(card.Id);
             handcard.CardNameLabel.Content = card.Name;
-            handcard.CardDescriptionLabel.Text = card.Description;
+            //handcard.CardDescriptionLabel.Text = card.Description;
             handcard.CostContent.Content = card.Cost;
             handcard.CardBackground.Background = GetColor(card);
             handcard.Tag = card;
+
+            string imagePath = GetImagePath(card.Name);
+
+            if (imagePath != "")
+                handcard.CardImage.Source = new BitmapImage(new Uri(imagePath));
 
             if (card is CreatureCard cc)
             {
@@ -69,7 +79,7 @@ namespace QuivalCombatTestWPF
         public static BoardCard MapToBoardCard(CreatureCard card, MouseButtonEventHandler onClick)
         {
             BoardCard bc = new()
-            { 
+            {
                 Id = card.Id,
                 HasActed = card.HasActed,
             };
@@ -84,7 +94,11 @@ namespace QuivalCombatTestWPF
             bc.CardBackground.Background = GetColor(card);
             bc.Tag = card;
 
-            if(card.CurrentHealth < card.Health )
+            string imagePath = GetImagePath(card.Name);
+            if (imagePath != "")
+                bc.CardImage.Source = new BitmapImage(new Uri(imagePath));
+
+            if (card.CurrentHealth < card.Health)
                 bc.HealthLabel.Foreground = Brushes.Red;
 
             return bc;
@@ -121,6 +135,16 @@ namespace QuivalCombatTestWPF
                 _ => Brushes.Salmon,
             };
             */
+        }
+
+        private static string GetImagePath(string cardName)
+        {
+            if (cardName == "Zap")
+            {
+                return "C:\\Users\\lavelle.t\\Projects\\Personal\\Quival\\Resources\\zap.png";
+            }
+
+            return "";
         }
     }
 }

@@ -30,7 +30,15 @@ namespace QuivalCombatTestWPF
                 string[] lines = File.ReadAllLines(deckLocation);
 
                 foreach (var line in lines)
-                    deckIds.Add(line.Split('#')[0].Trim());
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        string[] splitLine = line.Split('#');
+
+                        if (splitLine.Count() > 1)
+                            deckIds.Add(splitLine[0].Trim());
+                    }
+                }
             }
             catch (Exception erro)
             {

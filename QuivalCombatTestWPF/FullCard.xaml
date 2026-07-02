@@ -27,6 +27,7 @@
             </Grid>
 
             <DockPanel Grid.Row="1" Background="White">
+                <Image x:Name="CardImage"></Image>
             </DockPanel>
 
             <DockPanel Grid.Row="2" Background="LightGray">

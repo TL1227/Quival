@@ -49,7 +49,7 @@ public class Player
             {
                 //TODO: figure out what happens if we run out of cards
             }
-            else
+            else if(Hand.Count < 7) //TODO: this is just temporary till we program in the discarding at end of turn stuff
             {
                 Hand.Add(Deck[0]);
                 Deck.RemoveAt(0);

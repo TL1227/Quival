@@ -2,6 +2,7 @@
 using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Messages;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace QuivalServer;
 
@@ -41,7 +42,7 @@ internal class Room
         }
     }
 
-    public void TryStartMatch()
+    public async Task TryStartMatch()
     {
         if (BothPlayersSet())
         {
@@ -52,8 +53,8 @@ internal class Room
                     GameState = Match.GetGameState(player.Id)
                 };
 
-                string? gs = JsonSerializer.Serialize(update, update.GetType());
-                player.Writer.WriteLineAsync(gs);
+                //player.Writer.WriteLineAsync(gs);
+                await player.SendMessageAsync(update);
             }
         }
     }
@@ -64,7 +65,7 @@ internal class Room
         Console.WriteLine($"Added Player {playerClient.Id} to {Name} [id: {Id}]");
     }
 
-    public void HandleMessage(Message message, PlayerClient player)
+    public async Task HandleMessage(Message message, PlayerClient player)
     {
         switch (message)
         {
@@ -86,14 +87,15 @@ internal class Room
                         MakeSelections ms = new() { TargetSelections = selectionTargets };
 
                         string? gs = JsonSerializer.Serialize(ms, ms.GetType());
-                        player.Writer.WriteLineAsync(gs);
+                        //player.Writer.WriteLineAsync(gs);
+                        await player.SendMessageAsync(ms);
                     }
                     else
                     {
                         if (Match.BothPlayersHaveSubmittedTurns() && Match.BothPlayersHaveSubmittedTargets())
                         {
                             Console.WriteLine($"Processing Both Players' Turns");
-                            ProcessCards();
+                            await ProcessCards();
                         }
                     }
                 }
@@ -105,13 +107,13 @@ internal class Room
                     if (Match.BothPlayersHaveSubmittedTurns() && Match.BothPlayersHaveSubmittedTargets())
                     {
                         Console.WriteLine($"Both players have submitted turns");
-                        ProcessCards();
+                        await ProcessCards();
                     }
                 }
                 break;
             case StartMatchRequest request:
                 {
-                    TryStartMatch();
+                    await TryStartMatch();
                 }
                 break;
             default:
@@ -120,7 +122,7 @@ internal class Room
         }
     }
 
-    public void ProcessCards()
+    public async Task ProcessCards()
     {
         Match.ProcessCards();
 
@@ -131,8 +133,9 @@ internal class Room
                 GameState = Match.GetGameState(player.Id)
             };
 
-            string? gs = JsonSerializer.Serialize(update, update.GetType());
-            player.Writer.WriteLineAsync(gs);
+            //string? gs = JsonSerializer.Serialize(update, update.GetType());
+            //await player.Writer.WriteLineAsync(gs);
+            await player.SendMessageAsync(update);
         }
     }
 }

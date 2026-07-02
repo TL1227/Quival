@@ -343,29 +343,15 @@ public class Match
         {
             foreach (var ability in creature.PassiveAbilities)
             {
-                var targets = GetTargets(creature, ability);
-                var value = GetValue(creature.PlayerId, ability);
-
-                ProcessAbility(creature.PlayerId, targets, value, ability.Effect);
+                ProcessAbility(creature, ability);
             }
         }
     }
 
-    private void newFunc(Card card, Ability ability, TargetSelection? targetSelection = null)
+    private void ProcessAbility(Card card, Ability ability, TargetSelection? targetSelection = null)
     {
         var targets = GetTargets(card, ability);
-        int value = ability.Value;
-
-        List<Card> valueList = new();
-        if (ability.ValueFrom != ValueFrom.None)
-        {
-            valueList = GetValueList(card.PlayerId, ability);
-            value = valueList.Count;
-        }
-
-        //!!!!!!!!!
-        //TODO: take this Card List and create a MAP of attack modifiers from it
-        //!!!!!!!!!
+        int value = GetValue(card.PlayerId, ability);
 
         foreach (Card target in targets)
         {
@@ -389,16 +375,19 @@ public class Match
                             break;
                         }
                     case Effect.AttackBuff:
-                        {   //NOTE: this is so we don't spam events if nothing's actually changed
-                            if (targetCreature.AttackModifier == value)
-                                EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            else
-                                targetCreature.AttackModifier = value;
+                        {
+                            targetCreature.AttackModifiers[ability.Id] = value;
+
+                            //remove the card action event we've added
+                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
                             break;
                         }
                     case Effect.AttackDebuff:
                         {
-                            targetCreature.AttackModifier = value;
+                            targetCreature.AttackModifiers[ability.Id] = -value;
+
+                            //remove the card action event we've added
+                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
                             break;
                         }
                     case Effect.DirectDamage:
@@ -442,7 +431,7 @@ public class Match
     {
         switch (ability.ValueFrom)
         {
-            case ValueFrom.CreatureCount:
+            case ValueFrom.CreaturesOnTheBoard:
                 {
                     if (ability.Side == Side.Player)
                         return BoardState.GetAllSummonedCreaturesByPlayerId(playerId).Count();
@@ -451,25 +440,21 @@ public class Match
                     else
                         return GetAllCreatures().Count;
                 }
+            case ValueFrom.CardsInHand:
+                {
+                    int playerHand = Players[playerId].Hand.Count; 
+                    int opponentHand = Players[GetOpponent(playerId).Id].Hand.Count;
+
+                    if (ability.Side == Side.Player)
+                        return playerHand;
+                    else if (ability.Side == Side.Opponent)
+                        return opponentHand;
+                    else
+                        return playerHand + opponentHand;
+                }
             case ValueFrom.None:
             default:
                 return ability.Value;
-        }
-    }
-
-    private List<Card> GetValueList(int playerId, Ability ability)
-    {
-        switch (ability.ValueFrom)
-        {
-            case ValueFrom.CreatureCount:
-                {
-                    if (ability.Side == Side.Player)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(playerId).ToList<Card>();
-                    else if (ability.Side == Side.Opponent)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(GetOpponent(playerId).Id).ToList<Card>();
-                    else
-                        return GetAllCreatures().ToList<Card>();
-                }
         }
     }
 
@@ -615,10 +600,7 @@ public class Match
         {
             if (ConditionalsMet(ability.Conditionals))
             {
-                List<Card> targets = GetTargets(card, ability, targetSelections!);
-                int value = GetValue(playerId, ability);
-
-                ProcessAbility(playerId, targets, value, ability.Effect);
+                ProcessAbility(card, ability);
             }
         }
     }
@@ -689,79 +671,6 @@ public class Match
         return actions;
     }
 
-    private void ProcessAbility(int playerId, List<Card> targets, int value, Effect intent)
-    {
-        foreach (Card target in targets)
-        {
-            CardActionEvent message = new()
-            {
-                PlayerId = playerId,
-                Effect = intent,
-                TargetsCardIds = targets.Select(c => c.Id).ToList(),
-                Value = value
-            };
-
-            EventMessages.Last().CardActionEvents.Add(message);
-
-            if (target is CreatureCard targetCreature)
-            {
-                switch (intent)
-                {
-                    case Effect.AttackBuffRound:
-                        {
-                            targetCreature.AttackBuffRound += value;
-                            break;
-                        }
-                    case Effect.AttackBuff:
-                        {   //NOTE: this is so we don't spam events if nothing's actually changed
-                            if (targetCreature.AttackModifier == value)
-                                EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            else
-                                targetCreature.AttackModifier = value;
-                            break;
-                        }
-                    case Effect.AttackDebuff:
-                        {
-                            targetCreature.AttackModifier = value;
-                            break;
-                        }
-                    case Effect.DirectDamage:
-                        {
-                            bool hasDied = targetCreature.DamageCreature(value);
-                            if (hasDied)
-                            {
-                                EventMessage(new CreatureDeathEvent(targetCreature.Id, targetCreature.Name!));
-                                CheckPassiveAbilities();
-                            }
-                            break;
-                        }
-                    case Effect.Heal:
-                        {
-                            targetCreature.HealCreature(value);
-                            break;
-                        }
-                }
-            }
-            else if (target is PlayerCard playerCard)
-            {
-                switch (intent)
-                {
-                    //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
-                    case Effect.DirectDamage:
-                        {
-                            Players[playerCard.Id].HealthPoints -= value;
-                            break;
-                        }
-                    case Effect.Heal:
-                        {
-                            Players[playerCard.Id].HealthPoints += value;
-                            break;
-                        }
-                }
-            }
-        }
-    }
-
     private bool ConditionalsMet(List<Conditional> conditionals)
     {
         if (conditionals.Count <= 0)
@@ -817,6 +726,8 @@ public class Match
         }
 
         BoardState.IncreaseManaClock();
+
+        CheckPassiveAbilities();
     }
 
     private void EventMessage(EventMessage message)

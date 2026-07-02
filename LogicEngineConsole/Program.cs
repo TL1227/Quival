@@ -222,7 +222,7 @@ namespace LogicEngineConsole
                             Effect = Effect.AttackBuff,
                             TargetType = TargetType.Self,
                             Side = Side.Player,
-                            ValueFrom = ValueFrom.CreatureCount
+                            ValueFrom = ValueFrom.CreaturesOnTheBoard
                         }
                     ]
                 },
@@ -239,7 +239,24 @@ namespace LogicEngineConsole
                             Effect = Effect.AttackDebuff,
                             TargetType = TargetType.Self,
                             Side = Side.Opponent,
-                            ValueFrom = ValueFrom.CreatureCount
+                            ValueFrom = ValueFrom.CreaturesOnTheBoard
+                        }
+                    ]
+                },
+                new CreatureCard(){
+                    Name = "Curious Dealer",
+                    Description = "Curious Dealer Gets +1 attack for every card in your hand",
+                    Cost = 5,
+                    Attack = 0,
+                    Health = 4,
+                    PassiveAbilities = 
+                    [
+                        new Ability()
+                        {
+                            Effect = Effect.AttackBuff,
+                            TargetType = TargetType.Self,
+                            ValueFrom = ValueFrom.CardsInHand,
+                            Side = Side.Player
                         }
                     ]
                 },

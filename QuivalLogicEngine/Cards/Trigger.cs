@@ -69,7 +69,8 @@
     public enum ValueFrom
     {
         None,
-        CreatureCount,
+        CreaturesOnTheBoard,
+        CardsInHand,
     }
 
     public class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
@@ -100,7 +101,7 @@
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; } = true;
 
-        public int NumberOfTargetSelectionsNeeded { get; set; }
+        public int NumberOfTargetSelectionsNeeded { get; set; } = 0;
         public int Value { get; set; }
         public ValueFrom ValueFrom { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();

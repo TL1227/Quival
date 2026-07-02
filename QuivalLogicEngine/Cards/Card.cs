@@ -41,7 +41,6 @@ public class CreatureCard : Card
     public bool HasActed { get; set; }
     public bool SummonedThisTurn { get; set; }
     public int AttackBuffRound { get; set; }
-    public int AttackModifier { get; set; }
     public Dictionary<int, int> AttackModifiers { get; set; } = new();
 
     public CreatureCard() { }
@@ -72,7 +71,17 @@ public class CreatureCard : Card
 
     public int GetAttackDamage()
     {
-        return Attack + AttackBuffRound + AttackModifier;
+        int attack = 0;
+
+        foreach (var modifiers in AttackModifiers)
+        {
+            attack += modifiers.Value;
+        }
+
+        attack += Attack + AttackBuffRound;
+
+        //NOTE: we might want minus attack damage at some point
+        return attack < 0 ? 0 : attack;
     }
 
     public bool DamageCreature(int dmg)

@@ -16,6 +16,21 @@ internal class PlayerClient
     internal required StreamReader Reader;
     internal required StreamWriter Writer;
     internal Room? CurrentRoom;
+
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
+    public async Task SendMessageAsync(Message message)
+    {
+        await _writeLock.WaitAsync();
+        try
+        {
+            await Writer.WriteLineAsync(message.ToJson());
+            await Writer.FlushAsync();
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
+    }
 }
 
 internal class Program
@@ -46,12 +61,12 @@ internal class Program
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
-            ThreadPool.QueueUserWorkItem(_ => HandleClient(client));
+            ThreadPool.QueueUserWorkItem(_ => HandleClientAsync(client));
         }
     }
 
 
-    static void HandleClient(TcpClient client)
+    static async Task HandleClientAsync(TcpClient client)
     {
         try
         {
@@ -86,7 +101,8 @@ internal class Program
 
             Players.Add(playerClient);
 
-            playerClient.Writer.WriteLine(connectionRequest.ToJson());
+            //await playerClient.Writer.WriteLineAsync(connectionRequest.ToJson());
+            await playerClient.SendMessageAsync(connectionRequest);
 
             string? message;
             while ((message = playerClient.Reader.ReadLine()) != null)
@@ -155,7 +171,7 @@ internal class Program
     {
     }
 
-    public static void HandleMessage(Message message, PlayerClient player)
+    public static async Task HandleMessage(Message message, PlayerClient player)
     {
         if (player.CurrentRoom != null)
         {
@@ -172,13 +188,15 @@ internal class Program
                     if (request.JoinRandom == true)
                     {
                         var response = JoinRandomRoom(player, request.CardIds);
-                        player.Writer.WriteLine(response.ToJson());
+                        //await player.Writer.WriteLineAsync(response.ToJson());
+                        await player.SendMessageAsync(response);
                     }
                     else
                     {
                         JoinRoomResponse response = new();
                         response.Success = false;
-                        player.Writer.WriteLine(response.ToJson());
+                        //await player.Writer.WriteLineAsync(response.ToJson());
+                        await player.SendMessageAsync(response);
                     }
                     break;
                 default:

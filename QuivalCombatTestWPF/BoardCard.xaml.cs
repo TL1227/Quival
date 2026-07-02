@@ -17,8 +17,10 @@ namespace QuivalCombatTestWPF
 
         public static int BlankId = -1;
 
-        public static double DefaultWidth { get; set; } = 160;
-        public static double DefaultHeight { get; set; } = 110;
+        public static double DefaultWidth { get; set; } = 180;
+        public static double DefaultHeight { get; set; } = 150;
+
+        //NOTE: the picture on a board card is currently 150 x 90 pixels
 
         public BoardCard()
         {
@@ -27,6 +29,7 @@ namespace QuivalCombatTestWPF
             Width = DefaultWidth;
             Height = DefaultHeight;
             DebugId.Content = Id;
+            DebugId.Visibility = Visibility.Hidden;
         }
 
         public void MarkAsActed(bool mark)
@@ -64,7 +67,7 @@ namespace QuivalCombatTestWPF
         public void RemoveHighlight()
         {
             Border.Background = Brushes.Transparent;
-            ShadowEffect.Opacity = 0.0;
+            //ShadowEffect.Opacity = 0.0;
         }
 
         public void Highlight()
