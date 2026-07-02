@@ -77,7 +77,7 @@ public partial class LayoutCanvas : UserControl
             OpponentBlockArea
             ];
 
-        //TestLayout();
+        TestLayout();
     }
 
     private void TestLayout()

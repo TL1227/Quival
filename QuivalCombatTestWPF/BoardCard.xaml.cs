@@ -18,7 +18,7 @@ namespace QuivalCombatTestWPF
         public static int BlankId = -1;
 
         public static double DefaultWidth { get; set; } = 180;
-        public static double DefaultHeight { get; set; } = 150;
+        public static double DefaultHeight { get; set; } = 140;
 
         //NOTE: the picture on a board card is currently 150 x 90 pixels
 

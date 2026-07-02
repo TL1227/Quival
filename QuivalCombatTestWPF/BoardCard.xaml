@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="160" d:DesignWidth="180"
+             d:DesignHeight="140" d:DesignWidth="180"
              Width="180" Height="160"
              x:Name="Root">
     <Border x:Name="Border" >
         <Grid x:Name="CardBackground" Background="Coral" Margin="5" >
             <Grid x:Name="CardContent" Margin="10,0,10,0">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="30"/>
                 </Grid.RowDefinitions>
 
                 <Grid Name="TopGrid">
@@ -26,7 +26,7 @@
                     <Label Margin="0,5,0,0" Background="Cornsilk" Grid.ColumnSpan="3" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="12"></Label>
                 </Grid>
 
-                <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0">
+                <Border Grid.Row="1" Background="White" BorderBrush="Black" BorderThickness="0">
                         <Image x:Name="CardImage" Stretch="UniformToFill"></Image>
                 </Border>
 
