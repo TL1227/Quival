@@ -1,5 +1,4 @@
-﻿using QuivalLogicEngine.Cards;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace QuivalCombatTestWPF;
 
@@ -32,31 +31,31 @@ public partial class LayoutCanvas : UserControl
         CenterWidth = Canvas.ActualWidth / 2;
         SummonSlotsWidth = (BoardCard.DefaultWidth * 5) + (SummonSlotPadding * 4); //NOTE it's 4 paddings because there are 4 gaps between the 5 cards
         SummonSlotsCenter = SummonSlotsWidth / 2;
-        SummonSlotsStartLeft = CenterWidth - SummonSlotsCenter - 60;
+        SummonSlotsStartLeft = CenterWidth - SummonSlotsCenter;
+
+        OpponentBlockArea = new();
+        OpponentBlockArea.Top = Canvas.ActualHeight * 0.10;
+        OpponentBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
 
         double CenterHeight = Canvas.ActualHeight / 2;
         OpponentSummonSlots = new Position[5];
         for (int i = 0; i < 5; i++)
         {
             OpponentSummonSlots[i] = new();
+            OpponentSummonSlots[i].Top = Canvas.ActualHeight * 0.25;
             OpponentSummonSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
-            OpponentSummonSlots[i].Top = CenterHeight - BoardCard.DefaultHeight - 60;
         }
-
-        OpponentBlockArea = new();
-        OpponentBlockArea.Top = Canvas.ActualHeight * 0.14;
-        OpponentBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
 
         PlayerSummonSlots = new Position[5];
         for (int i = 0; i < 5; i++)
         {
             PlayerSummonSlots[i] = new();
+            PlayerSummonSlots[i].Top = Canvas.ActualHeight * 0.50;
             PlayerSummonSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
-            PlayerSummonSlots[i].Top = CenterHeight - 60;
         }
 
         PlayerBlockArea = new();
-        PlayerBlockArea.Top = Canvas.ActualHeight * 0.58;
+        PlayerBlockArea.Top = Canvas.ActualHeight * 0.65;
         PlayerBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
 
         HandSlots = new Position[7];
@@ -65,6 +64,7 @@ public partial class LayoutCanvas : UserControl
             HandSlots[i] = new();
             HandSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + 8) * i);
             HandSlots[i].Top = Canvas.ActualHeight - HandCard.DefaultHeight - 10;
+            HandSlots[i].Top = Canvas.ActualHeight - (HandCard.DefaultHeight * 0.75);
         }
 
         SummonSlots = [
@@ -77,7 +77,7 @@ public partial class LayoutCanvas : UserControl
             OpponentBlockArea
             ];
 
-        TestLayout();
+        //TestLayout();
     }
 
     private void TestLayout()

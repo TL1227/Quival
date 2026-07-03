@@ -348,7 +348,7 @@ public class Match
         }
     }
 
-    private void ProcessAbility(Card card, Ability ability, TargetSelection? targetSelection = null)
+    private void ProcessAbility(Card card, Ability ability)
     {
         var targets = GetTargets(card, ability);
         int value = GetValue(card.PlayerId, ability);
@@ -357,6 +357,7 @@ public class Match
         {
             CardActionEvent message = new()
             {
+                CardActionSource = card,
                 PlayerId = card.PlayerId,
                 Effect = ability.Effect,
                 TargetsCardIds = targets.Select(c => c.Id).ToList(),
@@ -605,11 +606,10 @@ public class Match
         }
     }
 
-    private List<Card> GetTargets(Card cardToPlay, Ability ability, List<TargetSelection>? targetSelections = null)
+    private List<Card> GetTargets(Card cardToPlay, Ability ability)
     {
         List<Card> targetsResult = new();
-        TargetSelection? targetSelection = null;
-        
+
         if (ability.TargetType == TargetType.Self)
         {
             targetsResult.Add(cardToPlay);
@@ -624,6 +624,8 @@ public class Match
             targetsResult.Add(GetCardFromId(cardToPlay.PlayerId)!);
         }
 
+        List<TargetSelection>? targetSelections = Players[cardToPlay.PlayerId].TargetSelections;
+        TargetSelection? targetSelection;
         if (targetSelections != null)
         {
             if (ability.TargetType == TargetType.UseFirst)

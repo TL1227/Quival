@@ -72,8 +72,8 @@ namespace QuivalCombatTestWPF
 
         public void Highlight()
         {
-            Overlay.Background = Brushes.Transparent;
-            Overlay.Opacity = 0.0;
+            Overlay.Background = QuivalColour.HighlightColour;
+            Overlay.Opacity = 0.5;
         }
 
         public void MarkAsInvisible()

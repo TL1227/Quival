@@ -5,12 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="220" d:DesignWidth="180">
+             d:DesignHeight="360" d:DesignWidth="270">
     <Grid x:Name="CardBackground" Margin="10" Background="Coral">
         <Grid x:Name="CardContent" Margin="15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="1.6*"/>
+                <RowDefinition/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
@@ -20,12 +21,18 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="25"/>
                 </Grid.ColumnDefinitions>
-                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="12"></Label>
-                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="2" x:Name="CostContent" Content="3" FontSize="12"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="0" x:Name="CardNameLabel" Content="Keen Bean" FontSize="18"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="2" x:Name="CostContent" Content="3" FontSize="18"></Label>
             </Grid>
 
             <DockPanel Grid.Row="1" Background="White">
-                        <Image x:Name="CardImage" Stretch="Fill"></Image>
+                <Image x:Name="CardImage"></Image>
+            </DockPanel>
+
+            <DockPanel Grid.Row="2" Background="LightGray">
+                <TextBlock Margin="5" x:Name="CardDescriptionLabel" TextWrapping="WrapWithOverflow" FontSize="16" >
+                    <Italic>DoubleUp 3</Italic>.<LineBreak/>If Keen Bean attacks on round 3, here is somethin more stuff what about this buddy time this is something else I'd like to put on the text. And another thing
+                </TextBlock>
             </DockPanel>
 
             <Grid Margin="0,8,0,0" Grid.Row="3" Name="BottomGrid">
@@ -35,9 +42,10 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Label Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="14"/>
-                <Label Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="14"/>
-                <Label Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="14"/>
+                <Label Grid.Column="0" x:Name="GlobalId" Content="ALP001" FontSize="12" VerticalAlignment="Bottom"/>
+                <Label Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="20" />
+                <Label Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="20"/>
+                <Label Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="20"/>
             </Grid>
         </Grid>
         <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>

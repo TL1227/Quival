@@ -21,6 +21,34 @@ namespace QuivalCombatTestWPF
         public FullCard()
         {
             InitializeComponent();
+            MouseEnter += HandCard_MouseEnter;
+            MouseLeave += HandCard_MouseLeave;
+            RenderTransform = new TranslateTransform(0, 0);
+        }
+
+        private void HandCard_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            UpdateLayout();
+            Slide(-ActualHeight * 0.5);
+        }
+
+        private void HandCard_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            Slide(0);
+        }
+
+        public void Slide(double targetHeight)
+        {
+            var transform = (TranslateTransform)RenderTransform;
+
+            var animation = new DoubleAnimation
+            {
+                To = targetHeight,
+                Duration = TimeSpan.FromSeconds(0.15),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            transform.BeginAnimation(TranslateTransform.YProperty, animation);
         }
 
         public Position GetPos()

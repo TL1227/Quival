@@ -107,14 +107,14 @@ namespace QuivalCombatTestWPF
             return tcs.Task;
         }
 
-        public static Task DirectEffect(double xLocation, double yLocation, Canvas canvas, Brush effectColor, EasingMode easingMode = EasingMode.EaseIn)
+        public static Task DirectEffect(Point targetPosition, Point startPostion , Canvas canvas, Brush effectColor, EasingMode easingMode = EasingMode.EaseIn)
         {
             Label label = new();
             label.Height = 50;
             label.Width = 50;
             label.Background = effectColor;
-            Canvas.SetTop(label, 540);
-            Canvas.SetLeft(label, 810);
+            Canvas.SetTop(label, startPostion.Y);
+            Canvas.SetLeft(label, startPostion.X);
             canvas.Children.Add(label);
             canvas.UpdateLayout();
 
@@ -123,7 +123,7 @@ namespace QuivalCombatTestWPF
             DoubleAnimation yAnim = new()
             {
                 From = Canvas.GetTop(label),
-                To = yLocation,
+                To = targetPosition.Y,
                 Duration = TimeSpan.FromSeconds(animationSpeed),
                 EasingFunction = new CubicEase() { EasingMode = easingMode }
             };
@@ -131,7 +131,7 @@ namespace QuivalCombatTestWPF
             DoubleAnimation xAnim = new()
             {
                 From = Canvas.GetLeft(label),
-                To = xLocation,
+                To = targetPosition.X,
                 Duration = TimeSpan.FromSeconds(animationSpeed),
                 EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
             };

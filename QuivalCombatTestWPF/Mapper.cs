@@ -51,12 +51,16 @@ namespace QuivalCombatTestWPF
         {
             HandCard handcard = new(card.Id);
             handcard.CardNameLabel.Content = card.Name;
-            //handcard.CardDescriptionLabel.Text = card.Description;
+
+            handcard.CardDescriptionLabel.Text = card.Description;
+            QuivalText.FitFontSize(handcard.CardDescriptionLabel, 20, 8);
+
             handcard.CostContent.Content = card.Cost;
             handcard.CardBackground.Background = GetColor(card);
             handcard.Tag = card;
-
             string imagePath = GetImagePath(card.Name);
+
+
 
             if (imagePath != "")
                 handcard.CardImage.Source = new BitmapImage(new Uri(imagePath));

@@ -120,6 +120,7 @@ namespace QuivalLogicEngine.Client
 
     public class CardActionEvent : EventMessage
     {
+        public Card CardActionSource { get; set; }
         public Effect Effect { get; set; }
         public int Value { get; set; }
         public List<int> TargetsCardIds { get; set; } = new();
