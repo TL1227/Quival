@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="360" d:DesignWidth="270">
+             d:DesignHeight="300" d:DesignWidth="220">
     <Grid x:Name="CardBackground" Margin="10" Background="Coral">
         <Grid x:Name="CardContent" Margin="15">
             <Grid.RowDefinitions>
@@ -29,8 +29,8 @@
                 <Image x:Name="CardImage"></Image>
             </DockPanel>
 
-            <DockPanel Grid.Row="2" Background="LightGray">
-                <TextBlock Margin="5" x:Name="CardDescriptionLabel" TextWrapping="WrapWithOverflow" FontSize="16" >
+            <DockPanel x:Name="TextPanel" Grid.Row="2" Background="LightGray">
+                <TextBlock Margin="5" x:Name="CardDescriptionLabel" TextWrapping="WrapWithOverflow" FontSize="20" >
                     <Italic>DoubleUp 3</Italic>.<LineBreak/>If Keen Bean attacks on round 3, here is somethin more stuff what about this buddy time this is something else I'd like to put on the text. And another thing
                 </TextBlock>
             </DockPanel>

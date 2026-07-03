@@ -457,17 +457,23 @@ namespace QuivalCombatTestWPF
         {
             //TODO: fix all this hard coding!!!
             var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
-
             Position blockAreaPos = Layout.BlockAreas[(int)side];
 
             Position summonPos = new()
             {
-                Left = blockAreaPos.Left - 200,
+                Left = blockAreaPos.Left - 300,
                 Top = blockAreaPos.Top - 50
             };
 
             fullCard.SetPos(summonPos);
             Layout.Canvas.Children.Add(fullCard);
+
+            //fix font size if too big
+            fullCard.UpdateLayout();
+            QuivalText.FitFontSize(fullCard.CardDescriptionLabel,
+                fullCard.TextPanel.ActualWidth,
+                fullCard.TextPanel.ActualHeight
+                );
 
             await fullCard.SummonIn(Brushes.Aquamarine);
 
@@ -638,6 +644,14 @@ namespace QuivalCombatTestWPF
                 hand.MouseLeftButtonDown += HandZone_CardClicked;
                 hand.SetPos(Layout.HandSlots[i]);
                 Layout.Canvas.Children.Add(hand);
+
+                //fix font size if too big
+                hand.UpdateLayout();
+                QuivalText.FitFontSize(hand.CardDescriptionLabel,
+                    hand.TextPanel.ActualWidth,
+                    hand.TextPanel.ActualHeight
+                    );
+
             }
         }
 

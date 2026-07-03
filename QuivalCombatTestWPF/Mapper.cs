@@ -53,7 +53,6 @@ namespace QuivalCombatTestWPF
             handcard.CardNameLabel.Content = card.Name;
 
             handcard.CardDescriptionLabel.Text = card.Description;
-            QuivalText.FitFontSize(handcard.CardDescriptionLabel, 20, 8);
 
             handcard.CostContent.Content = card.Cost;
             handcard.CardBackground.Background = GetColor(card);

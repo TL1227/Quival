@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -157,7 +150,7 @@ namespace QuivalCombatTestWPF
             messageLabel.Content = message;
             messageLabel.FontSize = 30;
             canvas.Children.Add(messageLabel);
-            Canvas.SetTop(messageLabel, 40);
+            Canvas.SetTop(messageLabel, (canvas.ActualHeight / 2) - 100 );
             Canvas.SetLeft(messageLabel, 800);
             canvas.UpdateLayout();
 
@@ -186,7 +179,8 @@ namespace QuivalCombatTestWPF
             messageLabel.Content = $"ROUND {roundNumber}";
             messageLabel.FontSize = 50;
             canvas.Children.Add(messageLabel);
-            Canvas.SetTop(messageLabel, 10);
+            messageLabel.UpdateLayout();
+            Canvas.SetTop(messageLabel, (canvas.ActualHeight / 2) - 100 );
             Canvas.SetLeft(messageLabel, 800);
 
             var animation = new DoubleAnimation
