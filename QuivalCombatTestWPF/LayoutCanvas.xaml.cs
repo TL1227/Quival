@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace QuivalCombatTestWPF;
 
@@ -9,11 +11,13 @@ public partial class LayoutCanvas : UserControl
     public double SummonSlotsCenter { get; set; }
     public double SummonSlotsStartLeft { get; set; }
     public double SummonSlotPadding { get; set; }
-    public Position[] PlayerSummonSlots { get; set; }
-    public Position[] OpponentSummonSlots { get; set; }
-    public Position[] HandSlots { get; set; }
-    public Position PlayerBlockArea { get; set; }
+
+    public Position[] OpponentHandSlots { get; set; }
     public Position OpponentBlockArea { get; set; }
+    public Position[] OpponentSummonSlots { get; set; }
+    public Position[] PlayerSummonSlots { get; set; }
+    public Position PlayerBlockArea { get; set; }
+    public Position[] PlayerHandSlots { get; set; }
 
     public Position[][] SummonSlots { get; set; }
     public Position[] BlockAreas { get; set; }
@@ -32,12 +36,20 @@ public partial class LayoutCanvas : UserControl
         SummonSlotsWidth = (BoardCard.DefaultWidth * 5) + (SummonSlotPadding * 4); //NOTE it's 4 paddings because there are 4 gaps between the 5 cards
         SummonSlotsCenter = SummonSlotsWidth / 2;
         SummonSlotsStartLeft = CenterWidth - SummonSlotsCenter;
+        double CenterHeight = Canvas.ActualHeight / 2;
+
+        OpponentHandSlots = new Position[7];
+        for (int i = 0; i < 7; i++)
+        {
+            OpponentHandSlots[i] = new();
+            OpponentHandSlots[i].Left = (SummonSlotsStartLeft - 10)  + ((BoardCard.DefaultWidth) * i);
+        }
 
         OpponentBlockArea = new();
         OpponentBlockArea.Top = Canvas.ActualHeight * 0.10;
         OpponentBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
 
-        double CenterHeight = Canvas.ActualHeight / 2;
+
         OpponentSummonSlots = new Position[5];
         for (int i = 0; i < 5; i++)
         {
@@ -50,21 +62,20 @@ public partial class LayoutCanvas : UserControl
         for (int i = 0; i < 5; i++)
         {
             PlayerSummonSlots[i] = new();
-            PlayerSummonSlots[i].Top = Canvas.ActualHeight * 0.50;
+            PlayerSummonSlots[i].Top = Canvas.ActualHeight * 0.55;
             PlayerSummonSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + SummonSlotPadding) * i);
         }
 
         PlayerBlockArea = new();
-        PlayerBlockArea.Top = Canvas.ActualHeight * 0.65;
+        PlayerBlockArea.Top = Canvas.ActualHeight * 0.70;
         PlayerBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
 
-        HandSlots = new Position[7];
+        PlayerHandSlots = new Position[7];
         for (int i = 0; i < 7; i++)
         {
-            HandSlots[i] = new();
-            HandSlots[i].Left = SummonSlotsStartLeft + ((BoardCard.DefaultWidth + 8) * i);
-            HandSlots[i].Top = Canvas.ActualHeight - HandCard.DefaultHeight - 10;
-            HandSlots[i].Top = Canvas.ActualHeight - (HandCard.DefaultHeight * 0.75);
+            PlayerHandSlots[i] = new();
+            PlayerHandSlots[i].Left = (SummonSlotsStartLeft - 10)  + ((BoardCard.DefaultWidth) * i);
+            PlayerHandSlots[i].Top = Canvas.ActualHeight - (HandCard.DefaultHeight * 0.5);
         }
 
         SummonSlots = [
@@ -118,11 +129,19 @@ public partial class LayoutCanvas : UserControl
             Canvas.Children.Add(blockCard);
         }
 
-        for (int i = 0; i < HandSlots.Length; i++)
+        for (int i = 0; i < PlayerHandSlots.Length; i++)
         {
             HandCard hc = new(-1);
 
-            hc.SetPos(HandSlots[i]);
+            hc.SetPos(PlayerHandSlots[i]);
+            Canvas.Children.Add(hc);
+        }
+
+        for (int i = 0; i < OpponentHandSlots.Length; i++)
+        {
+            OpponentHandCard hc = new();
+            Canvas.SetTop(hc, 0);
+            Canvas.SetLeft(hc, OpponentHandSlots[i].Left);
             Canvas.Children.Add(hc);
         }
     }
@@ -134,6 +153,22 @@ public partial class LayoutCanvas : UserControl
         foreach (var card in Canvas.Children)
         {
             if (card is HandCard hc)
+            {
+                handCards.Add(hc);
+            }
+        }
+
+        foreach (var card in handCards)
+        {
+            Canvas.Children.Remove(card);
+        }
+    }
+    public void ClearOpponentHand()
+    {
+        List<OpponentHandCard> handCards = new();
+        foreach (var card in Canvas.Children)
+        {
+            if (card is OpponentHandCard hc)
             {
                 handCards.Add(hc);
             }

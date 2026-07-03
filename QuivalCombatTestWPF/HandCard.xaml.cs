@@ -28,7 +28,7 @@ namespace QuivalCombatTestWPF
         {
             UpdateLayout();
             Canvas.SetZIndex(this, 10);
-            Slide(-ActualHeight * 0.3);
+            Slide(-ActualHeight * 0.5);
         }
 
         private void HandCard_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)

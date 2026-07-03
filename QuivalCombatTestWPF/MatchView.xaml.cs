@@ -538,6 +538,7 @@ namespace QuivalCombatTestWPF
             }
 
             UpdateHand(gs.PlayerState.Hand);
+            UpdateOpponentHand(gs.OpponentCardCount);
 
             string gameEvents = "";
             foreach (var gameEvent in gs.GameEvents)
@@ -631,18 +632,32 @@ namespace QuivalCombatTestWPF
             return false;
         }
 
+        public void UpdateOpponentHand(int cardCount)
+        {
+            Layout.ClearOpponentHand();
+            for (int i = 0; i < cardCount; i++)
+            {
+                if (i >= Layout.OpponentHandSlots.Length)
+                    break;
+
+                OpponentHandCard hc = new();
+                Canvas.SetTop(hc, 0);
+                Canvas.SetLeft(hc, Layout.OpponentHandSlots[i].Left);
+                Layout.Canvas.Children.Add(hc);
+            }
+        }
+
         public void UpdateHand(List<Card> cards)
         {
             Layout.ClearHand();
-
             for (int i = 0; i < cards.Count; i++)
             {
-                if (i >= Layout.HandSlots.Length)
+                if (i >= Layout.PlayerHandSlots.Length)
                     break;
 
                 HandCard hand = Mapper.MapToHandCard(cards[i]);
                 hand.MouseLeftButtonDown += HandZone_CardClicked;
-                hand.SetPos(Layout.HandSlots[i]);
+                hand.SetPos(Layout.PlayerHandSlots[i]);
                 Layout.Canvas.Children.Add(hand);
 
                 //fix font size if too big
