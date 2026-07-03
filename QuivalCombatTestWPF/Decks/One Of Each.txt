@@ -7,3 +7,7 @@ ALP6 # The Wall
 ALP7 # Zap
 ALP8 # Spring Water
 ALP9 # Mega Flare.
+ALP10 # Ping Boy
+ALP11 # Rally Knight.
+ALP12 # Cowardly Knight.
+ALP13 # Curious Dealer.
