@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace QuivalCombatTestWPF
 {
@@ -58,8 +59,6 @@ namespace QuivalCombatTestWPF
             handcard.CardBackground.Background = GetColor(card);
             handcard.Tag = card;
             string imagePath = GetImagePath(card.Name);
-
-
 
             if (imagePath != "")
                 handcard.CardImage.Source = new BitmapImage(new Uri(imagePath));
@@ -136,15 +135,22 @@ namespace QuivalCombatTestWPF
                 3 => Brushes.DarkOrange,
                 4 => Brushes.Tomato,
                 _ => Brushes.Salmon,
-            };
+            }
             */
         }
 
         private static string GetImagePath(string cardName)
         {
-            if (cardName == "Zap")
+            //THIS IS DUMB
+
+            string artDirectory = $"{AppContext.BaseDirectory}\\..\\Art";
+            foreach (var filePath in Directory.GetFiles(artDirectory))
             {
-                return "C:\\Users\\lavelle.t\\Projects\\Personal\\Quival\\Resources\\zap.png";
+                if (filePath.Contains(cardName.ToLower() + ".png"))
+                {
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    return fileInfo.FullName;
+                }
             }
 
             return "";

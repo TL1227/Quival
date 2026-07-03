@@ -16,19 +16,22 @@
 
   <ItemGroup>
     <DeckFiles Include="Decks\*" />
+    <ArtFiles Include="Art\*" />
+    <MachineName Include="MachineName.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <MachineName Include="MachineName.txt" />
   </ItemGroup>
 
 	<Target Name="CopyDecks" AfterTargets="Build">
 		<Copy SourceFiles="@(DeckFiles)" DestinationFolder="$(TargetDir)..\Decks" />
+		<Copy SourceFiles="@(ArtFiles)" DestinationFolder="$(TargetDir)..\Art" />
 		<Copy SourceFiles="@(MachineName)" DestinationFolder="$(TargetDir).." />
 	</Target>
 
 	<Target Name="CopyDecksOnPublish" AfterTargets="Publish">
 		<Copy SourceFiles="@(DeckFiles)" DestinationFolder="$(PublishDir)..\Decks" />
+		<Copy SourceFiles="@(ArtFiles)" DestinationFolder="$(PublishDir)..\Art" />
 		<Copy SourceFiles="@(MachineName)" DestinationFolder="$(PublishDir).." />
 	</Target>
 
