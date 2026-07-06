@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -32,12 +27,40 @@ namespace QuivalServer
 
         public Card? GetCard(string uniqueId)
         {
-            var card = CurrentSet.Cards.SingleOrDefault(c => c.SetCode + c.UniqueId == uniqueId);
-            if (card != null)
+            var cd = CurrentSet.Cards.SingleOrDefault(c => c.UniqueId == uniqueId);
+            if (cd != null)
             {
-                //NOTE this should be a copy constructor really but it works for now 
-                string? json = JsonSerializer.Serialize(card);
-                return JsonSerializer.Deserialize<Card>(json);
+                if (cd.CardType == CardType.Creature)
+                {
+                    CreatureCard creature = new()
+                    {
+                        UniqueId = cd.UniqueId,
+                        Id = -1,
+                        PlayerId = -1,
+                        Name = cd.Name,
+                        Description = cd.Description,
+                        Cost = cd.Cost,
+                        Triggers = cd.Triggers,
+                        PassiveAbilities = cd.PassiveAbilities,
+
+                        Attack = cd.Attack,
+                        Health = cd.Health
+                    };
+                }
+                else
+                {
+                    SpellCard card = new()
+                    { 
+                        UniqueId = cd.UniqueId,
+                        Id = -1,
+                        PlayerId = -1,
+                        Name = cd.Name,
+                        Description = cd.Description,
+                        Cost = cd.Cost,
+                        Triggers = cd.Triggers,
+                        PassiveAbilities = cd.PassiveAbilities,
+                    };
+                }
             }
 
             return null;

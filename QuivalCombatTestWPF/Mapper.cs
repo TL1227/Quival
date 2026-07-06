@@ -23,15 +23,7 @@ namespace QuivalCombatTestWPF
             if (imagePath != "")
                 fullCard.CardImage.Source = new BitmapImage(new Uri(imagePath));
 
-            string uniqueId = "";
-            if (card.UniqueId < 10)
-                uniqueId += "00";
-            else if (card.UniqueId < 100)
-                uniqueId += "0";
-
-            uniqueId += card.UniqueId.ToString();
-
-            fullCard.GlobalId.Content = card.SetCode + uniqueId;
+            fullCard.GlobalId.Content = card.UniqueId;
 
             if (card is CreatureCard cc)
             {

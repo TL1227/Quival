@@ -8,18 +8,16 @@ public class Set
 {
     public string Name { get; set; }
     public string SetCode { get; set; }
-    public List<Card> Cards {  get; set; }
+    public List<CardDefinition> Cards {  get; set; }
 }
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
 [JsonDerivedType(typeof(CreatureCard), "creaturecard")]
-[JsonDerivedType(typeof(AttackCard), "attackcard")]
 [JsonDerivedType(typeof(PlayerCard), "playercard")]
 [JsonDerivedType(typeof(SpellCard), "spellcard")]
 public abstract class Card
 {
-    public string? SetCode { get; set; }
-    public int UniqueId { get; set; }
+    public string UniqueId { get; set; }
     public int Id { get; set; }
     public int PlayerId { get; set; } = -1;
     public string? Name { get; set; }
@@ -29,9 +27,6 @@ public abstract class Card
     public List<Ability> PassiveAbilities { get; set; } = new();
 }
 
-public class PlayerCard : Card
-{
-}
 
 public class CreatureCard : Card
 {
@@ -105,18 +100,12 @@ public class CreatureCard : Card
     }
 }
 
-public class AttackCard : Card
+public class SpellCard : Card
 {
-    public AttackCard(int playerId, int cardId)
-    {
-        Id = cardId;
-        Name = "Attack!";
-        Description = "Attack the opponent.";
-        PlayerId = playerId;
-    }
+    //TODO: considering this is literally nothing, maybe we should rethink this? 
 }
 
-public class SpellCard : Card
+public class PlayerCard : Card
 {
     //TODO: considering this is literally nothing, maybe we should rethink this? 
 }

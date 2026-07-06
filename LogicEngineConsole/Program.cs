@@ -23,11 +23,13 @@ namespace LogicEngineConsole
         
         static void Main(string[] args)
         {
-            List<Card> cards =
+            List<CardDefinition> cards =
             [
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Desmond Future Knight",
                     Description = "If Desmond Future Knight attacks on round 2, heal any other target by 2",
+                    FlavourText = "One of these days Samson, I'll be a kight. You'll see! - Desmond",
                     Cost = 2,
                     Attack = 2,
                     Health = 2,
@@ -53,27 +55,31 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Token",
                     Cost = 1,
                     Attack = 1,
                     Health = 1,
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Defender",
                     Description = "",
                     Cost = 2,
                     Attack = 1,
                     Health = 3,
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Aggression",
                     Description = "",
                     Cost = 2,
                     Attack = 3,
                     Health = 1,
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "BFG",
                     Description = "If BFG attacks on round 3, BFG deals 4 damage",
                     Cost = 3,
@@ -100,15 +106,17 @@ namespace LogicEngineConsole
                         }
                     }
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "The Wall",
                     Description = "",
                     Cost = 4,
                     Attack = 1,
                     Health = 5,
                 },
-                new SpellCard()
+                new ()
                 {
+                    CardType = CardType.Spell,
                     Name = "Zap",
                     Description = "Deal 2 damage to any target",
                     Cost = 1,
@@ -131,8 +139,9 @@ namespace LogicEngineConsole
                         }
                     }
                 },
-                new SpellCard()
+                new ()
                 {
+                    CardType = CardType.Spell,
                     Name = "Spring Water",
                     Description = "Heal 2 health to any target",
                     Cost = 2,
@@ -155,8 +164,9 @@ namespace LogicEngineConsole
                         }
                     }
                 },
-                new SpellCard()
+                new ()
                 {
+                    CardType = CardType.Spell,
                     Name = "Mega Flare",
                     Description = "Deal 1 damage to any target. If cast on Round 4, deal 3 more damage",
                     Cost = 4,
@@ -186,7 +196,8 @@ namespace LogicEngineConsole
                         }
                     }
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Ping Boy",
                     Description = "When Ping Boy enters the battlefield, opponent takes 1 damage",
                     Cost = 2,
@@ -209,7 +220,8 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Rally Knight",
                     Description = "Rally Knight gets +1 attack for every creature you control",
                     Cost = 3,
@@ -226,7 +238,8 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Cowardly Knight",
                     Description = "Cowardly Knight gets -1 attack for every creature your opponent controls",
                     Cost = 3,
@@ -243,7 +256,8 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
-                new CreatureCard(){
+                new (){
+                    CardType = CardType.Creature,
                     Name = "Curious Dealer",
                     Description = "Curious Dealer Gets +1 attack for every card in your hand",
                     Cost = 5,
@@ -270,10 +284,9 @@ namespace LogicEngineConsole
             };
 
             int IdCounter = 1;
-            foreach (Card card in cards)
+            foreach (var card in cards)
             {
-                card.UniqueId = IdCounter++;
-                card.SetCode = set.SetCode;
+                card.UniqueId = $"{set.SetCode}{IdCounter++}";
 
                 //assign ability Ids
                 int abilityId = 0;
@@ -281,15 +294,14 @@ namespace LogicEngineConsole
                     foreach (var ability in trigger.Abilities)
                         ability.Id = abilityId++;
 
-                if (card is CreatureCard cc)
-                    Console.WriteLine($"{cc.UniqueId} Attack {cc.Attack} Health {cc.Health} Cost {cc.Cost}");
+                if (card.CardType == CardType.Creature)
+                    Console.WriteLine($"{card.UniqueId} Attack {card.Attack} Health {card.Health} Cost {card.Cost}");
             }
 
             JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
             options.Converters.Add(new JsonStringEnumConverter());
 
             string json = JsonSerializer.Serialize(set, options);
-            //Console.WriteLine(json);
             File.WriteAllText("..\\..\\..\\..\\QuivalServer\\QuivalCards.json", json);
         }
     }

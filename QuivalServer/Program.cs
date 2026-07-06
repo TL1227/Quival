@@ -208,7 +208,7 @@ internal class Program
     static bool ValidateDeck(List<Card> deck)
     {
         bool hasMoreThanFourCopies = deck
-            .GroupBy(s => s.SetCode)
+            .GroupBy(s => s.UniqueId)
             .Any(g => g.Count() > 4);
 
         return hasMoreThanFourCopies;

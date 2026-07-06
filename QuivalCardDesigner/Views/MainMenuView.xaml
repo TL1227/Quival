@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="QuivalCardDesigner.Views.MainMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCardDesigner.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1920">
+
+    <Grid Background="WhiteSmoke">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="40" FontFamily="Bahnschrift">Quival Card Designer</TextBlock>
+        <StackPanel Grid.Row="1" Grid.Column="1" CanVerticallyScroll="True">
+            <Button x:Name="NewCardButton" Margin="2" FontSize="20" BorderThickness="0">New Card</Button>
+            <Button x:Name="EditCardButton" Margin="2" FontSize="20" BorderThickness="0">Edit Card</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

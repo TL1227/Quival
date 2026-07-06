@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		cards.json = cards.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuivalCardDesigner", "QuivalCardDesigner\QuivalCardDesigner.csproj", "{FD5BB99A-6089-4381-B379-8290289A37AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABBE99DC-D67F-40A5-A10B-21F033BBD4A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD5BB99A-6089-4381-B379-8290289A37AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD5BB99A-6089-4381-B379-8290289A37AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD5BB99A-6089-4381-B379-8290289A37AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD5BB99A-6089-4381-B379-8290289A37AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
