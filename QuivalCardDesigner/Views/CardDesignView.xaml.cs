@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using QuivalLogicEngine.Cards;
 using System.Windows.Media;
 using System.Reflection;
+using System.Diagnostics;
+using QuivalCardDesigner.Controls;
 
 namespace QuivalCardDesigner.Views;
 
@@ -25,6 +27,10 @@ public partial class CardDesignView : UserControl
         DescriptionTextBox.TextChanged += TextBoxChanged;
         AttackTextBox.TextChanged += TextBoxChanged;
         HealthTextBox.TextChanged += TextBoxChanged;
+
+        AddTriggerButton.Click += AddTriggerButton_Click;
+
+        TriggerTypeComboBox.ItemsSource = Enum.GetValues<TriggerType>();
 
         LoadBlankCard();
     }
@@ -86,6 +92,35 @@ public partial class CardDesignView : UserControl
                 CurrentCard.CardDescriptionLabel.Text = textBox.Text;
             }
         }
+    }
+
+    private void AddTriggerButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (TriggerTypeComboBox.SelectedItem is TriggerType triggerType)
+        {
+            if (triggerType != TriggerType.None)
+            {
+                if (ContainsDuplicateTriggers(TriggerListBox.Items, triggerType))
+                {
+                    MessageBox.Show("You've already made a trigger of that type!");
+                }
+                else
+                {
+                    TriggerControl triggerControl = new(triggerType);
+                    TriggerListBox.Items.Add(triggerControl);
+                }
+            }
+        }
+    }
+
+    private bool ContainsDuplicateTriggers(ItemCollection items, TriggerType triggerType)
+    {
+        foreach (var item in TriggerListBox.Items)
+            if (item is TriggerControl tc)
+                if (tc.CurrentTrigger.TriggerType == triggerType)
+                    return true;
+
+        return false;
     }
     #endregion
 }

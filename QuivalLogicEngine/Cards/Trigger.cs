@@ -11,6 +11,7 @@
 
         //passive triggers - maybe these need to be some kind of subtype?
         EndTurn,
+        EndRound,
         CreatureCast,
         CreatureDeath
     }
@@ -53,6 +54,7 @@
 
     public enum Side
     {
+        None,
         Any,
         Opponent,
         Player,

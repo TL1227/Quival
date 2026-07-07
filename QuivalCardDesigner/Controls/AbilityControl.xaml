@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="QuivalCardDesigner.Controls.AbilityControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCardDesigner.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="WhiteSmoke">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Background="LightSeaGreen" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Label>Id</Label>
+            <Label>001</Label>
+            <Label x:Name="EffectLabel"></Label>
+            <Button HorizontalAlignment="Right" x:Name="ToggleCollapse" Margin="0,0,0,0" Grid.Column="1" Content="  ▼  " BorderThickness="0" Background="AliceBlue"></Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Label>Target Type</Label>
+                <ComboBox x:Name="TargetTypeComboBox" SelectedIndex="0"></ComboBox>
+                <Label>Side</Label>
+                <ComboBox x:Name="SideComboBox" SelectedIndex="0"></ComboBox>
+                <Label>Can Target Self</Label>
+                <CheckBox VerticalAlignment="Center"></CheckBox>
+                <Label>Number of targets to select</Label>
+                <ComboBox x:Name="NumberOfTargetsComboBox" SelectedIndex="0">
+                    <ComboBoxItem>0</ComboBoxItem>
+                    <ComboBoxItem>1</ComboBoxItem>
+                    <ComboBoxItem>2</ComboBoxItem>
+                    <ComboBoxItem>3</ComboBoxItem>
+                    <ComboBoxItem>4</ComboBoxItem>
+                    <ComboBoxItem>5</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Label>Value</Label>
+                <ComboBox x:Name="ValueComboBox" SelectedIndex="0">
+                    <ComboBoxItem>0</ComboBoxItem>
+                    <ComboBoxItem>1</ComboBoxItem>
+                    <ComboBoxItem>2</ComboBoxItem>
+                    <ComboBoxItem>3</ComboBoxItem>
+                    <ComboBoxItem>4</ComboBoxItem>
+                    <ComboBoxItem>5</ComboBoxItem>
+                </ComboBox>
+                <Label>Get Value From</Label>
+                <ComboBox x:Name="ValueFromComboBox" SelectedIndex="0">
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Grid.Row="0">Conditionals</Label>
+                <Button Margin="5,0,0,0" Width="30" HorizontalAlignment="Left">Add</Button>
+                <ComboBox x:Name="ConditionalsComboBox" SelectedIndex="0"></ComboBox>
+            </StackPanel>
+        </StackPanel>
+        <ListBox Grid.Row="2" Margin="5" x:Name="ConditionalsListBox"/>
+    </Grid>
+</UserControl>

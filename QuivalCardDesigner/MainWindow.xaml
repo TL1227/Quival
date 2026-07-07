@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuivalCardDesigner"
         mc:Ignorable="d"
-        Title="Quival Card Designer" Height="450" Width="800">
+        Title="Quival Card Designer" Height="600" Width="1000">
     <Grid>
         <ContentControl x:Name="CurrentView"></ContentControl>
     </Grid>
