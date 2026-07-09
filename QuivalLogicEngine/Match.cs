@@ -88,6 +88,22 @@ public class Match
         return Players[opponentId];
     }
 
+    public static int GetOpponentId(int playerId) 
+    {
+        return playerId == 0 ? 1 : 0;
+    }
+
+    public static List<CreatureCard> GetAllCreaturesOnBoard(BoardState bs, List<Player> p)
+    {
+        List<CreatureCard> creatureCards = bs.GetAllSummonedCreatures();
+
+        foreach (var player in p)
+            if (player.BlockingCreature != null)
+                creatureCards.Add(player.BlockingCreature!);
+
+        return creatureCards;
+    }
+
     public void SetPlayer(int id, List<Card> deck)
     {
         SetCardIds(deck, id);
@@ -147,15 +163,17 @@ public class Match
             {
                 if (ConditionalsMet(ability.Conditionals))
                 {
-                    abilitiesThatRequireSelection.AddRange(abilities);
+                    var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability, turn.Trigger);
+
+                    if (targetSelection != null)
+                        Players[playerId].TargetSelections.Add(targetSelection);
                 }
             }
         }
 
-        if (abilitiesThatRequireSelection.Count > 0)
+        if (Players[playerId].TargetSelections.Count > 0)
         {
             Players[playerId].MakingSelections = true;
-            GetTargetsForSelection(playerId, cardToPlay.Id, abilitiesThatRequireSelection, turn.Trigger);
         }
     }
 
@@ -178,41 +196,21 @@ public class Match
         }
     }
 
-    public void GetTargetsForSelection(int playerId, int cardId, List<Ability> abilities, TriggerType trigger)
+    public TargetSelection? GetTargetsForSelection(int playerId, Card card, Ability ability, TriggerType trigger)
     {
-        foreach (var ability in abilities)
+        if (ability.Target is SelectionTarget target)
         {
-            if (ability.TargetType == TargetType.Damageable)
-            {
-                TargetSelection ts = new();
-                ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
-
-                //try getting the card ides 
-                var testing = MatchCards.OfType<PlayerCard>().Select(c => c.Id).ToList();
-                ts.TargetsToPickFrom.AddRange(testing);
-
-                if (Players[0].BlockingCreature != null)
-                {
-                    ts.TargetsToPickFrom.Add(Players[0].BlockingCreature!.Id);
-                }
-
-                if (Players[1].BlockingCreature != null)
-                {
-                    ts.TargetsToPickFrom.Add(Players[1].BlockingCreature!.Id);
-                }
-
-                if (!ability.CanTargetSelf)
-                    ts.TargetsToPickFrom.Remove(cardId);
-
-                ts.TargetType = TargetType.Damageable;
-                ts.NumberToPick = ability.NumberOfTargetSelectionsNeeded;
-                ts.Trigger = trigger;
-                ts.AbilityId = ability.Id;
-                ts.CardId = cardId;
-                ts.Effect = ability.Effect;
-                Players[playerId].TargetSelections.Add(ts);
-            }
+            TargetSelection ts = new();
+            ts.TargetsToPickFrom = target.GetTargetsForSelection(card, BoardState, Players, MatchCards);
+            ts.Trigger = trigger;
+            ts.CardId = card.Id;
+            ts.NumberToPick = ability.NumberOfTargetSelectionsNeeded;
+            ts.AbilityId = ability.Id;
+            ts.Effect = ability.Effect;
+            return ts;
         }
+
+        return null;
     }
 
     public List<TargetSelection>? GetSelectionsIfPlayerNeedsThem(int playerId)
@@ -610,46 +608,40 @@ public class Match
     {
         List<Card> targetsResult = new();
 
-        if (ability.TargetType == TargetType.Self)
+        if (ability.Target is AutoTarget autoTarget)
         {
-            targetsResult.Add(cardToPlay);
+            int cardId = autoTarget.GetTargetId(cardToPlay);
+            targetsResult.Add(GetCardFromId(cardId));
         }
-        else if (ability.TargetType == TargetType.Opponent)
+        if (ability.Target is SelectionTarget selectTarget)
         {
-            int opponentId = cardToPlay.PlayerId == 0 ? 1 : 0;
-            targetsResult.Add(GetCardFromId(opponentId)!);
-        }
-        else if (ability.TargetType == TargetType.Player)
-        {
-            targetsResult.Add(GetCardFromId(cardToPlay.PlayerId)!);
-        }
-
-        List<TargetSelection>? targetSelections = Players[cardToPlay.PlayerId].TargetSelections;
-        TargetSelection? targetSelection;
-        if (targetSelections != null)
-        {
-            if (ability.TargetType == TargetType.UseFirst)
+            List<TargetSelection>? targetSelections = Players[cardToPlay.PlayerId].TargetSelections;
+            TargetSelection? targetSelection;
+            if (targetSelections != null)
             {
-                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == 0);
-            }
-            else
-            {
-                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
-            }
-
-            if (targetSelection != null)
-            {
-                foreach (var target in targetSelection.SelectedTargets)
+                /*
+                if (ability.TargetType == TargetType.UseFirst)
                 {
-                    var card = GetCardFromId(target);
+                    targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == 0);
+                }
+                */
+                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
 
-                    if (card != null)
+                if (targetSelection != null)
+                {
+                    foreach (var target in targetSelection.SelectedTargets)
                     {
-                        targetsResult.Add(card);
+                        var card = GetCardFromId(target);
+
+                        if (card != null)
+                        {
+                            targetsResult.Add(card);
+                        }
                     }
                 }
             }
         }
+
 
         return targetsResult;
     }

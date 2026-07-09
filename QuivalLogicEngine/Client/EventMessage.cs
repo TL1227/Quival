@@ -138,7 +138,7 @@ namespace QuivalLogicEngine.Client
                     case Effect.AttackBuffRound:
                         sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
                         break;
-                    case Effect.DamageAbsorbToken:
+                    case Effect.CreateDamageAbsorbBadge:
                         break;
                     case Effect.DirectDamage:
                         sb.AppendLine($"Card {target} takes {Value} damage!"); 

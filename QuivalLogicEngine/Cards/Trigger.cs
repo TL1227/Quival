@@ -2,6 +2,7 @@
 {
     public enum TriggerType
     {
+        //These also double up as TurnTypes so maybe they should be seperate in that way?
         None,
         Attack,
         Cast,
@@ -18,16 +19,23 @@
 
     public enum Effect
     {
+        //target None
         None,
+
+        //target Creature
         AttackBuffRound,
         AttackBuff,
         AttackDebuff,
-        AttackUpToken,
-        DamageAbsorbToken,
-        DirectDamage,
+        CreateAttackUpBadge,
+        CreateDamageAbsorbBadge,
+        RestoreAction,
+
+        //target Creature or Player
         Heal,
+        DirectDamage,
+
+        //target player only
         DrawCard,
-        RestoreAction, //so the target can perform another action this turn
     }
 
     public enum Conditional
@@ -42,13 +50,18 @@
 
     public enum TargetType
     {
-        None, //You don't need to pick a target
-        Any,
+        //You don't need to pick a target
+        None,
         Self, //as in the card the ability belongs to
-        Creature,
         Player,
         Opponent,
+
+        //Needs Targets Selecting
+        Any,
+        Creature,
         Damageable,
+
+        //Change this probably
         UseFirst, //use this when you want to just use the target from the first ability in the trigger
     }
 
@@ -99,7 +112,7 @@
         public Effect Effect { get; set; }
 
         //NOTE: maybe these 3 should be squashed into some kind of Target class 
-        public TargetType TargetType { get; set; }
+        public Target Target { get; set; }
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; } = true;
 
@@ -118,7 +131,6 @@
 
         //NOTE: These are all in Ability. Should we just grab a copy of it?
         public int NumberToPick {  get; set; }
-        public TargetType TargetType { get; set; }
         public int AbilityId { get; set; }
         public Effect Effect { get; set; }
     }

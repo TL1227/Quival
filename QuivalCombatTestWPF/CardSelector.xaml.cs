@@ -32,8 +32,8 @@ namespace QuivalCombatTestWPF
                 case QuivalLogicEngine.Cards.Effect.Heal:
                     return "heal";
 
-                case QuivalLogicEngine.Cards.Effect.AttackUpToken:
-                case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
+                case QuivalLogicEngine.Cards.Effect.CreateAttackUpBadge:
+                case QuivalLogicEngine.Cards.Effect.CreateDamageAbsorbBadge:
                 case QuivalLogicEngine.Cards.Effect.DrawCard:
                 case QuivalLogicEngine.Cards.Effect.RestoreAction:
                 case QuivalLogicEngine.Cards.Effect.None:

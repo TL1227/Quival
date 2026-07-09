@@ -42,7 +42,12 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.Heal,
-                                    TargetType = TargetType.Damageable,
+                                    Target = new SelectionTarget
+                                        {
+                                            SelectionTargetType = SelectionTargetType.Damagable,
+                                            Side = Side.Any,
+                                            CanTargetSelf = false
+                                        },
                                     NumberOfTargetSelectionsNeeded = 1,
                                     CanTargetSelf = false,
                                     Value = 2,
@@ -95,7 +100,7 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.AttackBuffRound,
-                                    TargetType = TargetType.Self,
+                                    Target = new AutoTarget { AutoTargetType = AutoTargetType.Self },
                                     Value = 2,
                                     Conditionals =
                                     {
@@ -130,7 +135,12 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Damageable,
+                                    Target = new SelectionTarget
+                                        {
+                                            SelectionTargetType = SelectionTargetType.Damagable,
+                                            Side = Side.Any,
+                                            CanTargetSelf = true
+                                        },
                                     NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
@@ -155,7 +165,12 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.Heal,
-                                    TargetType = TargetType.Damageable,
+                                    Target = new SelectionTarget
+                                        {
+                                            SelectionTargetType = SelectionTargetType.Damagable,
+                                            Side = Side.Any,
+                                            CanTargetSelf = true
+                                        },
                                     NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
@@ -180,7 +195,12 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Damageable,
+                                    Target = new SelectionTarget
+                                        {
+                                            SelectionTargetType = SelectionTargetType.Damagable,
+                                            Side = Side.Any,
+                                            CanTargetSelf = false
+                                        },
                                     NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 1,
@@ -213,7 +233,10 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Opponent,
+                                    Target = new AutoTarget
+                                        {
+                                            AutoTargetType = AutoTargetType.Opponent,
+                                        },
                                     Value = 1
                                 }
                             ]
@@ -232,7 +255,10 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            TargetType = TargetType.Self,
+                            Target = new AutoTarget
+                                {
+                                    AutoTargetType = AutoTargetType.Self,
+                                },
                             Side = Side.Player,
                             ValueFrom = ValueFrom.CreaturesOnTheBoard
                         }
@@ -250,7 +276,10 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackDebuff,
-                            TargetType = TargetType.Self,
+                            Target = new AutoTarget
+                                {
+                                    AutoTargetType = AutoTargetType.Self,
+                                },
                             Side = Side.Opponent,
                             ValueFrom = ValueFrom.CreaturesOnTheBoard
                         }
@@ -268,7 +297,10 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            TargetType = TargetType.Self,
+                            Target = new AutoTarget
+                                {
+                                    AutoTargetType = AutoTargetType.Self,
+                                },
                             ValueFrom = ValueFrom.CardsInHand,
                             Side = Side.Player
                         }

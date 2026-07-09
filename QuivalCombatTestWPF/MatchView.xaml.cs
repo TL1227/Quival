@@ -416,7 +416,7 @@ namespace QuivalCombatTestWPF
                                 //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
+                        case QuivalLogicEngine.Cards.Effect.CreateDamageAbsorbBadge:
                             break;
                         case QuivalLogicEngine.Cards.Effect.DirectDamage:
                             {
