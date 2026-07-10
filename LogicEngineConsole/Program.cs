@@ -46,10 +46,9 @@ namespace LogicEngineConsole
                                         {
                                             SelectionTargetType = SelectionTargetType.Damagable,
                                             Side = Side.Any,
-                                            CanTargetSelf = false
+                                            CanTargetSelf = false,
+                                            NumberToPick = 1,
                                         },
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    CanTargetSelf = false,
                                     Value = 2,
                                     Conditionals =
                                     {
@@ -139,9 +138,9 @@ namespace LogicEngineConsole
                                         {
                                             SelectionTargetType = SelectionTargetType.Damagable,
                                             Side = Side.Any,
-                                            CanTargetSelf = true
+                                            CanTargetSelf = true,
+                                            NumberToPick = 1
                                         },
-                                    NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
                                 }
@@ -169,9 +168,9 @@ namespace LogicEngineConsole
                                         {
                                             SelectionTargetType = SelectionTargetType.Damagable,
                                             Side = Side.Any,
-                                            CanTargetSelf = true
+                                            CanTargetSelf = true,
+                                            NumberToPick = 1
                                         },
-                                    NumberOfTargetSelectionsNeeded = 1,
                                     Side = Side.Any,
                                     Value = 2,
                                 }
@@ -199,19 +198,15 @@ namespace LogicEngineConsole
                                         {
                                             SelectionTargetType = SelectionTargetType.Damagable,
                                             Side = Side.Any,
-                                            CanTargetSelf = false
+                                            CanTargetSelf = false,
+                                            NumberToPick = 1
                                         },
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    Side = Side.Any,
                                     Value = 1,
+
+                                    BonusEffect = Effect.DirectDamage,
+                                    BonusValue = 3,
+                                    BonusEffectConditionals = [ Conditional.Round4 ]
                                 },
-                                new Ability()
-                                {
-                                    Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.UseFirst,
-                                    Value = 3,
-                                    Conditionals = [ Conditional.Round4 ]
-                                }
                             },
                         }
                     }

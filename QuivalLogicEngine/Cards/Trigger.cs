@@ -109,17 +109,18 @@
     public class Ability
     {
         public int Id { get; set; } 
-        public Effect Effect { get; set; }
-
-        //NOTE: maybe these 3 should be squashed into some kind of Target class 
         public Target Target { get; set; }
-        public Side Side { get; set; }
-        public bool CanTargetSelf { get; set; } = true;
 
-        public int NumberOfTargetSelectionsNeeded { get; set; } = 0;
+        public Effect Effect { get; set; }
         public int Value { get; set; }
         public ValueFrom ValueFrom { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();
+
+        public Effect? BonusEffect { get; set; }
+        public int? BonusValue { get; set; }
+        public List<Conditional>? BonusConditionals { get; set; } = new();
+
+        public Side Side { get; set; }
     }
 
     public class TargetSelection

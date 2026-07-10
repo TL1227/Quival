@@ -24,7 +24,7 @@ namespace QuivalLogicEngine.Cards
                 AutoTargetType.Self => card.Id,
                 AutoTargetType.Player => card.PlayerId,
                 AutoTargetType.Opponent => (card.PlayerId == 0) ? 1 : 0,
-                _ => -1,
+                _ => throw new Exception($"AutoTargetType Not Found On Card Id {card.Id}"),
             };
         }
     }
@@ -41,12 +41,13 @@ namespace QuivalLogicEngine.Cards
         public SelectionTargetType SelectionTargetType { get; set; }
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; }
+        public int NumberToPick {  get; set; }
 
-        public List<int> GetTargetsForSelection(Card self, BoardState boardState, List<Player> players, List<Card> matchCards)
+        public List<int> GetTargetPool(Card self, Match match)
         {
             List<Card> targets = new();
-            var creatureCards = Match.GetAllCreaturesOnBoard(boardState, players);
-            var playerCards = matchCards.OfType<PlayerCard>().ToList();
+            var creatureCards = match.GetAllCreaturesOnBoard();
+            var playerCards = match.MatchCards.OfType<PlayerCard>().ToList();
 
             switch (SelectionTargetType)
             {
@@ -67,7 +68,7 @@ namespace QuivalLogicEngine.Cards
             }
 
             if (!CanTargetSelf)
-                targets.Remove(self);
+                targets = targets.Where(x => x.Id != self.Id).ToList();
 
             switch (Side)
             {

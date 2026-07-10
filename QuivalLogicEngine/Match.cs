@@ -7,8 +7,9 @@ namespace QuivalLogicEngine;
 
 public class Match
 {
-    private List<Player> Players { get; set; }
-    private BoardState BoardState { get; set; }
+    public List<Player> Players { get; set; }
+    public BoardState BoardState { get; set; }
+    public List<Card> MatchCards;
     private List<EventMessage> EventMessages { get; set; }
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
@@ -16,7 +17,6 @@ public class Match
     //NOTE: We start at 2 so we can use 0 and 1 as cards representing the player
     private int CardIdTotal = 2;
 
-    private List<Card> MatchCards;
     private int MaxRounds = 5;
 
     private bool OnePlayerMode = false;
@@ -79,7 +79,7 @@ public class Match
         return state;
     }
 
-    private Player GetOpponent(int playerId) 
+    public Player GetOpponent(int playerId) 
     {
         if (OnePlayerMode)
             return Players[playerId];
@@ -93,11 +93,11 @@ public class Match
         return playerId == 0 ? 1 : 0;
     }
 
-    public static List<CreatureCard> GetAllCreaturesOnBoard(BoardState bs, List<Player> p)
+    public List<CreatureCard> GetAllCreaturesOnBoard()
     {
-        List<CreatureCard> creatureCards = bs.GetAllSummonedCreatures();
+        List<CreatureCard> creatureCards = BoardState.GetAllSummonedCreatures();
 
-        foreach (var player in p)
+        foreach (var player in Players)
             if (player.BlockingCreature != null)
                 creatureCards.Add(player.BlockingCreature!);
 
@@ -155,7 +155,6 @@ public class Match
             Players[playerId].SubmittedTurn = turn;
         }
 
-        List<Ability> abilitiesThatRequireSelection = new();
         var abilities = GetSelectableAbilities(cardToPlay, turn.Trigger);
         if (abilities != null)
         {
@@ -188,7 +187,7 @@ public class Match
         var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
         if (trigger != null)
         {
-            return trigger.Abilities.Where(a => a.NumberOfTargetSelectionsNeeded > 0).ToList();
+            return trigger.Abilities.Where(a => a.Target is SelectionTarget).ToList();
         }
         else
         {
@@ -200,13 +199,18 @@ public class Match
     {
         if (ability.Target is SelectionTarget target)
         {
-            TargetSelection ts = new();
-            ts.TargetsToPickFrom = target.GetTargetsForSelection(card, BoardState, Players, MatchCards);
-            ts.Trigger = trigger;
-            ts.CardId = card.Id;
-            ts.NumberToPick = ability.NumberOfTargetSelectionsNeeded;
-            ts.AbilityId = ability.Id;
-            ts.Effect = ability.Effect;
+            TargetSelection ts = new()
+            {
+                TargetsToPickFrom = target.GetTargetPool(card, this),
+                NumberToPick = target.NumberToPick,
+
+                CardId = card.Id,
+
+                Trigger = trigger,
+                AbilityId = ability.Id,
+                Effect = ability.Effect
+            };
+
             return ts;
         }
 
@@ -323,7 +327,7 @@ public class Match
         }
     }
 
-    private List<CreatureCard> GetAllCreatures()
+    public List<CreatureCard> GetAllCreatures()
     {
         List<CreatureCard> creatureCards = new List<CreatureCard>();
         creatureCards.AddRange(BoardState.GetAllSummonedCreatures());
@@ -364,64 +368,90 @@ public class Match
 
             EventMessages.Last().CardActionEvents.Add(message);
 
-            if (target is CreatureCard targetCreature)
+            ApplyEffectToTarget(target, ability.Effect, value, ability.Id);
+
+            if (ability.BonusEffect != null && 
+                ability.BonusValue != null &&
+                ability.BonusConditionals != null)
             {
-                switch (ability.Effect)
+                if (ConditionalsMet(ability.BonusConditionals))
                 {
-                    case Effect.AttackBuffRound:
-                        {
-                            targetCreature.AttackBuffRound += value;
-                            break;
-                        }
-                    case Effect.AttackBuff:
-                        {
-                            targetCreature.AttackModifiers[ability.Id] = value;
+                    message = new()
+                    {
+                        CardActionSource = card,
+                        PlayerId = card.PlayerId,
+                        Effect = ability.Effect,
+                        TargetsCardIds = targets.Select(c => c.Id).ToList(),
+                        Value = value
+                    };
 
-                            //remove the card action event we've added
-                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            break;
-                        }
-                    case Effect.AttackDebuff:
-                        {
-                            targetCreature.AttackModifiers[ability.Id] = -value;
+                    EventMessages.Last().CardActionEvents.Add(message);
 
-                            //remove the card action event we've added
-                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            break;
-                        }
-                    case Effect.DirectDamage:
-                        {
-                            bool hasDied = targetCreature.DamageCreature(value);
-                            if (hasDied)
-                            {
-                                EventMessage(new CreatureDeathEvent(targetCreature.Id, targetCreature.Name!));
-                                CheckPassiveAbilities();
-                            }
-                            break;
-                        }
-                    case Effect.Heal:
-                        {
-                            targetCreature.HealCreature(value);
-                            break;
-                        }
+                    ApplyEffectToTarget(target, (Effect)ability.BonusEffect, (int)ability.BonusValue, ability.Id);
                 }
             }
-            else if (target is PlayerCard playerCard)
+        }
+    }
+
+    private void ApplyEffectToTarget(Card target, Effect effect, int value, int abilityId)
+    {
+        if (target is CreatureCard targetCreature)
+        {
+            switch (effect)
             {
-                switch (ability.Effect)
-                {
-                    //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
-                    case Effect.DirectDamage:
+                case Effect.AttackBuffRound:
+                    {
+                        targetCreature.AttackBuffRound += value;
+                        break;
+                    }
+                case Effect.AttackBuff:
+                    {
+                        targetCreature.AttackModifiers[abilityId] = value;
+
+                        //remove the card action event we've added
+                        EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
+                        break;
+                    }
+                case Effect.AttackDebuff:
+                    {
+                        targetCreature.AttackModifiers[abilityId] = -value;
+
+                        //remove the card action event we've added
+                        EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
+                        break;
+                    }
+                case Effect.DirectDamage:
+                    {
+                        bool hasDied = targetCreature.DamageCreature(value);
+                        if (hasDied)
                         {
-                            Players[playerCard.Id].HealthPoints -= value;
-                            break;
+                            EventMessage(new CreatureDeathEvent(targetCreature.Id, targetCreature.Name!));
+                            CheckPassiveAbilities();
                         }
-                    case Effect.Heal:
-                        {
-                            Players[playerCard.Id].HealthPoints += value;
-                            break;
-                        }
-                }
+                        break;
+                    }
+                case Effect.Heal:
+                    {
+                        targetCreature.HealCreature(value);
+                        break;
+                    }
+            }
+        }
+        else if (target is PlayerCard playerCard)
+        {
+            switch (effect)
+            {
+                //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
+                case Effect.DirectDamage:
+                    {
+                        Players[playerCard.Id].HealthPoints -= value;
+                        break;
+                    }
+                case Effect.Heal:
+                    {
+                        Players[playerCard.Id].HealthPoints += value;
+                        break;
+                    }
             }
         }
     }
