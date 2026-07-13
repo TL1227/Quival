@@ -1,4 +1,6 @@
-﻿namespace QuivalLogicEngine.Cards
+﻿using System.Net.NetworkInformation;
+
+namespace QuivalLogicEngine.Cards
 {
     public enum TriggerType
     {
@@ -17,6 +19,64 @@
         CreatureDeath
     }
 
+    public abstract class EffectTest()
+    {
+        public required List<Target> ValidTargets { get; set; }
+
+        public bool IsValidTarget(Target target)
+        {
+            if (target is SelectionTarget st)
+            {
+                var test = ValidTargets.SingleOrDefault(x => x is SelectionTarget y && y.SelectionTargetType == st.SelectionTargetType );
+                return test != null;
+            }
+            else
+            {
+                return ValidTargets.Contains(target);
+            }
+        }
+    }
+
+    public class HealEffect : EffectTest 
+    {
+        public HealEffect()
+        {
+            ValidTargets = new()
+            {
+                new DirectTarget(),
+                new SelfTarget(),
+                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Damagable },
+                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Direct }
+            };
+        }
+    }
+
+    public class ReviveEffect : EffectTest 
+    {
+        public ReviveEffect()
+        {
+            ValidTargets = new()
+            {
+                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Creature }
+            };
+        }
+    }
+
+    public class DirectDamageEffect : EffectTest 
+    {
+        public DirectDamageEffect()
+        {
+            ValidTargets = new()
+            {
+                new DirectTarget(),
+                new SelfTarget(),
+                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Damagable },
+                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Direct }
+            };
+        }
+    }
+
+
     public enum Effect
     {
         //target None
@@ -31,7 +91,7 @@
         RestoreAction,
 
         //target Creature or Player
-        Heal,
+        Heal, 
         DirectDamage,
 
         //target player only
@@ -67,7 +127,6 @@
 
     public enum Side
     {
-        None,
         Any,
         Opponent,
         Player,
@@ -112,15 +171,15 @@
         public Target Target { get; set; }
 
         public Effect Effect { get; set; }
-        public int Value { get; set; }
-        public ValueFrom ValueFrom { get; set; }
+        public Value Value { get; set; }
         public List<Conditional> Conditionals { get; set; } = new();
 
         public Effect? BonusEffect { get; set; }
-        public int? BonusValue { get; set; }
+        public Value? BonusValue { get; set; }
         public List<Conditional>? BonusConditionals { get; set; } = new();
 
-        public Side Side { get; set; }
+
+        public EffectTest EffectTest { get; set; }
     }
 
     public class TargetSelection

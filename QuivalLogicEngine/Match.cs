@@ -458,32 +458,17 @@ public class Match
 
     private int GetValue(int playerId, Ability ability)
     {
-        switch (ability.ValueFrom)
+        if (ability.Value is FixedValue fv)
         {
-            case ValueFrom.CreaturesOnTheBoard:
-                {
-                    if (ability.Side == Side.Player)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(playerId).Count();
-                    else if (ability.Side == Side.Opponent)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(GetOpponent(playerId).Id).Count();
-                    else
-                        return GetAllCreatures().Count;
-                }
-            case ValueFrom.CardsInHand:
-                {
-                    int playerHand = Players[playerId].Hand.Count; 
-                    int opponentHand = Players[GetOpponent(playerId).Id].Hand.Count;
-
-                    if (ability.Side == Side.Player)
-                        return playerHand;
-                    else if (ability.Side == Side.Opponent)
-                        return opponentHand;
-                    else
-                        return playerHand + opponentHand;
-                }
-            case ValueFrom.None:
-            default:
-                return ability.Value;
+            return fv.Value;
+        }
+        else if (ability.Value is CountValue cv)
+        {
+            return cv.Get(playerId, this);
+        }
+        else
+        {
+            throw new Exception("Can't find Value Type");
         }
     }
 
@@ -638,7 +623,7 @@ public class Match
     {
         List<Card> targetsResult = new();
 
-        if (ability.Target is AutoTarget autoTarget)
+        if (ability.Target is DirectTarget autoTarget)
         {
             int cardId = autoTarget.GetTargetId(cardToPlay);
             targetsResult.Add(GetCardFromId(cardId));

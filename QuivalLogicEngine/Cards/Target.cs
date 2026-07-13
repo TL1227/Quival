@@ -2,28 +2,30 @@
 namespace QuivalLogicEngine.Cards
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "targettype")]
-    [JsonDerivedType(typeof(AutoTarget), 0)]
+    [JsonDerivedType(typeof(DirectTarget), 0)]
     [JsonDerivedType(typeof(SelectionTarget), 1)]
     public abstract class Target { }
 
-    public enum AutoTargetType
+    public class SelfTarget : Target
     {
-        Self,
+    }
+
+    public enum DirectTargetType
+    {
         Player,
         Opponent
     }
 
-    public class AutoTarget : Target
+    public class DirectTarget : Target
     {
-        public AutoTargetType AutoTargetType { get; set; }
+        public DirectTargetType AutoTargetType { get; set; }
 
         public int GetTargetId(Card card)
         {
             return AutoTargetType switch
             {
-                AutoTargetType.Self => card.Id,
-                AutoTargetType.Player => card.PlayerId,
-                AutoTargetType.Opponent => (card.PlayerId == 0) ? 1 : 0,
+                DirectTargetType.Player => card.PlayerId,
+                DirectTargetType.Opponent => (card.PlayerId == 0) ? 1 : 0,
                 _ => throw new Exception($"AutoTargetType Not Found On Card Id {card.Id}"),
             };
         }

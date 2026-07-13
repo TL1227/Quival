@@ -13,7 +13,7 @@ namespace QuivalLogicEngine.Cards
 
     public class FixedValue : Value
     {
-        int Value { get; set; }
+        public int Value { get; set; }
     }
 
     public enum CountValueSource
@@ -42,18 +42,18 @@ namespace QuivalLogicEngine.Cards
                     }
                 case CountValueSource.CardsInHand:
                     {
-                        int playerHand = Players[playerId].Hand.Count;
-                        int opponentHand = Players[GetOpponent(playerId).Id].Hand.Count;
+                        int playerHand = match.Players[playerId].Hand.Count;
+                        int opponentHand = match.Players[match.GetOpponent(playerId).Id].Hand.Count;
 
-                        if (ability.Side == Side.Player)
+                        if (Side == Side.Player)
                             return playerHand;
-                        else if (ability.Side == Side.Opponent)
+                        else if (Side == Side.Opponent)
                             return opponentHand;
                         else
                             return playerHand + opponentHand;
                     }
                 default:
-                    return ability.Value;
+                    throw new NotImplementedException($"Haven't Implemented {CountSource}");
             }
         }
     }

@@ -49,7 +49,7 @@ namespace LogicEngineConsole
                                             CanTargetSelf = false,
                                             NumberToPick = 1,
                                         },
-                                    Value = 2,
+                                    Value = new FixedValue(){ Value = 2 },
                                     Conditionals =
                                     {
                                         Conditional.Round2
@@ -99,8 +99,8 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.AttackBuffRound,
-                                    Target = new AutoTarget { AutoTargetType = AutoTargetType.Self },
-                                    Value = 2,
+                                    Target = new DirectTarget { AutoTargetType = DirectTargetType.Self },
+                                    Value = new FixedValue(){ Value = 2 },
                                     Conditionals =
                                     {
                                         Conditional.Round3
@@ -141,8 +141,8 @@ namespace LogicEngineConsole
                                             CanTargetSelf = true,
                                             NumberToPick = 1
                                         },
+                                    Value = new FixedValue(){ Value = 2 },
                                     Side = Side.Any,
-                                    Value = 2,
                                 }
                             }
                         }
@@ -205,7 +205,7 @@ namespace LogicEngineConsole
 
                                     BonusEffect = Effect.DirectDamage,
                                     BonusValue = 3,
-                                    BonusEffectConditionals = [ Conditional.Round4 ]
+                                    BonusConditionals = [ Conditional.Round4 ]
                                 },
                             },
                         }
@@ -218,19 +218,19 @@ namespace LogicEngineConsole
                     Cost = 2,
                     Attack = 1,
                     Health = 1,
-                    Triggers = 
+                    Triggers =
                     [
                         new Trigger()
                         {
                             TriggerType = TriggerType.Cast,
-                            Abilities = 
+                            Abilities =
                             [
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    Target = new AutoTarget
+                                    Target = new DirectTarget
                                         {
-                                            AutoTargetType = AutoTargetType.Opponent,
+                                            AutoTargetType = DirectTargetType.Opponent,
                                         },
                                     Value = 1
                                 }
@@ -245,14 +245,14 @@ namespace LogicEngineConsole
                     Cost = 3,
                     Attack = 0,
                     Health = 3,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            Target = new AutoTarget
+                            Target = new DirectTarget
                                 {
-                                    AutoTargetType = AutoTargetType.Self,
+                                    AutoTargetType = DirectTargetType.Self,
                                 },
                             Side = Side.Player,
                             ValueFrom = ValueFrom.CreaturesOnTheBoard
@@ -266,14 +266,14 @@ namespace LogicEngineConsole
                     Cost = 3,
                     Attack = 4,
                     Health = 3,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
                             Effect = Effect.AttackDebuff,
-                            Target = new AutoTarget
+                            Target = new DirectTarget
                                 {
-                                    AutoTargetType = AutoTargetType.Self,
+                                    AutoTargetType = DirectTargetType.Self,
                                 },
                             Side = Side.Opponent,
                             ValueFrom = ValueFrom.CreaturesOnTheBoard
@@ -287,14 +287,14 @@ namespace LogicEngineConsole
                     Cost = 5,
                     Attack = 0,
                     Health = 4,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            Target = new AutoTarget
+                            Target = new DirectTarget
                                 {
-                                    AutoTargetType = AutoTargetType.Self,
+                                    AutoTargetType = DirectTargetType.Self,
                                 },
                             ValueFrom = ValueFrom.CardsInHand,
                             Side = Side.Player
