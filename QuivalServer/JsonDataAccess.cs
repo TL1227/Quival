@@ -32,7 +32,7 @@ namespace QuivalServer
             {
                 if (cd.CardType == CardType.Creature)
                 {
-                    CreatureCard creature = new()
+                    CreatureCard card = new()
                     {
                         UniqueId = cd.UniqueId,
                         Id = -1,
@@ -46,6 +46,8 @@ namespace QuivalServer
                         Attack = cd.Attack,
                         Health = cd.Health
                     };
+
+                    return card;
                 }
                 else
                 {
@@ -60,6 +62,8 @@ namespace QuivalServer
                         Triggers = cd.Triggers,
                         PassiveAbilities = cd.PassiveAbilities,
                     };
+
+                    return card;
                 }
             }
 

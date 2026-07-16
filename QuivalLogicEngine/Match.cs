@@ -387,7 +387,8 @@ public class Match
 
                     EventMessages.Last().CardActionEvents.Add(message);
 
-                    ApplyEffectToTarget(target, (Effect)ability.BonusEffect, (int)ability.BonusValue, ability.Id);
+                    int bonusValue = GetValue(card.PlayerId, ability);
+                    ApplyEffectToTarget(target, (Effect)ability.BonusEffect, bonusValue, ability.Id);
                 }
             }
         }

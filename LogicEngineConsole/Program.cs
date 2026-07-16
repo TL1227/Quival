@@ -42,13 +42,13 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.Heal,
-                                    Target = new SelectionTarget
-                                        {
-                                            SelectionTargetType = SelectionTargetType.Damagable,
-                                            Side = Side.Any,
-                                            CanTargetSelf = false,
-                                            NumberToPick = 1,
-                                        },
+                                    Target = new SelectionTarget()
+                                    {
+                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        Side = Side.Any,
+                                        CanTargetSelf = false,
+                                        NumberToPick = 1,
+                                    },
                                     Value = new FixedValue(){ Value = 2 },
                                     Conditionals =
                                     {
@@ -99,12 +99,9 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.AttackBuffRound,
-                                    Target = new DirectTarget { AutoTargetType = DirectTargetType.Self },
+                                    Target = new SelfTarget(),
                                     Value = new FixedValue(){ Value = 2 },
-                                    Conditionals =
-                                    {
-                                        Conditional.Round3
-                                    }
+                                    Conditionals = { Conditional.Round3 }
                                 }
                             },
                         }
@@ -134,15 +131,14 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    Target = new SelectionTarget
-                                        {
-                                            SelectionTargetType = SelectionTargetType.Damagable,
-                                            Side = Side.Any,
-                                            CanTargetSelf = true,
-                                            NumberToPick = 1
-                                        },
+                                    Target = new SelectionTarget()
+                                    {
+                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        Side = Side.Any,
+                                        CanTargetSelf = true,
+                                        NumberToPick = 1
+                                    },
                                     Value = new FixedValue(){ Value = 2 },
-                                    Side = Side.Any,
                                 }
                             }
                         }
@@ -164,15 +160,14 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.Heal,
-                                    Target = new SelectionTarget
-                                        {
-                                            SelectionTargetType = SelectionTargetType.Damagable,
-                                            Side = Side.Any,
-                                            CanTargetSelf = true,
-                                            NumberToPick = 1
-                                        },
-                                    Side = Side.Any,
-                                    Value = 2,
+                                    Target = new SelectionTarget()
+                                    {
+                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        Side = Side.Any,
+                                        CanTargetSelf = true,
+                                        NumberToPick = 1
+                                    },
+                                    Value = new FixedValue(){ Value = 2 },
                                 }
                             }
                         }
@@ -194,17 +189,16 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    Target = new SelectionTarget
-                                        {
-                                            SelectionTargetType = SelectionTargetType.Damagable,
-                                            Side = Side.Any,
-                                            CanTargetSelf = false,
-                                            NumberToPick = 1
-                                        },
-                                    Value = 1,
+                                    Target = new SelectionTarget()
+                                    {
+                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        Side = Side.Any,
+                                        NumberToPick = 1
+                                    },
+                                    Value = new FixedValue(){ Value = 1 },
 
                                     BonusEffect = Effect.DirectDamage,
-                                    BonusValue = 3,
+                                    BonusValue = new FixedValue() { Value = 3 },
                                     BonusConditionals = [ Conditional.Round4 ]
                                 },
                             },
@@ -228,11 +222,11 @@ namespace LogicEngineConsole
                                 new Ability()
                                 {
                                     Effect = Effect.DirectDamage,
-                                    Target = new DirectTarget
-                                        {
-                                            AutoTargetType = DirectTargetType.Opponent,
-                                        },
-                                    Value = 1
+                                    Target = new DirectTarget()
+                                    {
+                                        AutoTargetType = DirectTargetType.Opponent,
+                                    },
+                                    Value = new FixedValue(){ Value = 1 }
                                 }
                             ]
                         }
@@ -250,12 +244,12 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            Target = new DirectTarget
-                                {
-                                    AutoTargetType = DirectTargetType.Self,
-                                },
-                            Side = Side.Player,
-                            ValueFrom = ValueFrom.CreaturesOnTheBoard
+                            Target = new SelfTarget(),
+                            Value = new CountValue()
+                            {
+                                CountSource = CountValueSource.CreaturesOnTheBoard,
+                                Side = Side.Player
+                            }
                         }
                     ]
                 },
@@ -271,12 +265,12 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackDebuff,
-                            Target = new DirectTarget
-                                {
-                                    AutoTargetType = DirectTargetType.Self,
-                                },
-                            Side = Side.Opponent,
-                            ValueFrom = ValueFrom.CreaturesOnTheBoard
+                            Target = new SelfTarget(),
+                            Value = new CountValue()
+                            {
+                                CountSource = CountValueSource.CreaturesOnTheBoard,
+                                Side = Side.Opponent
+                            }
                         }
                     ]
                 },
@@ -292,12 +286,11 @@ namespace LogicEngineConsole
                         new Ability()
                         {
                             Effect = Effect.AttackBuff,
-                            Target = new DirectTarget
-                                {
-                                    AutoTargetType = DirectTargetType.Self,
-                                },
-                            ValueFrom = ValueFrom.CardsInHand,
-                            Side = Side.Player
+                            Target = new SelfTarget(),
+                            Value = new CountValue()
+                            {
+                                CountSource = CountValueSource.CardsInHand,
+                            }
                         }
                     ]
                 },
@@ -305,6 +298,7 @@ namespace LogicEngineConsole
 
             Set set = new Set()
             {
+                Version = new Version(0,2,0),
                 Name = "Alpha",
                 SetCode = "ALP",
                 Cards = cards

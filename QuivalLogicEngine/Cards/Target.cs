@@ -4,6 +4,7 @@ namespace QuivalLogicEngine.Cards
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "targettype")]
     [JsonDerivedType(typeof(DirectTarget), 0)]
     [JsonDerivedType(typeof(SelectionTarget), 1)]
+    [JsonDerivedType(typeof(SelfTarget), 2)]
     public abstract class Target { }
 
     public class SelfTarget : Target
@@ -34,8 +35,8 @@ namespace QuivalLogicEngine.Cards
     public enum SelectionTargetType
     {
         Creature,
+        Direct, //Directly select opponent or player
         Damagable,
-        Direct //Directly select opponent or player
     }
 
     public class SelectionTarget : Target

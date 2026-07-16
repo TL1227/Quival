@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "valuetype")]
+    [JsonDerivedType(typeof(FixedValue), "fixed")]
+    [JsonDerivedType(typeof(CountValue), "count")]
     public abstract class Value
     {
     }
@@ -24,8 +22,8 @@ namespace QuivalLogicEngine.Cards
 
     public class CountValue : Value
     {
-        private CountValueSource CountSource { get; set; }
-        private Side Side { get; set; }
+        public CountValueSource CountSource { get; set; }
+        public Side Side { get; set; } //NOTE: This isn't needed for Cards in hand
 
         public int Get(int playerId, Match match)
         {

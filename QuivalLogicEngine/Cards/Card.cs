@@ -6,6 +6,7 @@ namespace QuivalLogicEngine.Cards;
 
 public class Set
 {
+    public Version Version { get; set; }
     public string Name { get; set; }
     public string SetCode { get; set; }
     public List<CardDefinition> Cards {  get; set; }
