@@ -19,84 +19,8 @@ namespace QuivalLogicEngine.Cards
         CreatureDeath
     }
 
-    public abstract class EffectTest()
-    {
-        public required List<Target> ValidTargets { get; set; }
-
-        public bool IsValidTarget(Target target)
-        {
-            if (target is SelectionTarget st)
-            {
-                var test = ValidTargets.SingleOrDefault(x => x is SelectionTarget y && y.SelectionTargetType == st.SelectionTargetType );
-                return test != null;
-            }
-            else
-            {
-                return ValidTargets.Contains(target);
-            }
-        }
-    }
-
-    public class HealEffect : EffectTest 
-    {
-        public HealEffect()
-        {
-            ValidTargets = new()
-            {
-                new DirectTarget(),
-                new SelfTarget(),
-                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Damagable },
-                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Direct }
-            };
-        }
-    }
-
-    public class ReviveEffect : EffectTest 
-    {
-        public ReviveEffect()
-        {
-            ValidTargets = new()
-            {
-                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Creature }
-            };
-        }
-    }
-
-    public class DirectDamageEffect : EffectTest 
-    {
-        public DirectDamageEffect()
-        {
-            ValidTargets = new()
-            {
-                new DirectTarget(),
-                new SelfTarget(),
-                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Damagable },
-                new SelectionTarget(){ SelectionTargetType = SelectionTargetType.Direct }
-            };
-        }
-    }
 
 
-    public enum Effect
-    {
-        //target None
-        None,
-
-        //target Creature
-        AttackBuffRound,
-        AttackBuff,
-        AttackDebuff,
-        CreateAttackUpBadge,
-        CreateDamageAbsorbBadge,
-        RestoreAction,
-
-        //target Creature or Player
-        Heal, 
-        DirectDamage,
-
-        //target player only
-        DrawCard,
-    }
 
     public enum Conditional
     {
@@ -106,23 +30,6 @@ namespace QuivalLogicEngine.Cards
         Round3,
         Round4,
         Round5,
-    }
-
-    public enum TargetType
-    {
-        //You don't need to pick a target
-        None,
-        Self, //as in the card the ability belongs to
-        Player,
-        Opponent,
-
-        //Needs Targets Selecting
-        Any,
-        Creature,
-        Damageable,
-
-        //Change this probably
-        UseFirst, //use this when you want to just use the target from the first ability in the trigger
     }
 
     public enum Side
@@ -138,13 +45,6 @@ namespace QuivalLogicEngine.Cards
         Or,
         PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
         PickUpTo
-    }
-
-    public enum ValueFrom
-    {
-        None,
-        CreaturesOnTheBoard,
-        CardsInHand,
     }
 
     public class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
@@ -177,9 +77,6 @@ namespace QuivalLogicEngine.Cards
         public Effect? BonusEffect { get; set; }
         public Value? BonusValue { get; set; }
         public List<Conditional>? BonusConditionals { get; set; } = new();
-
-
-        public EffectTest EffectTest { get; set; }
     }
 
     public class TargetSelection

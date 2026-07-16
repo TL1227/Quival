@@ -400,12 +400,12 @@ public class Match
         {
             switch (effect)
             {
-                case Effect.AttackBuffRound:
+                case AttackBuffRoundEffect:
                     {
                         targetCreature.AttackBuffRound += value;
                         break;
                     }
-                case Effect.AttackBuff:
+                case AttackBuffEffect:
                     {
                         targetCreature.AttackModifiers[abilityId] = value;
 
@@ -413,7 +413,7 @@ public class Match
                         EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
                         break;
                     }
-                case Effect.AttackDebuff:
+                case AttackDebuffEffect:
                     {
                         targetCreature.AttackModifiers[abilityId] = -value;
 
@@ -421,7 +421,7 @@ public class Match
                         EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
                         break;
                     }
-                case Effect.DirectDamage:
+                case DirectDamageEffect:
                     {
                         bool hasDied = targetCreature.DamageCreature(value);
                         if (hasDied)
@@ -431,7 +431,7 @@ public class Match
                         }
                         break;
                     }
-                case Effect.Heal:
+                case HealEffect:
                     {
                         targetCreature.HealCreature(value);
                         break;
@@ -443,12 +443,12 @@ public class Match
             switch (effect)
             {
                 //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
-                case Effect.DirectDamage:
+                case DirectDamageEffect:
                     {
                         Players[playerCard.Id].HealthPoints -= value;
                         break;
                     }
-                case Effect.Heal:
+                case HealEffect:
                     {
                         Players[playerCard.Id].HealthPoints += value;
                         break;
@@ -624,24 +624,25 @@ public class Match
     {
         List<Card> targetsResult = new();
 
-        if (ability.Target is DirectTarget autoTarget)
+        if (ability.Target is SelfTarget)
         {
-            int cardId = autoTarget.GetTargetId(cardToPlay);
+            targetsResult.Add(cardToPlay);
+        }
+        else if (ability.Target is PlayerTarget playerTarget)
+        {
+            int cardId = playerTarget.GetTargetId(cardToPlay);
             targetsResult.Add(GetCardFromId(cardId));
         }
-        if (ability.Target is SelectionTarget selectTarget)
+        else if (ability.Target is OpponentTarget opponentTarget)
         {
-            List<TargetSelection>? targetSelections = Players[cardToPlay.PlayerId].TargetSelections;
-            TargetSelection? targetSelection;
-            if (targetSelections != null)
+            int cardId = opponentTarget.GetTargetId(cardToPlay);
+            targetsResult.Add(GetCardFromId(cardId));
+        }
+        else if (ability.Target is SelectionTarget selectTarget)
+        {
+            if (Players[cardToPlay.PlayerId].TargetSelections != null)
             {
-                /*
-                if (ability.TargetType == TargetType.UseFirst)
-                {
-                    targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == 0);
-                }
-                */
-                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
+                var targetSelection = Players[cardToPlay.PlayerId].TargetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
 
                 if (targetSelection != null)
                 {

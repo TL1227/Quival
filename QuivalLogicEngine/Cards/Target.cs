@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+
 namespace QuivalLogicEngine.Cards
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "targettype")]
-    [JsonDerivedType(typeof(DirectTarget), 0)]
-    [JsonDerivedType(typeof(SelectionTarget), 1)]
-    [JsonDerivedType(typeof(SelfTarget), 2)]
+    [JsonDerivedType(typeof(SelectionTarget), 0)]
+    [JsonDerivedType(typeof(SelfTarget), 1)]
     public abstract class Target { }
 
     public class SelfTarget : Target
@@ -17,31 +17,27 @@ namespace QuivalLogicEngine.Cards
         Opponent
     }
 
-    public class DirectTarget : Target
+    public class PlayerTarget : Target
     {
-        public DirectTargetType AutoTargetType { get; set; }
-
-        public int GetTargetId(Card card)
-        {
-            return AutoTargetType switch
-            {
-                DirectTargetType.Player => card.PlayerId,
-                DirectTargetType.Opponent => (card.PlayerId == 0) ? 1 : 0,
-                _ => throw new Exception($"AutoTargetType Not Found On Card Id {card.Id}"),
-            };
-        }
+        public TargetPool TargetPool { get; set; } = TargetPool.Direct;
+        public int GetTargetId(Card card) => card.PlayerId;
     }
 
-    public enum SelectionTargetType
+    public class OpponentTarget : Target
+    {
+        public TargetPool TargetPool { get; set; } = TargetPool.Direct;
+        public int GetTargetId(Card card) => (card.PlayerId == 0) ? 1 : 0;
+    }
+
+    public enum TargetPool
     {
         Creature,
-        Direct, //Directly select opponent or player
-        Damagable,
+        Direct,
     }
 
     public class SelectionTarget : Target
     {
-        public SelectionTargetType SelectionTargetType { get; set; }
+        public List<TargetPool> TargetsPool { get; set; }
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; }
         public int NumberToPick {  get; set; }
@@ -49,50 +45,29 @@ namespace QuivalLogicEngine.Cards
         public List<int> GetTargetPool(Card self, Match match)
         {
             List<Card> targets = new();
-            var creatureCards = match.GetAllCreaturesOnBoard();
-            var playerCards = match.MatchCards.OfType<PlayerCard>().ToList();
 
-            switch (SelectionTargetType)
+            foreach (var tp in TargetsPool)
             {
-                case SelectionTargetType.Creature:
-                    targets.AddRange(creatureCards);
-                    break;
-                case SelectionTargetType.Damagable:
-                    {
-                        targets.AddRange(creatureCards);
-                        targets.AddRange(playerCards);
-                    }
-                    break;
-                case SelectionTargetType.Direct:
-                    targets.AddRange(playerCards);
-                    break;
-                default:
-                    break;
+                switch (tp)
+                {
+                    case TargetPool.Creature:
+                        targets.AddRange(match.GetAllCreaturesOnBoard());
+                        break;
+                    case TargetPool.Direct:
+                        targets.AddRange(match.MatchCards.OfType<PlayerCard>().ToList());
+                        break;
+                }
             }
 
             if (!CanTargetSelf)
                 targets = targets.Where(x => x.Id != self.Id).ToList();
 
-            switch (Side)
+            return Side switch
             {
-                case Side.Any:
-                default:
-                    {
-                        return targets.Select(x => x.Id).ToList();
-                    }
-                case Side.Opponent:
-                    {
-                        return targets.Where(t => t.PlayerId == Match.GetOpponentId(self.PlayerId))
-                            .Select(x => x.Id)
-                            .ToList();
-                    }
-                case Side.Player:
-                    {
-                        return targets.Where(t => t.PlayerId == self.PlayerId)
-                            .Select(x => x.Id)
-                            .ToList();
-                    }
-            }
+                Side.Opponent => targets.Where(t => t.PlayerId == Match.GetOpponentId(self.PlayerId)).Select(x => x.Id).ToList(),
+                Side.Player => targets.Where(t => t.PlayerId == self.PlayerId).Select(x => x.Id).ToList(),
+                _ => targets.Select(x => x.Id).ToList(),
+            };
         }
     }
 }

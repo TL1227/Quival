@@ -133,21 +133,13 @@ namespace QuivalLogicEngine.Client
             {
                 switch (Effect)
                 {
-                    case Effect.None: 
-                        break;
-                    case Effect.AttackBuffRound:
+                    case AttackBuffRoundEffect:
                         sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
                         break;
-                    case Effect.CreateDamageAbsorbBadge:
-                        break;
-                    case Effect.DirectDamage:
+                    case DirectDamageEffect:
                         sb.AppendLine($"Card {target} takes {Value} damage!"); 
                         break;
-                    case Effect.DrawCard:
-                        break;
-                    case Effect.RestoreAction:
-                        break;
-                    default:
+                    case DrawCardEffect:
                         break;
                 }
             }

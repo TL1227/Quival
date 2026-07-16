@@ -44,7 +44,7 @@ namespace LogicEngineConsole
                                     Effect = Effect.Heal,
                                     Target = new SelectionTarget()
                                     {
-                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        TargetsPool = TargetPool.Damagable,
                                         Side = Side.Any,
                                         CanTargetSelf = false,
                                         NumberToPick = 1,
@@ -133,7 +133,7 @@ namespace LogicEngineConsole
                                     Effect = Effect.DirectDamage,
                                     Target = new SelectionTarget()
                                     {
-                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        TargetsPool = TargetPool.Damagable,
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -162,7 +162,7 @@ namespace LogicEngineConsole
                                     Effect = Effect.Heal,
                                     Target = new SelectionTarget()
                                     {
-                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        TargetsPool = TargetPool.Damagable,
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -191,7 +191,7 @@ namespace LogicEngineConsole
                                     Effect = Effect.DirectDamage,
                                     Target = new SelectionTarget()
                                     {
-                                        SelectionTargetType = SelectionTargetType.Damagable,
+                                        TargetsPool = TargetPool.Damagable,
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },
@@ -290,6 +290,7 @@ namespace LogicEngineConsole
                             Value = new CountValue()
                             {
                                 CountSource = CountValueSource.CardsInHand,
+                                Side = Side.Player
                             }
                         }
                     ]

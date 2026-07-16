@@ -379,7 +379,7 @@
           "Value": {
             "valuetype": "count",
             "CountSource": "CardsInHand",
-            "Side": "Any"
+            "Side": "Player"
           },
           "Conditionals": [],
           "BonusEffect": null,

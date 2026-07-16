@@ -394,7 +394,7 @@ namespace QuivalCombatTestWPF
                 {
                     switch (actionEvent.Effect)
                     {
-                        case QuivalLogicEngine.Cards.Effect.AttackBuffRound:
+                        case Effect.AttackBuffRound:
                             {
                                 await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
@@ -445,7 +445,6 @@ namespace QuivalCombatTestWPF
                             break;
                         case QuivalLogicEngine.Cards.Effect.RestoreAction:
                             break;
-                        case QuivalLogicEngine.Cards.Effect.None:
                         default:
                             break;
                     }
