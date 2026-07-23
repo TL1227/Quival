@@ -34,9 +34,9 @@ namespace LogicEngineConsole
                     Attack = 2,
                     Health = 2,
                     Triggers = [
-                        new Trigger()
+                        new SelfTrigger()
                         {
-                            TriggerType = TriggerType.Attack,
+                            SelfTriggerType = SelfTriggerType.Attack,
                             Abilities =
                             {
                                 new Ability()
@@ -91,9 +91,9 @@ namespace LogicEngineConsole
                     Health = 4,
                     Triggers =
                     {
-                        new Trigger()
+                        new SelfTrigger()
                         {
-                            TriggerType = TriggerType.Attack,
+                            SelfTriggerType = SelfTriggerType.Attack,
                             Abilities =
                             {
                                 new Ability()
@@ -123,9 +123,8 @@ namespace LogicEngineConsole
                     Cost = 1,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
@@ -152,9 +151,8 @@ namespace LogicEngineConsole
                     Cost = 2,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
@@ -181,9 +179,8 @@ namespace LogicEngineConsole
                     Cost = 4,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
@@ -214,9 +211,8 @@ namespace LogicEngineConsole
                     Health = 1,
                     Triggers =
                     [
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             [
                                 new Ability()

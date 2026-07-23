@@ -85,6 +85,7 @@ public class CreatureCard : Card
         CurrentHealth -= dmg;
         return CurrentHealth <= 0; 
     }
+
     public void HealCreature(int points)
     {
         CurrentHealth += points;

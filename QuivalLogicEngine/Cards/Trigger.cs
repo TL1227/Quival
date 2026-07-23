@@ -1,22 +1,73 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards
 {
-    public enum TriggerType
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "trigger")]
+    [JsonDerivedType(typeof(CastTrigger), 0)]
+    [JsonDerivedType(typeof(SelfTrigger), 1)]
+    [JsonDerivedType(typeof(ListeningTrigger), 2)]
+    public abstract class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
     {
-        //These also double up as TurnTypes so maybe they should be seperate in that way?
-        None,
+        //public TriggerType TriggerType { get; set; }
+        public List<Ability> Abilities { get; set; } = new();
+        public ChoiceType ChoiceType { get; set; }
+        public int ChoiceNumber { get; set; }
+
+        public Trigger()
+        {
+            int count = 0;
+            foreach (var ability in Abilities)
+            {
+                ability.Id = count++;
+            }
+        }
+    }
+
+    public class CastTrigger : Trigger { }
+
+    public enum SelfTriggerType
+    {
         Attack,
-        Cast,
         PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
         MoveToBlockZone,
         BlockSwap,
+        TakeDamage,
+        Dies
+    }
 
-        //passive triggers - maybe these need to be some kind of subtype?
+    public class SelfTrigger : Trigger
+    {
+        public required SelfTriggerType SelfTriggerType { get; set; }
+    }
+
+    public enum ListeningTriggerType
+    {
+        CreatureCast,
+        CreatureDies,
+        CreatureAttacks,
+        CreatureTakesDamage,
+        CreatureMovesToBlockZone,
+        SpellCast,
+        DrawCard,
+        DiscardCard
+    }
+
+    public class ListeningTrigger : Trigger
+    {
+        public required ListeningTriggerType ListeningTriggerType  { get; set; }
+        public Side Side { get; set; }
+        public bool CanTargetSelf { get; set; }
+    }
+
+    public enum PhaseTriggerType
+    {
         EndTurn,
         EndRound,
-        CreatureCast,
-        CreatureDeath
+    }
+
+    public class PhaseTrigger : Trigger
+    {
+        public required PhaseTriggerType PhaseTriggerType { get; set; }
     }
 
     public enum Conditional
@@ -42,24 +93,6 @@ namespace QuivalLogicEngine.Cards
         Or,
         PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
         PickUpTo
-    }
-
-    public class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
-    {
-        public TriggerType TriggerType { get; set; }
-        public List<Ability> Abilities { get; set; } = new();
-        public ChoiceType ChoiceType { get; set; }
-        public int ChoiceNumber { get; set; }
-        public Side Side { get; set; }
-
-        public Trigger()
-        {
-            int count = 0;
-            foreach (var ability in Abilities)
-            {
-                ability.Id = count++;
-            }
-        }
     }
 
     public class Ability

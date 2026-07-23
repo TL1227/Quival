@@ -14,7 +14,7 @@ public enum TurnType
 
 public class QuivalTurn
 {
-    public TriggerType Trigger { get; set;}
+    public Trigger Trigger { get; set;}
     public int CardToPlayId { get; set; }
     public Dictionary<Effect, List<int>> SelectedCardIds { get; set; }
 

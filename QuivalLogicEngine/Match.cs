@@ -5,6 +5,12 @@ using QuivalLogicEngine.Turns;
 
 namespace QuivalLogicEngine;
 
+public enum TurnType
+{
+    PlayCard,
+
+}
+
 public class Match
 {
     public List<Player> Players { get; set; }
