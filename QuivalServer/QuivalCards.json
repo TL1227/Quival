@@ -19,13 +19,23 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 1,
-                "SelectionTargetType": "Damagable",
+                "targettype": 0,
+                "TargetsPool": [
+                  "Creature",
+                  "Direct"
+                ],
                 "Side": "Any",
                 "CanTargetSelf": false,
                 "NumberToPick": 1
               },
-              "Effect": "Heal",
+              "Effect": {
+                "effect": 0,
+                "TargetString": "Heal",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 2
@@ -35,8 +45,7 @@
               ],
               "BonusEffect": null,
               "BonusValue": null,
-              "BonusConditionals": [],
-              "EffectTest": null
+              "BonusConditionals": []
             }
           ],
           "ChoiceType": "And",
@@ -98,9 +107,15 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 2
+                "targettype": 1
               },
-              "Effect": "AttackBuffRound",
+              "Effect": {
+                "effect": 3,
+                "TargetString": "Buff",
+                "ValidTargets": [
+                  "Creature"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 2
@@ -110,8 +125,7 @@
               ],
               "BonusEffect": null,
               "BonusValue": null,
-              "BonusConditionals": [],
-              "EffectTest": null
+              "BonusConditionals": []
             }
           ],
           "ChoiceType": "And",
@@ -149,13 +163,23 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 1,
-                "SelectionTargetType": "Damagable",
+                "targettype": 0,
+                "TargetsPool": [
+                  "Creature",
+                  "Direct"
+                ],
                 "Side": "Any",
                 "CanTargetSelf": true,
                 "NumberToPick": 1
               },
-              "Effect": "DirectDamage",
+              "Effect": {
+                "effect": 1,
+                "TargetString": "Damage",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 2
@@ -163,8 +187,7 @@
               "Conditionals": [],
               "BonusEffect": null,
               "BonusValue": null,
-              "BonusConditionals": [],
-              "EffectTest": null
+              "BonusConditionals": []
             }
           ],
           "ChoiceType": "And",
@@ -190,13 +213,23 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 1,
-                "SelectionTargetType": "Damagable",
+                "targettype": 0,
+                "TargetsPool": [
+                  "Creature",
+                  "Direct"
+                ],
                 "Side": "Any",
                 "CanTargetSelf": true,
                 "NumberToPick": 1
               },
-              "Effect": "Heal",
+              "Effect": {
+                "effect": 0,
+                "TargetString": "Heal",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 2
@@ -204,8 +237,7 @@
               "Conditionals": [],
               "BonusEffect": null,
               "BonusValue": null,
-              "BonusConditionals": [],
-              "EffectTest": null
+              "BonusConditionals": []
             }
           ],
           "ChoiceType": "And",
@@ -231,27 +263,43 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 1,
-                "SelectionTargetType": "Damagable",
+                "targettype": 0,
+                "TargetsPool": [
+                  "Creature",
+                  "Direct"
+                ],
                 "Side": "Any",
                 "CanTargetSelf": false,
                 "NumberToPick": 1
               },
-              "Effect": "DirectDamage",
+              "Effect": {
+                "effect": 1,
+                "TargetString": "Damage",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 1
               },
               "Conditionals": [],
-              "BonusEffect": "DirectDamage",
+              "BonusEffect": {
+                "effect": 1,
+                "TargetString": "Damage",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "BonusValue": {
                 "valuetype": "fixed",
                 "Value": 3
               },
               "BonusConditionals": [
                 "Round4"
-              ],
-              "EffectTest": null
+              ]
             }
           ],
           "ChoiceType": "And",
@@ -277,10 +325,17 @@
             {
               "Id": 0,
               "Target": {
-                "targettype": 0,
-                "AutoTargetType": "Opponent"
+                "targettype": 3,
+                "TargetPool": "Direct"
               },
-              "Effect": "DirectDamage",
+              "Effect": {
+                "effect": 1,
+                "TargetString": "Damage",
+                "ValidTargets": [
+                  "Creature",
+                  "Direct"
+                ]
+              },
               "Value": {
                 "valuetype": "fixed",
                 "Value": 1
@@ -288,8 +343,7 @@
               "Conditionals": [],
               "BonusEffect": null,
               "BonusValue": null,
-              "BonusConditionals": [],
-              "EffectTest": null
+              "BonusConditionals": []
             }
           ],
           "ChoiceType": "And",
@@ -313,9 +367,15 @@
         {
           "Id": 0,
           "Target": {
-            "targettype": 2
+            "targettype": 1
           },
-          "Effect": "AttackBuff",
+          "Effect": {
+            "effect": 4,
+            "TargetString": "Buff",
+            "ValidTargets": [
+              "Creature"
+            ]
+          },
           "Value": {
             "valuetype": "count",
             "CountSource": "CreaturesOnTheBoard",
@@ -324,8 +384,7 @@
           "Conditionals": [],
           "BonusEffect": null,
           "BonusValue": null,
-          "BonusConditionals": [],
-          "EffectTest": null
+          "BonusConditionals": []
         }
       ]
     },
@@ -343,9 +402,15 @@
         {
           "Id": 0,
           "Target": {
-            "targettype": 2
+            "targettype": 1
           },
-          "Effect": "AttackDebuff",
+          "Effect": {
+            "effect": 5,
+            "TargetString": "Debuff",
+            "ValidTargets": [
+              "Creature"
+            ]
+          },
           "Value": {
             "valuetype": "count",
             "CountSource": "CreaturesOnTheBoard",
@@ -354,8 +419,7 @@
           "Conditionals": [],
           "BonusEffect": null,
           "BonusValue": null,
-          "BonusConditionals": [],
-          "EffectTest": null
+          "BonusConditionals": []
         }
       ]
     },
@@ -373,9 +437,15 @@
         {
           "Id": 0,
           "Target": {
-            "targettype": 2
+            "targettype": 1
           },
-          "Effect": "AttackBuff",
+          "Effect": {
+            "effect": 4,
+            "TargetString": "Buff",
+            "ValidTargets": [
+              "Creature"
+            ]
+          },
           "Value": {
             "valuetype": "count",
             "CountSource": "CardsInHand",
@@ -384,8 +454,7 @@
           "Conditionals": [],
           "BonusEffect": null,
           "BonusValue": null,
-          "BonusConditionals": [],
-          "EffectTest": null
+          "BonusConditionals": []
         }
       ]
     }

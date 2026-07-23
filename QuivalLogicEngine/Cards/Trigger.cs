@@ -19,9 +19,6 @@ namespace QuivalLogicEngine.Cards
         CreatureDeath
     }
 
-
-
-
     public enum Conditional
     {
         None,

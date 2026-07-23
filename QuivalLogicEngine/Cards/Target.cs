@@ -5,6 +5,8 @@ namespace QuivalLogicEngine.Cards
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "targettype")]
     [JsonDerivedType(typeof(SelectionTarget), 0)]
     [JsonDerivedType(typeof(SelfTarget), 1)]
+    [JsonDerivedType(typeof(PlayerTarget), 2)]
+    [JsonDerivedType(typeof(OpponentTarget), 3)]
     public abstract class Target { }
 
     public class SelfTarget : Target

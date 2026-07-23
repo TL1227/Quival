@@ -41,10 +41,10 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.Heal,
+                                    Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = TargetPool.Damagable,
+                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
                                         Side = Side.Any,
                                         CanTargetSelf = false,
                                         NumberToPick = 1,
@@ -98,7 +98,7 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.AttackBuffRound,
+                                    Effect = new AttackBuffRoundEffect(),
                                     Target = new SelfTarget(),
                                     Value = new FixedValue(){ Value = 2 },
                                     Conditionals = { Conditional.Round3 }
@@ -130,10 +130,10 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
+                                    Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = TargetPool.Damagable,
+                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -159,10 +159,10 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.Heal,
+                                    Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = TargetPool.Damagable,
+                                        TargetsPool = [TargetPool.Creature, TargetPool.Direct],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -188,16 +188,16 @@ namespace LogicEngineConsole
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
+                                    Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = TargetPool.Damagable,
+                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },
                                     Value = new FixedValue(){ Value = 1 },
 
-                                    BonusEffect = Effect.DirectDamage,
+                                    BonusEffect = new DirectDamageEffect(),
                                     BonusValue = new FixedValue() { Value = 3 },
                                     BonusConditionals = [ Conditional.Round4 ]
                                 },
@@ -221,11 +221,8 @@ namespace LogicEngineConsole
                             [
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
-                                    Target = new DirectTarget()
-                                    {
-                                        AutoTargetType = DirectTargetType.Opponent,
-                                    },
+                                    Effect = new DirectDamageEffect(),
+                                    Target = new OpponentTarget(),
                                     Value = new FixedValue(){ Value = 1 }
                                 }
                             ]
@@ -243,7 +240,7 @@ namespace LogicEngineConsole
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackBuff,
+                            Effect = new AttackBuffEffect(),
                             Target = new SelfTarget(),
                             Value = new CountValue()
                             {
@@ -264,7 +261,7 @@ namespace LogicEngineConsole
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackDebuff,
+                            Effect = new AttackDebuffEffect(),
                             Target = new SelfTarget(),
                             Value = new CountValue()
                             {
@@ -285,7 +282,7 @@ namespace LogicEngineConsole
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackBuff,
+                            Effect = new AttackBuffEffect(),
                             Target = new SelfTarget(),
                             Value = new CountValue()
                             {

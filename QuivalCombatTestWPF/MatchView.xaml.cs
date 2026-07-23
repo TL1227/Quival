@@ -248,7 +248,7 @@ namespace QuivalCombatTestWPF
                 //TODO: This is a silly hack for now. 
                 //We're going to need a way to figure out which effects should animate before the attack and which should animate after
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect == QuivalLogicEngine.Cards.Effect.AttackBuffRound)
+                    if (action.Effect is AttackBuffRoundEffect)
                         await PlayCardActionAnimation(action, side, attackingBoardCard);
 
                 Position originalPos = attackingBoardCard.GetPos();
@@ -274,7 +274,7 @@ namespace QuivalCombatTestWPF
 
                 //More of the above silly hack
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect != QuivalLogicEngine.Cards.Effect.AttackBuffRound)
+                    if (action.Effect is not AttackBuffRoundEffect)
                         await PlayCardActionAnimation(action, side, attackingBoardCard);
             }
         }
@@ -367,14 +367,14 @@ namespace QuivalCombatTestWPF
                         //handle the player thing
                         switch (actionEvent.Effect)
                         {
-                            case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                            case DirectDamageEffect:
                                 {
                                     Point point = GameResources[targetSideIndex].TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
                                     await Animation.DirectEffect(point, actionCardPoint, Layout.Canvas, Brushes.Red);
                                     GameResources[targetSideIndex].TakeDamage(actionEvent.Value);
                                 }
                                 break;
-                            case QuivalLogicEngine.Cards.Effect.Heal:
+                            case HealEffect:
                                 {
                                     Point point = GameResources[targetSideIndex].TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
                                     await Animation.DirectEffect(point, actionCardPoint, Layout.Canvas, Brushes.Green);
@@ -394,7 +394,7 @@ namespace QuivalCombatTestWPF
                 {
                     switch (actionEvent.Effect)
                     {
-                        case Effect.AttackBuffRound:
+                        case AttackBuffRoundEffect:
                             {
                                 await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
@@ -402,30 +402,28 @@ namespace QuivalCombatTestWPF
                                 await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.AttackBuff:
+                        case AttackBuffEffect:
                             {
                                 //await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = actionEvent.Value;
                                 //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.AttackDebuff:
+                        case AttackDebuffEffect:
                             {
                                 //await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = actionEvent.Value;
                                 //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.CreateDamageAbsorbBadge:
-                            break;
-                        case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                        case DirectDamageEffect:
                             {
                                 Point targetPoint = new(targetCard.GetPos().Left, targetCard.GetPos().Top);
                                 await Animation.DirectEffect(targetPoint, actionCardPoint, Layout.Canvas, Brushes.Red);
                                 targetCard.TakeDamage(actionEvent.Value);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.Heal:
+                        case HealEffect:
                             {
                                 await targetCard.FlashUp(Brushes.LimeGreen);
 
@@ -440,10 +438,7 @@ namespace QuivalCombatTestWPF
                                 await targetCard.FlashDown(Brushes.LimeGreen);
                             }
                             break;
-
-                        case QuivalLogicEngine.Cards.Effect.DrawCard:
-                            break;
-                        case QuivalLogicEngine.Cards.Effect.RestoreAction:
+                        case DrawCardEffect:
                             break;
                         default:
                             break;

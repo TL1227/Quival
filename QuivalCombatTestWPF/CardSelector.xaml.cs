@@ -18,28 +18,7 @@ namespace QuivalCombatTestWPF
         private void UpdateLabel()
         {
             CardSelectorLabel.Content = 
-                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} targets to {GetSelectMessageFromEffect(TargetSelections[index].Effect)}";
-        }
-
-        private string GetSelectMessageFromEffect(Effect effect)
-        {
-            switch (effect)
-            {
-                case QuivalLogicEngine.Cards.Effect.AttackBuffRound:
-                    return "buff the attack of";
-                case QuivalLogicEngine.Cards.Effect.DirectDamage:
-                    return "damage";
-                case QuivalLogicEngine.Cards.Effect.Heal:
-                    return "heal";
-
-                case QuivalLogicEngine.Cards.Effect.CreateAttackUpBadge:
-                case QuivalLogicEngine.Cards.Effect.CreateDamageAbsorbBadge:
-                case QuivalLogicEngine.Cards.Effect.DrawCard:
-                case QuivalLogicEngine.Cards.Effect.RestoreAction:
-                case QuivalLogicEngine.Cards.Effect.None:
-                default:
-                    return "";
-            }
+                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} targets to {TargetSelections[index].Effect.GetTargetString()}";
         }
 
         public bool CardIsValidTarget(int cardId)
