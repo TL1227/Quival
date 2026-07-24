@@ -211,21 +211,31 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayCardDrawAnimation(CardDrawEvent cardDrawEvent, Side side)
         {
+            //TODO: This new CardDraw event is actually a big problem because you're sending opponent info to the client
+            //      This will need addressing at some point!!!
             foreach (var drawnCard in cardDrawEvent.DrawnCards)
             {
-                //create card offscreen
-                int cardsInHand = Layout.Canvas.Children.OfType<HandCard>().Count();
-
-                Position p = new()
+                if (drawnCard.PlayerId == MyPlayerId)
                 {
-                    Top = 500, 
-                    Left = Layout.PlayerHandSlots[cardsInHand].Left
-                };
+                    //create card offscreen
+                    int cardsInHand = Layout.Canvas.Children.OfType<HandCard>().Count();
 
-                var handCard = Mapper.MapToHandCard(drawnCard);
-                handCard.SetPos(p);
+                    Position p = new()
+                    {
+                        Top = Layout.PlayerHandSlots[cardsInHand].Top + 300, //TODO: don't hardcode this!
+                        Left = Layout.PlayerHandSlots[cardsInHand].Left
+                    };
 
-                await handCard.Slide(Layout.PlayerHandSlots[cardsInHand].Top);
+                    var handCard = Mapper.MapToHandCard(drawnCard);
+                    handCard.SetPos(p);
+                    Layout.Canvas.Children.Add(handCard);
+                    Layout.Canvas.UpdateLayout();
+
+                    await handCard.Slide(- 300, 0.5);
+
+                    Debug.WriteLine(Canvas.GetTop(handCard));
+                    Debug.WriteLine(Layout.PlayerHandSlots[cardsInHand].Top);
+                }
             }
         }
 

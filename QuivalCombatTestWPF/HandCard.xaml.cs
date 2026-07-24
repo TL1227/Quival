@@ -11,6 +11,7 @@ namespace QuivalCombatTestWPF
     {
         public static double DefaultWidth { get; set; } = 243;
         public static double DefaultHeight { get; set; } = 324;
+        public static double SlideSpeed { get; set; } = 0.15;
         public int Id { get; set; }
 
         public HandCard(int cardId)
@@ -28,13 +29,13 @@ namespace QuivalCombatTestWPF
         {
             UpdateLayout();
             Canvas.SetZIndex(this, 10);
-            Slide(-ActualHeight * 0.5);
+            Slide(-ActualHeight * 0.5, SlideSpeed);
         }
 
         private void HandCard_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Canvas.SetZIndex(this, 0);
-            Slide(0);
+            Slide(0, SlideSpeed);
         }
 
         public void RemoveHighlight()
@@ -54,21 +55,21 @@ namespace QuivalCombatTestWPF
             Canvas.SetLeft(this, p.Left);
         }
 
-        public Task Slide(double targetHeight)
+        public Task Slide(double targetHeight, double speed)
         {
             var transform = (TranslateTransform)RenderTransform;
 
             var animation = new DoubleAnimation
             {
                 To = targetHeight,
-                Duration = TimeSpan.FromSeconds(0.15),
+                Duration = TimeSpan.FromSeconds(speed),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
 
             TaskCompletionSource tsc = new();
             animation.Completed += (_, _) =>
             {
-                Overlay.Opacity = 0.0;
+                //Overlay.Opacity = 0.0;
                 tsc.SetResult();
             };
 
