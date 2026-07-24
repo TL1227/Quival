@@ -12,6 +12,11 @@ namespace QuivalLogicEngine.Cards
     public class FixedValue : Value
     {
         public int Value { get; set; }
+
+        public FixedValue(int value)
+        {
+            Value = value;
+        }
     }
 
     public enum CountValueSource

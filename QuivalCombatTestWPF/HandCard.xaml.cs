@@ -54,7 +54,7 @@ namespace QuivalCombatTestWPF
             Canvas.SetLeft(this, p.Left);
         }
 
-        public void Slide(double targetHeight)
+        public Task Slide(double targetHeight)
         {
             var transform = (TranslateTransform)RenderTransform;
 
@@ -65,7 +65,16 @@ namespace QuivalCombatTestWPF
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
 
+            TaskCompletionSource tsc = new();
+            animation.Completed += (_, _) =>
+            {
+                Overlay.Opacity = 0.0;
+                tsc.SetResult();
+            };
+
             transform.BeginAnimation(TranslateTransform.YProperty, animation);
+
+            return tsc.Task;
         }
 
         public Task SummonIn(Brush Brush)

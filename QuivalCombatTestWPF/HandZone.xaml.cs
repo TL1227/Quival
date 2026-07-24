@@ -28,17 +28,6 @@ namespace QuivalCombatTestWPF
             InitializeComponent();
         }
 
-        public void ClearAllHighlightedCards()
-        {
-            foreach (var card in HandGrid.Children)
-            {
-                if (card is HandCard hc)
-                {
-                    hc.Overlay.Opacity = 0.0;
-                }
-            }
-        }
-
         public void HandleClick(object boardCard, MouseButtonEventArgs args)
         {
             CardClicked?.Invoke(boardCard, args);

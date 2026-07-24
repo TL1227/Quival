@@ -41,8 +41,10 @@ public class Player
         }
     }
 
-    public void DrawCard(int number)
+    public List<Card> DrawCard(int number)
     {
+        List<Card> cardsDrawn = new();
+
         for (int i = 0; i < number; i++) 
         {
             if (Deck.Count <= 0)
@@ -52,9 +54,12 @@ public class Player
             else if(Hand.Count < 7) //TODO: this is just temporary till we program in the discarding at end of turn stuff
             {
                 Hand.Add(Deck[0]);
+                cardsDrawn.Add(Deck[0]);
                 Deck.RemoveAt(0);
             }
         }
+
+        return cardsDrawn;
     }
 
     private void ShuffleDeck()

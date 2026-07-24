@@ -15,6 +15,7 @@ namespace QuivalLogicEngine.Client
     [JsonDerivedType(typeof(NewRound), "NewRound")]
     [JsonDerivedType(typeof(NewTurn), "NewTurn")]
     [JsonDerivedType(typeof(CardActionEvent), "CardActionEvent")]
+    [JsonDerivedType(typeof(CardDrawEvent), "CardDrawEvent")]
     public abstract class EventMessage
     {
         public int PlayerId { get; set; }
@@ -59,7 +60,6 @@ namespace QuivalLogicEngine.Client
             return $"Summoned {CreatureName}";
         }
     }
-
 
     public class CastEvent : EventMessage
     {
@@ -179,6 +179,22 @@ namespace QuivalLogicEngine.Client
             return $"Both players are out of moves!";
         }
     }
+
+    public class CardDrawEvent : EventMessage
+    {
+        public List<Card> DrawnCards { get; set; }
+
+        public CardDrawEvent(List<Card> drawnCards)
+        {
+            DrawnCards = drawnCards;
+        }
+
+        public override string GetString()
+        {
+            return $"Player {PlayerId} drew {DrawnCards.Count} cards";
+        }
+    }
+
     public class NewRound : EventMessage
     {
         public int Round { get; set; }
@@ -194,6 +210,7 @@ namespace QuivalLogicEngine.Client
             return $"Round {Round}";
         }
     }
+
     public class NewTurn : EventMessage
     {
         public int Turn { get; set; }

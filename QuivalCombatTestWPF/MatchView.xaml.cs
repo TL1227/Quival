@@ -71,7 +71,6 @@ namespace QuivalCombatTestWPF
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
             GameResources = [PlayerResources, OpponentResources];
 
-
             KeyDown += MainWindow_KeyDown;
 
             PlayerResources.MouseLeftButtonDown += PlayerResources_MouseLeftButtonDown;
@@ -157,6 +156,9 @@ namespace QuivalCombatTestWPF
             var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList<EventMessage>();
             await AnimateEvents(attackEvents);
 
+            var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
+            await AnimateEvents(cardDrawEvents);
+
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
             await PlayDeathAnimations(deathEvents);
 
@@ -199,8 +201,31 @@ namespace QuivalCombatTestWPF
                 case AttackEvent attackEvent:
                     await PlayAttackAnimation(attackEvent, side);
                     break;
+                case CardDrawEvent cardDrawEvent:
+                    await PlayCardDrawAnimation(cardDrawEvent, side);
+                    break;
                 default:
                     break;
+            }
+        }
+
+        private async Task PlayCardDrawAnimation(CardDrawEvent cardDrawEvent, Side side)
+        {
+            foreach (var drawnCard in cardDrawEvent.DrawnCards)
+            {
+                //create card offscreen
+                int cardsInHand = Layout.Canvas.Children.OfType<HandCard>().Count();
+
+                Position p = new()
+                {
+                    Top = 500, 
+                    Left = Layout.PlayerHandSlots[cardsInHand].Left
+                };
+
+                var handCard = Mapper.MapToHandCard(drawnCard);
+                handCard.SetPos(p);
+
+                await handCard.Slide(Layout.PlayerHandSlots[cardsInHand].Top);
             }
         }
 
@@ -644,10 +669,10 @@ namespace QuivalCombatTestWPF
         public void UpdateHand(List<Card> cards)
         {
             Layout.ClearHand();
+
             for (int i = 0; i < cards.Count; i++)
             {
-                if (i >= Layout.PlayerHandSlots.Length)
-                    break;
+                if (i >= Layout.PlayerHandSlots.Length) break;
 
                 HandCard hand = Mapper.MapToHandCard(cards[i]);
                 hand.MouseLeftButtonDown += HandZone_CardClicked;

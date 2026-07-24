@@ -453,6 +453,101 @@
           "BonusConditionals": []
         }
       ]
+    },
+    {
+      "UniqueId": "ALP14",
+      "CardType": "Spell",
+      "Name": "Simple Draw",
+      "Description": "Draw 1 card",
+      "FlavourText": null,
+      "Cost": 2,
+      "Attack": 0,
+      "Health": 0,
+      "Triggers": [
+        {
+          "trigger": 0,
+          "Abilities": [
+            {
+              "Id": 0,
+              "Target": {
+                "targettype": 2,
+                "TargetPool": "Direct"
+              },
+              "Effect": {
+                "effect": 6,
+                "TargetString": "Draw",
+                "ValidTargets": [
+                  "Direct"
+                ]
+              },
+              "Value": {
+                "valuetype": "fixed",
+                "Value": 1
+              },
+              "Conditionals": [],
+              "BonusEffect": null,
+              "BonusValue": null,
+              "BonusConditionals": []
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
+        }
+      ],
+      "PassiveAbilities": []
+    },
+    {
+      "UniqueId": "ALP15",
+      "CardType": "Spell",
+      "Name": "Murderous Draw",
+      "Description": "Draw 1 card. If an opponent\u0027s creature died this turn draw another card",
+      "FlavourText": null,
+      "Cost": 3,
+      "Attack": 0,
+      "Health": 0,
+      "Triggers": [
+        {
+          "trigger": 0,
+          "Abilities": [
+            {
+              "Id": 0,
+              "Target": {
+                "targettype": 2,
+                "TargetPool": "Direct"
+              },
+              "Effect": {
+                "effect": 6,
+                "TargetString": "Draw",
+                "ValidTargets": [
+                  "Direct"
+                ]
+              },
+              "Value": {
+                "valuetype": "fixed",
+                "Value": 1
+              },
+              "Conditionals": [],
+              "BonusEffect": {
+                "effect": 6,
+                "TargetString": "Draw",
+                "ValidTargets": [
+                  "Direct"
+                ]
+              },
+              "BonusValue": {
+                "valuetype": "fixed",
+                "Value": 1
+              },
+              "BonusConditionals": [
+                "OpponentCreatureDiedThisTurn"
+              ]
+            }
+          ],
+          "ChoiceType": "And",
+          "ChoiceNumber": 0
+        }
+      ],
+      "PassiveAbilities": []
     }
   ]
 }

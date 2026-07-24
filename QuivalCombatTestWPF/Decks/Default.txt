@@ -1,4 +1,4 @@
-ALP1 # Desmond Future Knight 
+ALP1 # Desmond Future Knight
 ALP2 # Token
 ALP3 # Defender
 ALP4 # Aggression
@@ -6,8 +6,10 @@ ALP5 # BFG
 ALP6 # The Wall
 ALP7 # Zap
 ALP8 # Spring Water
-ALP9 # Mega Flare.
+ALP9 # Mega Flare
 ALP10 # Ping Boy
-ALP11 # Rally Knight.
-ALP12 # Cowardly Knight.
-ALP13 # Curious Dealer.
+ALP11 # Rally Knight
+ALP12 # Cowardly Knight
+ALP13 # Curious Dealer
+ALP14 # Simple Draw
+ALP15 # Murderous Draw

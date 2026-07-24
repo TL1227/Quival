@@ -49,7 +49,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = false,
                                         NumberToPick = 1,
                                     },
-                                    Value = new FixedValue(){ Value = 2 },
+                                    Value = new FixedValue(2),
                                     Conditionals =
                                     {
                                         Conditional.Round2
@@ -100,7 +100,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = new AttackBuffRoundEffect(),
                                     Target = new SelfTarget(),
-                                    Value = new FixedValue(){ Value = 2 },
+                                    Value = new FixedValue(2),
                                     Conditionals = { Conditional.Round3 }
                                 }
                             },
@@ -137,7 +137,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = true,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(){ Value = 2 },
+                                    Value = new FixedValue(2)
                                 }
                             }
                         }
@@ -165,7 +165,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = true,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(){ Value = 2 },
+                                    Value = new FixedValue(2),
                                 }
                             }
                         }
@@ -192,10 +192,10 @@ namespace LogicEngineConsole
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(){ Value = 1 },
+                                    Value = new FixedValue(1),
 
                                     BonusEffect = new DirectDamageEffect(),
-                                    BonusValue = new FixedValue() { Value = 3 },
+                                    BonusValue = new FixedValue(3),
                                     BonusConditionals = [ Conditional.Round4 ]
                                 },
                             },
@@ -219,7 +219,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = new DirectDamageEffect(),
                                     Target = new OpponentTarget(),
-                                    Value = new FixedValue(){ Value = 1 }
+                                    Value = new FixedValue(1)
                                 }
                             ]
                         }
@@ -288,6 +288,43 @@ namespace LogicEngineConsole
                         }
                     ]
                 },
+                new (){
+                    CardType = CardType.Spell,
+                    Name = "Simple Draw",
+                    Description = "Draw 1 card",
+                    Cost = 2,
+                    Triggers = [
+                        new CastTrigger() {
+                            Abilities = [
+                                new Ability() {
+                                    Effect = new DrawCardEffect(),
+                                    Target = new PlayerTarget(),
+                                    Value = new FixedValue(1)
+                                }
+                            ]
+                        }
+                    ]
+                },
+                new (){
+                    CardType = CardType.Spell,
+                    Name = "Murderous Draw",
+                    Description = "Draw 1 card. If an opponent's creature died this turn draw another card",
+                    Cost = 3,
+                    Triggers = [
+                        new CastTrigger() {
+                            Abilities = [
+                                new Ability() {
+                                    Effect = new DrawCardEffect(),
+                                    Target = new PlayerTarget(),
+                                    Value = new FixedValue(1),
+                                    BonusEffect = new DrawCardEffect(),
+                                    BonusValue = new FixedValue(1),
+                                    BonusConditionals = [ Conditional.OpponentCreatureDiedThisTurn ]
+                                }
+                            ]
+                        }
+                    ]
+                },
             ];
 
             Set set = new Set()
@@ -309,15 +346,14 @@ namespace LogicEngineConsole
                     foreach (var ability in trigger.Abilities)
                         ability.Id = abilityId++;
 
-                if (card.CardType == CardType.Creature)
-                    Console.WriteLine($"{card.UniqueId} Attack {card.Attack} Health {card.Health} Cost {card.Cost}");
+                Console.WriteLine($"{card.UniqueId} # {card.Name}");
             }
 
             JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
             options.Converters.Add(new JsonStringEnumConverter());
 
             string json = JsonSerializer.Serialize(set, options);
-            File.WriteAllText("..\\..\\..\\..\\QuivalServer\\QuivalCards.json", json);
+            File.WriteAllText("..\\QuivalServer\\QuivalCards.json", json);
         }
     }
 }

@@ -11,7 +11,8 @@ public class Match
     public List<Player> Players { get; set; }
     public BoardState BoardState { get; set; }
     public List<Card> MatchCards;
-    private List<EventMessage> EventMessages { get; set; }
+    private List<EventMessage> CurrentRoundsEvents { get; set; }
+    private List<EventMessage> CurrentTurnsEvents { get; set; }
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
 
@@ -29,7 +30,8 @@ public class Match
         TurnCount = 1;
         RoundCount = 1;
         MatchCards = new();
-        EventMessages = new();
+        CurrentRoundsEvents = new();
+        CurrentTurnsEvents = new();
     }
 
     public bool PlayerHasSetTurn(int playerId)
@@ -56,7 +58,7 @@ public class Match
             BoardState = BoardState,
             TurnCount= TurnCount,
             RoundCount= RoundCount,
-            GameEvents = EventMessages
+            GameEvents = CurrentRoundsEvents
         };
 
         Player opponent = GetOpponent(playerId);
@@ -158,7 +160,7 @@ public class Match
 
         foreach (var ability in GetAbilitiesThatRequireSelection(cardToPlay, turn.TurnType))
         {
-            if (ConditionalsMet(ability.Conditionals))
+            if (ConditionalsMet(playerId, ability.Conditionals))
             {
                 var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability);
 
@@ -302,7 +304,7 @@ public class Match
 
     public void ProcessCards()
     {
-        EventMessages.Clear();
+        CurrentRoundsEvents.Clear();
 
         if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
             return;
@@ -327,7 +329,11 @@ public class Match
         ProcessMoveToBlockZone();
         ProcessAttacks();
 
-        //NextRound()
+        NextRound();
+    }
+
+    public void NextRound()
+    {
         RoundCount++;
         foreach (var player in Players)
         {
@@ -343,10 +349,49 @@ public class Match
             foreach (var creature in creatures)
                 creature.AttackBuffRound = 0;
 
+        CurrentTurnsEvents.AddRange(CurrentRoundsEvents);
+
         if (RoundCount > MaxRounds)
         {
             NextTurn();
         }
+    }
+
+    private void NextTurn()
+    {
+        TurnCount++;
+        RoundCount = 1;
+
+        CurrentTurnsEvents.Clear();
+
+        EventMessage(new NewTurn(TurnCount, RoundCount)); //TODO: do we need this?
+
+        foreach (var card in MatchCards)
+        {
+            if (card is CreatureCard cc)
+            {
+                if (cc.CurrentHealth <= 0)
+                {
+                    BoardState.RemoveCreatureFromBoard(cc);
+                }
+                else
+                {
+                    cc.HasActed = false;
+                }
+            }
+        }
+
+        foreach (var player in Players)
+        {
+            player.Mana = BoardState.GetCurrentMana();
+            var cardsDrawn = player.DrawCard(1);
+            CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn) { PlayerId = player.Id });
+            player.MakingSelections = false;
+        }
+
+        BoardState.IncreaseManaClock();
+
+        CheckPassiveAbilities();
     }
 
     public List<CreatureCard> GetAllCreatures()
@@ -388,7 +433,7 @@ public class Match
                 Value = value
             };
 
-            EventMessages.Last().CardActionEvents.Add(message);
+            CurrentRoundsEvents.Last().CardActionEvents.Add(message);
 
             ApplyEffectToTarget(target, ability.Effect, value, ability.Id);
 
@@ -396,7 +441,7 @@ public class Match
                 ability.BonusValue != null &&
                 ability.BonusConditionals != null)
             {
-                if (ConditionalsMet(ability.BonusConditionals))
+                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals))
                 {
                     message = new()
                     {
@@ -407,7 +452,7 @@ public class Match
                         Value = value
                     };
 
-                    EventMessages.Last().CardActionEvents.Add(message);
+                    CurrentRoundsEvents.Last().CardActionEvents.Add(message);
 
                     int bonusValue = GetValue(card.PlayerId, ability.BonusValue);
                     ApplyEffectToTarget(target, (Effect)ability.BonusEffect, bonusValue, ability.Id);
@@ -432,7 +477,7 @@ public class Match
                         targetCreature.AttackModifiers[abilityId] = value;
 
                         //remove the card action event we've added
-                        EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
+                        CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
                         break;
                     }
                 case AttackDebuffEffect:
@@ -440,7 +485,7 @@ public class Match
                         targetCreature.AttackModifiers[abilityId] = -value;
 
                         //remove the card action event we've added
-                        EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
+                        CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
                         break;
                     }
                 case DirectDamageEffect:
@@ -473,6 +518,12 @@ public class Match
                 case HealEffect:
                     {
                         Players[playerCard.Id].HealthPoints += value;
+                        break;
+                    }
+                case DrawCardEffect:
+                    {
+                        var cardsDrawn = Players[playerCard.Id].DrawCard(value);
+                        CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn){ PlayerId = playerCard.Id });
                         break;
                     }
             }
@@ -637,7 +688,7 @@ public class Match
 
         foreach (var ability in GetAbilities(trigger))
         {
-            if (ConditionalsMet(ability.Conditionals))
+            if (ConditionalsMet(playerId, ability.Conditionals))
             {
                 ProcessAbility(card, ability);
             }
@@ -706,7 +757,7 @@ public class Match
         return actions;
     }
 
-    private bool ConditionalsMet(List<Conditional> conditionals)
+    private bool ConditionalsMet(int playerId, List<Conditional> conditionals)
     {
         if (conditionals.Count <= 0)
             return true;
@@ -716,13 +767,15 @@ public class Match
         {
             switch (condition)
             {
-                case Conditional.None: passes.Add(true); break;
                 case Conditional.Round1: passes.Add(RoundCount == 1); break;
                 case Conditional.Round2: passes.Add(RoundCount == 2); break;
                 case Conditional.Round3: passes.Add(RoundCount == 3); break;
                 case Conditional.Round4: passes.Add(RoundCount == 4); break;
                 case Conditional.Round5: passes.Add(RoundCount == 5); break;
-                default: 
+                case Conditional.PlayerCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent && x.PlayerId == playerId).Count() > 0); break;
+                case Conditional.OpponentCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent && x.PlayerId != playerId).Count() > 0); break;
+                case Conditional.AnyCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent).Count() > 0); break;
+                default:
                     passes.Add(true); 
                     Console.WriteLine($"The condition {condition.ToString()} has not yet been implemented");
                 break;
@@ -732,42 +785,10 @@ public class Match
         return !passes.Contains(false); 
     }
 
-    private void NextTurn()
-    {
-        TurnCount++;
-        RoundCount = 1;
-        EventMessage(new NewTurn(TurnCount, RoundCount)); //TODO: do we need this?
-
-        foreach (var card in MatchCards)
-        {
-            if (card is CreatureCard cc)
-            {
-                if (cc.CurrentHealth <= 0)
-                {
-                    BoardState.RemoveCreatureFromBoard(cc);
-                }
-                else
-                {
-                    cc.HasActed = false;
-                }
-            }
-        }
-
-        foreach (var player in Players)
-        {
-            player.Mana = BoardState.GetCurrentMana();
-            player.DrawCard(1);
-            player.MakingSelections = false;
-        }
-
-        BoardState.IncreaseManaClock();
-
-        CheckPassiveAbilities();
-    }
 
     private void EventMessage(EventMessage message)
     {
         Console.WriteLine(message.GetString());
-        EventMessages.Add(message);
+        CurrentRoundsEvents.Add(message);
     }
 }

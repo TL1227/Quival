@@ -97,12 +97,14 @@ namespace QuivalLogicEngine.Cards
 
     public enum Conditional
     {
-        None,
         Round1,
         Round2,
         Round3,
         Round4,
         Round5,
+        PlayerCreatureDiedThisTurn,
+        OpponentCreatureDiedThisTurn,
+        AnyCreatureDiedThisTurn
     }
 
     public enum Side

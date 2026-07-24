@@ -163,6 +163,7 @@ public partial class LayoutCanvas : UserControl
             Canvas.Children.Remove(card);
         }
     }
+
     public void ClearOpponentHand()
     {
         List<OpponentHandCard> handCards = new();
