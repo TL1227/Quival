@@ -14,7 +14,8 @@
       "Health": 2,
       "Triggers": [
         {
-          "TriggerType": "Attack",
+          "trigger": 1,
+          "SelfTriggerType": "Attack",
           "Abilities": [
             {
               "Id": 0,
@@ -49,8 +50,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []
@@ -102,7 +102,8 @@
       "Health": 4,
       "Triggers": [
         {
-          "TriggerType": "Attack",
+          "trigger": 1,
+          "SelfTriggerType": "Attack",
           "Abilities": [
             {
               "Id": 0,
@@ -129,8 +130,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []
@@ -158,7 +158,7 @@
       "Health": 0,
       "Triggers": [
         {
-          "TriggerType": "Cast",
+          "trigger": 0,
           "Abilities": [
             {
               "Id": 0,
@@ -191,8 +191,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []
@@ -208,7 +207,7 @@
       "Health": 0,
       "Triggers": [
         {
-          "TriggerType": "Cast",
+          "trigger": 0,
           "Abilities": [
             {
               "Id": 0,
@@ -241,8 +240,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []
@@ -258,7 +256,7 @@
       "Health": 0,
       "Triggers": [
         {
-          "TriggerType": "Cast",
+          "trigger": 0,
           "Abilities": [
             {
               "Id": 0,
@@ -303,8 +301,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []
@@ -320,7 +317,7 @@
       "Health": 1,
       "Triggers": [
         {
-          "TriggerType": "Cast",
+          "trigger": 0,
           "Abilities": [
             {
               "Id": 0,
@@ -347,8 +344,7 @@
             }
           ],
           "ChoiceType": "And",
-          "ChoiceNumber": 0,
-          "Side": "Any"
+          "ChoiceNumber": 0
         }
       ],
       "PassiveAbilities": []

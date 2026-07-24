@@ -71,7 +71,7 @@ internal class Room
         {
             case SubmitTurn submitTurn:
                 {
-                    Console.WriteLine($"Player {player.Id} submitting {submitTurn.Turn.Trigger}");
+                    Console.WriteLine($"Player {player.Id} submitting {submitTurn.Turn.TurnType}");
 
                     if (Match.PlayerHasSetTurn(player.Id))
                     {

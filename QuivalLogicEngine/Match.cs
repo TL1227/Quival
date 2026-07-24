@@ -5,11 +5,6 @@ using QuivalLogicEngine.Turns;
 
 namespace QuivalLogicEngine;
 
-public enum TurnType
-{
-    PlayCard,
-
-}
 
 public class Match
 {
@@ -129,7 +124,7 @@ public class Match
 
     public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        if (turn.Trigger == TriggerType.EndTurn)
+        if (turn.TurnType == TurnType.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
             return;
@@ -143,7 +138,7 @@ public class Match
             return;
         }
 
-        if (turn.Trigger == TriggerType.Cast)
+        if (turn.TurnType == TurnType.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
@@ -161,18 +156,14 @@ public class Match
             Players[playerId].SubmittedTurn = turn;
         }
 
-        var abilities = GetSelectableAbilities(cardToPlay, turn.Trigger);
-        if (abilities != null)
+        foreach (var ability in GetAbilitiesThatRequireSelection(cardToPlay, turn.TurnType))
         {
-            foreach (var ability in abilities)
+            if (ConditionalsMet(ability.Conditionals))
             {
-                if (ConditionalsMet(ability.Conditionals))
-                {
-                    var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability, turn.Trigger);
+                var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability);
 
-                    if (targetSelection != null)
-                        Players[playerId].TargetSelections.Add(targetSelection);
-                }
+                if (targetSelection != null)
+                    Players[playerId].TargetSelections.Add(targetSelection);
             }
         }
 
@@ -188,20 +179,46 @@ public class Match
         Players[playerId].TargetSelections = selections;
     }
 
-    public List<Ability>? GetSelectableAbilities(Card card, TriggerType triggerType)
+    public List<Ability> GetAbilitiesThatRequireSelection(Card card, TurnType turnType)
     {
-        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
+        List<Ability> abilities = new();
+
+        Trigger? trigger = null;
+        switch (turnType)
+        {
+            case TurnType.Cast:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is CastTrigger);
+                }
+                break;
+            case TurnType.Attack:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is SelfTrigger st && st.SelfTriggerType == SelfTriggerType.Attack);
+                }
+                break;
+            case TurnType.MoveToBlockZone:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is SelfTrigger st && st.SelfTriggerType == SelfTriggerType.MoveToBlockZone);
+                }
+                break;
+            case TurnType.EndTurn:
+            default:
+                break;
+        }
+
         if (trigger != null)
         {
             return trigger.Abilities.Where(a => a.Target is SelectionTarget).ToList();
         }
-        else
-        {
-            return null;
-        }
+
+        return abilities;
     }
 
-    public TargetSelection? GetTargetsForSelection(int playerId, Card card, Ability ability, TriggerType trigger)
+
+    public TargetSelection? GetTargetsForSelection(int playerId, Card card, Ability ability)
     {
         if (ability.Target is SelectionTarget target)
         {
@@ -212,7 +229,6 @@ public class Match
 
                 CardId = card.Id,
 
-                Trigger = trigger,
                 AbilityId = ability.Id,
                 Effect = ability.Effect
             };
@@ -280,8 +296,8 @@ public class Match
 
     private bool BothPlayersHaveEndedTheirTurn()
     {
-        return Players[0].SubmittedTurn!.Trigger == TriggerType.EndTurn &&
-                Players[1].SubmittedTurn!.Trigger == TriggerType.EndTurn;
+        return Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
+                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn;
     }
 
     public void ProcessCards()
@@ -359,7 +375,7 @@ public class Match
     private void ProcessAbility(Card card, Ability ability)
     {
         var targets = GetTargets(card, ability);
-        int value = GetValue(card.PlayerId, ability);
+        int value = GetValue(card.PlayerId, ability.Value);
 
         foreach (Card target in targets)
         {
@@ -393,7 +409,7 @@ public class Match
 
                     EventMessages.Last().CardActionEvents.Add(message);
 
-                    int bonusValue = GetValue(card.PlayerId, ability);
+                    int bonusValue = GetValue(card.PlayerId, ability.BonusValue);
                     ApplyEffectToTarget(target, (Effect)ability.BonusEffect, bonusValue, ability.Id);
                 }
             }
@@ -463,13 +479,13 @@ public class Match
         }
     }
 
-    private int GetValue(int playerId, Ability ability)
+    private int GetValue(int playerId, Value value)
     {
-        if (ability.Value is FixedValue fv)
+        if (value is FixedValue fv)
         {
             return fv.Value;
         }
-        else if (ability.Value is CountValue cv)
+        else if (value is CountValue cv)
         {
             return cv.Get(playerId, this);
         }
@@ -483,7 +499,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.Cast)
+            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
                 continue;
 
             if (player.CardToPlay != null)
@@ -503,8 +519,7 @@ public class Match
                         //creature.HasActed = true;
                         //creature.SummonedThisTurn = true;
 
-                        var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                        ProcessCardTriggers(player.Id, creature, player.SubmittedTurn.Trigger, targets);
+                        ProcessCardTriggers(player.Id, creature, new CastTrigger());
                     }
                     else
                     {
@@ -514,8 +529,7 @@ public class Match
                 else if (player.CardToPlay is SpellCard spell)
                 {
                     EventMessage(new CastEvent(player.Id ,spell));
-                    var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                    ProcessCardTriggers(player.Id, spell, player.SubmittedTurn.Trigger, targets);
+                    ProcessCardTriggers(player.Id, spell, new CastTrigger());
                 }
             }
         }
@@ -525,7 +539,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.Attack)
+            if (player.SubmittedTurn!.TurnType != TurnType.Attack)
                 continue;
 
             if (player.CardToPlay is CreatureCard attackingCreature && attackingCreature.IsAlive())
@@ -534,7 +548,9 @@ public class Match
 
                 var attackEvent = new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!);
                 EventMessage(attackEvent);
-                ProcessCardTriggers(player.Id, player.CardToPlay, player.SubmittedTurn.Trigger, player.TargetSelections);
+
+                ProcessCardTriggers(player.Id, player.CardToPlay, 
+                    new SelfTrigger() { SelfTriggerType = SelfTriggerType.Attack });
 
                 if (otherPlayer.BlockingCreature == null || otherPlayer.BlockingCreature.IsDead())
                 {
@@ -575,7 +591,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.MoveToBlockZone)
+            if (player.SubmittedTurn!.TurnType != TurnType.MoveToBlockZone)
                 continue;
 
             if (player.CardToPlay is CreatureCard newBlocker && newBlocker.IsAlive())
@@ -587,7 +603,8 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
+                    ProcessCardTriggers(player.Id, player.CardToPlay, 
+                        new SelfTrigger() { SelfTriggerType = SelfTriggerType.MoveToBlockZone });
                 }
                 else
                 {
@@ -600,20 +617,21 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.BlockSwap, player.SubmittedTurn.SelectedCardIds);
+                    ProcessCardTriggers(player.Id, player.CardToPlay, 
+                        new SelfTrigger() { SelfTriggerType = SelfTriggerType.BlockSwap });
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessCardTriggers(int playerId, Card card, TriggerType triggerType, List<TargetSelection>? targetSelections = null)
+    private void ProcessCardTriggers(int playerId, Card card, Trigger triggerToProcess)
     {
-        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
+        var trigger = card.Triggers.SingleOrDefault(a => a.SameAs(triggerToProcess));
 
         if (trigger == null) 
         {
-            Console.WriteLine($"Couldn't find trigger {triggerType.ToString()} on the card {card.Name}");
+            Console.WriteLine($"Couldn't find trigger {triggerToProcess.ToString()} on the card {card.Name}");
             return;
         }
 

@@ -12,6 +12,7 @@ namespace QuivalLogicEngine.Cards
         public List<Ability> Abilities { get; set; } = new();
         public ChoiceType ChoiceType { get; set; }
         public int ChoiceNumber { get; set; }
+        public abstract bool SameAs(Trigger otherTrigger);
 
         public Trigger()
         {
@@ -23,7 +24,13 @@ namespace QuivalLogicEngine.Cards
         }
     }
 
-    public class CastTrigger : Trigger { }
+    public class CastTrigger : Trigger
+    {
+        public override bool SameAs(Trigger otherTrigger)
+        {
+            return GetType() == otherTrigger.GetType();
+        }
+    }
 
     public enum SelfTriggerType
     {
@@ -38,6 +45,12 @@ namespace QuivalLogicEngine.Cards
     public class SelfTrigger : Trigger
     {
         public required SelfTriggerType SelfTriggerType { get; set; }
+
+        public override bool SameAs(Trigger otherTrigger)
+        {
+            return otherTrigger is SelfTrigger st &&
+                st.SelfTriggerType == SelfTriggerType;
+        }
     }
 
     public enum ListeningTriggerType
@@ -47,7 +60,9 @@ namespace QuivalLogicEngine.Cards
         CreatureAttacks,
         CreatureTakesDamage,
         CreatureMovesToBlockZone,
+
         SpellCast,
+
         DrawCard,
         DiscardCard
     }
@@ -57,6 +72,11 @@ namespace QuivalLogicEngine.Cards
         public required ListeningTriggerType ListeningTriggerType  { get; set; }
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; }
+        public override bool SameAs(Trigger otherTrigger)
+        {
+            return otherTrigger is ListeningTrigger st &&
+                st.ListeningTriggerType == ListeningTriggerType;
+        }
     }
 
     public enum PhaseTriggerType
@@ -68,6 +88,11 @@ namespace QuivalLogicEngine.Cards
     public class PhaseTrigger : Trigger
     {
         public required PhaseTriggerType PhaseTriggerType { get; set; }
+        public override bool SameAs(Trigger otherTrigger)
+        {
+            return otherTrigger is PhaseTrigger st &&
+                st.PhaseTriggerType == PhaseTriggerType;
+        }
     }
 
     public enum Conditional
@@ -113,7 +138,6 @@ namespace QuivalLogicEngine.Cards
     {
         public List<int> TargetsToPickFrom { get; set; } = new();
         public List<int> SelectedTargets { get; set; } = new();
-        public TriggerType Trigger { get; set; }
         public int CardId { get; set; }
 
         //NOTE: These are all in Ability. Should we just grab a copy of it?
