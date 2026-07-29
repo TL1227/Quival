@@ -43,6 +43,7 @@ namespace QuivalCombatTestWPF
             Overlay.Background = Brushes.Transparent;
             Overlay.Opacity = 0.0;
         }
+
         public void Highlight()
         {
             Overlay.Background = QuivalColour.HighlightColour;

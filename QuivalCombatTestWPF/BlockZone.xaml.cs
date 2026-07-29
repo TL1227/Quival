@@ -41,11 +41,12 @@ namespace QuivalCombatTestWPF
         {
             if (value)
             {
-                BlockZoneLabel.Background = QuivalColour.HighlightColour;
+                Overlay.Background = QuivalColour.HighlightColour;
+                Overlay.Opacity = 0.5;
             }
             else
             {
-                BlockZoneLabel.Background = Brushes.Transparent;
+                Overlay.Background = Brushes.Transparent;
             }
         }
 

@@ -11,6 +11,6 @@
 
     <Grid ClipToBounds="False">
         <Label x:Name="BlockZoneLabel" HorizontalContentAlignment="Center" FontSize="100" Foreground="CornflowerBlue">⛊</Label>
-        <Border Grid.Column="1" Background="Transparent" BorderBrush="CornflowerBlue" BorderThickness="1"> </Border>
+        <Border x:Name="Overlay" Grid.Column="1" Background="Transparent" Panel.ZIndex="999"> </Border>
     </Grid>
 </UserControl>

@@ -60,7 +60,6 @@ namespace QuivalCombatTestWPF
             OpponentBlockZone.Side = Side.Opponent;
 
             HandZone.CardClicked += HandZone_CardClicked;
-            PlayerCombatZone.CardClicked += CombatZone_CardClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseDown += ClickBlocker_Click;
@@ -779,15 +778,27 @@ namespace QuivalCombatTestWPF
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (sender is BoardCard bc)
+                if (sender is BoardCard bc && CanClickCards)
                 {
-                    if (!CanClickCards) return;
-
                     if (CardSelector != null)
                     {
                         HandleCardSelectionClick(bc.Id);
 
                         e.Handled = true; //So we don't trigger other click events
+                    }
+                    else if (CombatZones[PlayerSide].CardIsSummonedByPlayer(bc))
+                    {
+                        if (!bc.HasActed)
+                        {
+                            UnselectAll();
+
+                            bc.Highlight();
+                            SelectedCard = bc;
+
+                            //TODO: Highlight 
+                            PlayerBlockZone.SetHighlighted(true);
+                            OpponentBlockZone.SetHighlighted(true);
+                        }
                     }
                     else if (IsInBlockZone(bc))
                     {
@@ -816,27 +827,6 @@ namespace QuivalCombatTestWPF
         private bool IsInBlockZone(BoardCard card)
         {
             return BlockZones[0].CurrentCard == card || BlockZones[1].CurrentCard == card;
-        }
-
-        private void CombatZone_CardClicked(object? sender, EventArgs e)
-        {
-            if (sender is BoardCard card)
-            {
-                if (CombatZones[PlayerSide].CardIsSummonedByPlayer(card))
-                {
-                    if (!card.HasActed)
-                    {
-                        UnselectAll();
-
-                        card.Highlight();
-                        //card.Overlay.Opacity = 0.4;
-                        SelectedCard = card;
-
-                        PlayerBlockZone.SetHighlighted(true);
-                        OpponentBlockZone.SetHighlighted(true);
-                    }
-                }
-            }
         }
 
         //BlockZones
