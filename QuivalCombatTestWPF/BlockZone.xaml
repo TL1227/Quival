@@ -5,18 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:QuivalCombatTestWPF"
              mc:Ignorable="d" 
-             d:DesignHeight="150" d:DesignWidth="800" 
+             d:DesignHeight="150" d:DesignWidth="280" 
+             Height="150" Width="280" 
              ClipToBounds="False">
 
     <Grid ClipToBounds="False">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-
-        <Border Grid.Column="1" Background="Transparent" Opacity="0.5">
-            <Grid x:Name="BlockArea" ClipToBounds="False" />
-        </Border>
+        <Label x:Name="BlockZoneLabel" HorizontalContentAlignment="Center" FontSize="100" Foreground="CornflowerBlue">⛊</Label>
+        <Border Grid.Column="1" Background="Transparent" BorderBrush="CornflowerBlue" BorderThickness="1"> </Border>
     </Grid>
 </UserControl>
