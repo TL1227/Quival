@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
@@ -483,15 +484,22 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayCastAnimation(CastEvent castEvent, Side side)
         {
-            //TODO: fix all this hard coding!!!
-            var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
             Position blockAreaPos = Layout.BlockAreas[(int)side];
-
             Position summonPos = new()
             {
-                Left = blockAreaPos.Left - 300,
-                Top = blockAreaPos.Top - 50
+                Left = blockAreaPos.Left - 350,
+                Top = blockAreaPos.Top - 200
             };
+
+            if (side == (Side)PlayerSide)
+            {
+                var handCard = GetHandCard(castEvent.CastCard.Id);
+                await handCard.SummonOut(Brushes.Aquamarine);
+                Layout.Canvas.Children.Remove(handCard);
+            }
+
+            //TODO: fix all this hard coding!!!
+            var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
 
             fullCard.SetPos(summonPos);
             Layout.Canvas.Children.Add(fullCard);
@@ -513,8 +521,9 @@ namespace QuivalCombatTestWPF
 
             await Task.Delay(500);
 
-            Layout.Canvas.Children.Remove(fullCard);
+            await fullCard.SummonOut(Brushes.Aquamarine);
 
+            Layout.Canvas.Children.Remove(fullCard);
         }
         #endregion
 

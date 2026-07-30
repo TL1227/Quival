@@ -1,4 +1,5 @@
 ﻿using QuivalCombatTestWPF.Colours;
+using QuivalCombatTestWPF.Interfaces;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +8,7 @@ using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
-    public partial class HandCard : UserControl
+    public partial class HandCard : UserControl, IHasPosition
     {
         public static double DefaultWidth { get; set; } = 243;
         public static double DefaultHeight { get; set; } = 324;
@@ -56,6 +57,17 @@ namespace QuivalCombatTestWPF
             Canvas.SetLeft(this, p.Left);
         }
 
+        public Position GetPos()
+        {
+            Position position = new Position()
+            {
+                Top = Canvas.GetTop(this),
+                Left = Canvas.GetLeft(this)
+            };
+
+            return position;
+        }
+
         public Task Slide(double targetHeight, double speed)
         {
             var transform = (TranslateTransform)RenderTransform;
@@ -102,6 +114,35 @@ namespace QuivalCombatTestWPF
             };
 
             Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
+
+        public Task SummonOut(Brush Brush)
+        {
+            double animationSpeed = 0.4;
+            Overlay.Background = Brush;
+            Overlay.Opacity = 1.0;
+
+            DoubleAnimation anim = new()
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                //Overlay.Opacity = 0.0;
+                CardBackground.Opacity = 0.0;
+                tsc.SetResult();
+            };
+
+            //Overlay.BeginAnimation(OpacityProperty, anim);
+            CardBackground.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
         }

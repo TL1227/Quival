@@ -13,13 +13,12 @@ public partial class LayoutCanvas : UserControl
     public double SummonSlotPadding { get; set; }
 
     public Position[] OpponentHandSlots { get; set; }
-    public Position OpponentBlockArea { get; set; }
     public Position[] OpponentSummonSlots { get; set; }
+    public Position[] PlayerHandSlots { get; set; }
+    public Position[][] SummonSlots { get; set; }
     public Position[] PlayerSummonSlots { get; set; }
     public Position PlayerBlockArea { get; set; }
-    public Position[] PlayerHandSlots { get; set; }
-
-    public Position[][] SummonSlots { get; set; }
+    public Position OpponentBlockArea { get; set; }
     public Position[] BlockAreas { get; set; }
 
     public LayoutCanvas()
@@ -48,7 +47,6 @@ public partial class LayoutCanvas : UserControl
         OpponentBlockArea = new();
         OpponentBlockArea.Top = Canvas.ActualHeight * 0.10;
         OpponentBlockArea.Left = CenterWidth - (BoardCard.DefaultWidth / 2);
-
 
         OpponentSummonSlots = new Position[5];
         for (int i = 0; i < 5; i++)
