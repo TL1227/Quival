@@ -156,13 +156,39 @@ namespace QuivalCombatTestWPF
             var attackEvents = cgs.GameEvents.OfType<AttackEvent>().ToList<EventMessage>();
             await AnimateEvents(attackEvents);
 
-            var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
-            await AnimateEvents(cardDrawEvents);
-
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
             await PlayDeathAnimations(deathEvents);
 
+            await PlayHandShuffleUp();
+
+            var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
+            await AnimateEvents(cardDrawEvents);
+
             await UpdateUIFromGameState();
+        }
+
+        private async Task PlayHandShuffleUp()
+        {
+            Debug.WriteLine($"[Shuffle] Shuffle UP!");
+            var handCards = Layout.Canvas.Children.OfType<HandCard>().OrderBy(x => x.HandSlotIndex).ToList();
+
+            List<Task> tasks = new();
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                if (handCards[i].HandSlotIndex != i)
+                {
+                    Position pos = Layout.PlayerHandSlots[i];
+
+                    tasks.Add(
+                        Animation.DelayThen(200,
+                            () => Animation.MoveToPoint(handCards[i], handCards[i].GetPos(), pos, 0.3))
+                        );
+
+                    handCards[i].HandSlotIndex = i;
+                }
+            }
+
+            await Task.WhenAll(tasks);
         }
 
         private async Task AnimateEvents(List<EventMessage> events)
@@ -248,11 +274,11 @@ namespace QuivalCombatTestWPF
             {
                 List<Task> tasks = new();
 
-                tasks.Add(Animation.MoveToPoint(newCreature, newCreature.GetPos(), Layout.BlockAreas[(int)side]));
+                tasks.Add(Animation.MoveToPoint(newCreature, newCreature.GetPos(), Layout.BlockAreas[(int)side], 0.6));
                 int removedCardIndex = CombatZones[(int)side].RemoveCardFromZone(newCreature.Id, Layout);
                 BlockZones[(int)side].AddCardToBlockZone(newCreature, Layout, Layout.BlockAreas[(int)side]);
 
-                tasks.Add(Animation.MoveToPoint(oldCreature, oldCreature.GetPos(), newCreature.GetPos()));
+                tasks.Add(Animation.MoveToPoint(oldCreature, oldCreature.GetPos(), newCreature.GetPos(), 0.6));
                 CombatZones[(int)side].SummonedCards[removedCardIndex] = oldCreature;
 
                 await Task.WhenAll(tasks);
@@ -266,7 +292,7 @@ namespace QuivalCombatTestWPF
             {
                 if (summonedCard != null && summonedCard.Id == blockEvent.CreatureId)
                 {
-                    await Animation.MoveToPoint(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[theSide]);
+                    await Animation.MoveToPoint(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[theSide], 0.6);
                     CombatZones[theSide].RemoveCardFromZone(summonedCard.Id, Layout);
                     BlockZones[theSide].AddCardToBlockZone(summonedCard, Layout, Layout.BlockAreas[theSide]);
                 }
@@ -287,7 +313,7 @@ namespace QuivalCombatTestWPF
                         await PlayCardActionAnimation(action, side, attackingBoardCard);
 
                 Position originalPos = attackingBoardCard.GetPos();
-                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)], 0.6);
 
                 var attackingCreature = (CreatureCard)attackingBoardCard.Tag;
                 if (attackingCreature != null)
@@ -305,7 +331,7 @@ namespace QuivalCombatTestWPF
                     }
                 }
 
-                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, System.Windows.Media.Animation.EasingMode.EaseOut);
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, 0.6, System.Windows.Media.Animation.EasingMode.EaseOut);
 
                 //More of the above silly hack
                 foreach (var action in attackEvent.CardActionEvents)
@@ -344,23 +370,16 @@ namespace QuivalCombatTestWPF
                 var boardCard = Mapper.MapToBoardCard(cardToSummon, BoardCard_Clicked);
                 if (boardCard != null)
                 {
-                    Position handcardPos = new();
-                    foreach (var child in Layout.Canvas.Children)
-                    {
-                        if (child is HandCard handCard)
-                        {
-                            if (handCard.Id == boardCard.Id)
-                            {
-                                handcardPos.Left = Canvas.GetLeft(handCard);
-                                handcardPos.Top = Canvas.GetTop(handCard);
-                                handCard.Visibility = Visibility.Hidden;
-                            }
-                        }
-                    }
+                    Position summonStartPos = new();
 
                     if (side == Side.Player)
                     {
-                        boardCard.SetPos(handcardPos);
+                        var handCard = GetHandCard(boardCard.Id);
+                        summonStartPos.Left = Canvas.GetLeft(handCard);
+                        summonStartPos.Top = Canvas.GetTop(handCard);
+                        boardCard.SetPos(summonStartPos);
+
+                        Layout.Canvas.Children.Remove(handCard);
                     }
                     else
                     {
@@ -369,7 +388,7 @@ namespace QuivalCombatTestWPF
                     }
 
                     int summonIndex = CombatZones[(int)side].AddCardToNextFreeSlot(boardCard, Layout);
-                    await Animation.MoveToPoint(boardCard, handcardPos, Layout.SummonSlots[(int)side][summonIndex]);
+                    await Animation.MoveToPoint(boardCard, summonStartPos, Layout.SummonSlots[(int)side][summonIndex], 0.6);
 
                     foreach (var action in summonEvent.CardActionEvents)
                     {
@@ -694,6 +713,8 @@ namespace QuivalCombatTestWPF
 
                 HandCard hand = Mapper.MapToHandCard(cards[i]);
                 hand.MouseLeftButtonDown += HandZone_CardClicked;
+                hand.HandSlotIndex = i;
+                hand.HandIndex.Content = i;
                 hand.SetPos(Layout.PlayerHandSlots[i]);
                 Layout.Canvas.Children.Add(hand);
 

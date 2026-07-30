@@ -42,18 +42,22 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
+        public static async Task DelayThen(int delayMs, Func<Task> action)
+        {
+            await Task.Delay(delayMs);
+            await action();
+        }
+
         //TODO: this usercontrol should really just be some kind of UICard that Boardcard and HandCard inherit from
-        public static Task MoveToPoint(UserControl boardCard, Position start, Position end, EasingMode easingMode = EasingMode.EaseIn)
+        public static Task MoveToPoint(UserControl boardCard, Position start, Position end, double speed, EasingMode easingMode = EasingMode.EaseIn)
         {
             if (boardCard is IHasPosition hasPostition)
             {
-                double animationSpeed = 0.6;
-
                 DoubleAnimation yAnim = new()
                 {
                     From = start.Top,
                     To = end.Top,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
+                    Duration = TimeSpan.FromSeconds(speed),
                     EasingFunction = new CubicEase() { EasingMode = easingMode }
                 };
 
@@ -61,7 +65,7 @@ namespace QuivalCombatTestWPF
                 {
                     From = start.Left,
                     To = end.Left,
-                    Duration = TimeSpan.FromSeconds(animationSpeed),
+                    Duration = TimeSpan.FromSeconds(speed),
                     EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
                 };
 

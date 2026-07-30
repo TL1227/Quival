@@ -14,6 +14,7 @@ namespace QuivalCombatTestWPF
         public static double DefaultHeight { get; set; } = 324;
         public static double SlideSpeed { get; set; } = 0.15;
         public int Id { get; set; }
+        public int HandSlotIndex { get; set; }
 
         public HandCard(int cardId)
         {
