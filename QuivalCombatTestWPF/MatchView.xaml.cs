@@ -179,9 +179,10 @@ namespace QuivalCombatTestWPF
                 {
                     Position pos = Layout.PlayerHandSlots[i];
 
+                    int storedIndex = i; //If we just use i directly it messes up the indexing
                     tasks.Add(
-                        Animation.DelayThen(200,
-                            () => Animation.MoveToPoint(handCards[i], handCards[i].GetPos(), pos, 0.3))
+                        Animation.DelayThen(50 * storedIndex,
+                            () => Animation.MoveToPoint(handCards[storedIndex], handCards[storedIndex].GetPos(), pos, 0.3))
                         );
 
                     handCards[i].HandSlotIndex = i;
