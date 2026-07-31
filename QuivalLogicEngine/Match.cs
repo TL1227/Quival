@@ -49,7 +49,8 @@ public class Match
             Hand = Players[playerId].Hand,
             Deck = Players[playerId].Deck,
             CardToPlay = Players[playerId].CardToPlay,
-            BlockingCreature = Players[playerId].BlockingCreature
+            BlockingCreature = Players[playerId].BlockingCreature,
+            OutOfMoves = Players[playerId].OutOfMoves,
         };
 
         ClientGameState state = new()
@@ -73,7 +74,6 @@ public class Match
         {
             state.OpponentCardCount = opponent.Hand.Count();
             state.OpponentHealthPoints = opponent.HealthPoints;
-            Console.WriteLine($"Moving to turn {TurnCount}");
             state.OpponentManaPoints = opponent.Mana;
             state.OpponentBlockCard = opponent.BlockingCreature;
             state.OpponentCardToPlay = opponent.CardToPlay;
@@ -117,7 +117,7 @@ public class Match
 
         Player player = new Player(id, deck)
         {
-            Mana = 1
+            Mana = 10
         };
 
 
@@ -332,6 +332,34 @@ public class Match
         NextRound();
     }
 
+    private bool IsOutOfMoves(Player player)
+    {
+        bool hasCardsToPlay = false;
+        foreach (var card in player.Hand)
+        {
+            if (card.Cost <= player.Mana)
+                hasCardsToPlay = true;
+        }
+
+        bool hasCreaturesToMove = false;
+        foreach (var creature in BoardState.SummonedCreatures[player.Id])
+        {
+            if (creature.HasActed == false)
+                hasCreaturesToMove = true;
+        }
+
+        return !hasCardsToPlay && !hasCreaturesToMove;
+    }
+
+    private bool BothPlayersAreOutOfMoves()
+    {
+        foreach (var player in Players)
+            if (!player.OutOfMoves)
+                return false;
+        
+        return true;
+    }
+
     public void NextRound()
     {
         RoundCount++;
@@ -339,9 +367,7 @@ public class Match
         {
             player.SubmittedTurn = null;
             player.TargetSelections.Clear();
-
-            //TODO: I think that we should do the calculating which players can and can't move next turn here
-            //currently it's all being done client side which is stupid
+            player.OutOfMoves = IsOutOfMoves(player);
         }
 
         //remove attack buffs
@@ -351,8 +377,9 @@ public class Match
 
         CurrentTurnsEvents.AddRange(CurrentRoundsEvents);
 
-        if (RoundCount > MaxRounds)
+        if (RoundCount > MaxRounds || BothPlayersAreOutOfMoves())
         {
+            Console.WriteLine("[Turn] New Turn!");
             NextTurn();
         }
     }

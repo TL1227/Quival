@@ -133,8 +133,6 @@ internal class Room
                 GameState = Match.GetGameState(player.Id)
             };
 
-            //string? gs = JsonSerializer.Serialize(update, update.GetType());
-            //await player.Writer.WriteLineAsync(gs);
             await player.SendMessageAsync(update);
         }
     }

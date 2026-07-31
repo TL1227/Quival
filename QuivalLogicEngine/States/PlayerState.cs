@@ -11,5 +11,6 @@ namespace QuivalLogicEngine.States
         public required List<Card> Deck { get; set; }
         public Card? CardToPlay { get; set; }
         public Card? BlockingCreature { get; set; }
+        public bool OutOfMoves { get; set; }
     }
 }

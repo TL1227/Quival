@@ -615,11 +615,16 @@ namespace QuivalCombatTestWPF
 
             if (FirstGameStateUpdate)
             {
+                Debug.WriteLine("Setting Start Hand Position");
                 SetInitialHandPosition(gs.PlayerState.Hand);
                 await PlayInitialHandShuffleUp();
+
+                Debug.WriteLine("First Turn Over");
+                FirstGameStateUpdate = false;
             }
             else
             {
+                Debug.WriteLine("Updating hand!");
                 UpdateHand(gs.PlayerState.Hand);
             }
 
@@ -676,7 +681,6 @@ namespace QuivalCombatTestWPF
 
             Animation.DisplayRound(CurrentGameState.RoundCount, Layout.Canvas);
 
-            FirstGameStateUpdate = false;
         }
 
         private bool SummonedCardsCanMove()
