@@ -117,7 +117,7 @@ public class Match
 
         Player player = new Player(id, deck)
         {
-            Mana = 10
+            Mana = 1
         };
 
 

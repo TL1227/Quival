@@ -7,7 +7,7 @@ using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
-    public partial class HandCard : UserControl
+    public partial class HandCard : UserControl, IHasPosition
     {
         public static double DefaultWidth { get; set; } = 243;
         public static double DefaultHeight { get; set; } = 324;

@@ -162,6 +162,9 @@ namespace QuivalCombatTestWPF
             var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
             await AnimateEvents(cardDrawEvents);
 
+            //This delay prevents some UI flashing after the animations play. (It also actually "feels" nicer)
+            await Task.Delay(200); 
+
             await UpdateUIFromGameState();
         }
 
