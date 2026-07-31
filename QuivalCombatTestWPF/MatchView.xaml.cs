@@ -9,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
-using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
@@ -50,6 +49,8 @@ namespace QuivalCombatTestWPF
 
         public bool CanClickCards { get; set; } = true;
         public bool ViewingCard { get; set; } = false;
+
+        private bool FirstGameStateUpdate { get; set; } = true;
 
         public MatchView(QuivalClient client)
         {
@@ -140,7 +141,6 @@ namespace QuivalCombatTestWPF
 
             UnselectAll();
 
-
             var castEvents = cgs.GameEvents.OfType<CastEvent>().ToList<EventMessage>();
             await AnimateEvents(castEvents);
 
@@ -158,8 +158,6 @@ namespace QuivalCombatTestWPF
 
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
             await PlayDeathAnimations(deathEvents);
-
-            await PlayHandShuffleUp();
 
             var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
             await AnimateEvents(cardDrawEvents);
@@ -192,6 +190,27 @@ namespace QuivalCombatTestWPF
             await Task.WhenAll(tasks);
         }
 
+        private async Task PlayInitialHandShuffleUp()
+        {
+            var handCards = Layout.Canvas.Children.OfType<HandCard>().OrderBy(x => x.HandSlotIndex).ToList();
+
+            List<Task> tasks = new();
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                Position pos = Layout.PlayerHandSlots[i];
+
+                int storedIndex = i; //If we just use i directly it messes up the indexing
+                tasks.Add(
+                    Animation.DelayThen(20 * storedIndex,
+                        () => Animation.MoveToPoint(handCards[storedIndex], handCards[storedIndex].GetPos(), pos, 0.5))
+                    );
+
+                handCards[i].HandSlotIndex = i;
+            }
+
+            await Task.WhenAll(tasks);
+        }
+
         private async Task AnimateEvents(List<EventMessage> events)
         {
             var myEvents = events.Where(e => e.PlayerId == MyPlayerId).ToList();
@@ -215,9 +234,11 @@ namespace QuivalCombatTestWPF
             {
                 case CastEvent castEvent:
                     await PlayCastAnimation(castEvent, side);
+                    await PlayHandShuffleUp();
                     break;
                 case SummonEvent summonEvent:
                     await PlaySummonAnimation(summonEvent, side);
+                    await PlayHandShuffleUp();
                     break;
                 case MoveToBlockZoneEvent moveToBlockZoneEvent:
                     await PlayBlockAnimation(moveToBlockZoneEvent, side);
@@ -394,10 +415,7 @@ namespace QuivalCombatTestWPF
                     foreach (var action in summonEvent.CardActionEvents)
                     {
                         await PlayCardActionAnimation(action, side, boardCard);
-                        //await Task.Delay(500);
                     }
-
-                    await Task.Delay(500);
                 }
             }
         }
@@ -513,6 +531,7 @@ namespace QuivalCombatTestWPF
 
             if (side == (Side)PlayerSide)
             {
+                List<Task> animations = new();
                 var handCard = GetHandCard(castEvent.CastCard.Id);
                 await handCard.SummonOut(Brushes.Aquamarine);
                 Layout.Canvas.Children.Remove(handCard);
@@ -594,8 +613,19 @@ namespace QuivalCombatTestWPF
                 }
             }
 
-            UpdateHand(gs.PlayerState.Hand);
+            if (FirstGameStateUpdate)
+            {
+                SetInitialHandPosition(gs.PlayerState.Hand);
+                await PlayInitialHandShuffleUp();
+            }
+            else
+            {
+                UpdateHand(gs.PlayerState.Hand);
+            }
+
             UpdateOpponentHand(gs.OpponentCardCount);
+
+            await Task.Delay(500);
 
             string gameEvents = "";
             foreach (var gameEvent in gs.GameEvents)
@@ -645,6 +675,8 @@ namespace QuivalCombatTestWPF
             */
 
             Animation.DisplayRound(CurrentGameState.RoundCount, Layout.Canvas);
+
+            FirstGameStateUpdate = false;
         }
 
         private bool SummonedCardsCanMove()
@@ -726,6 +758,30 @@ namespace QuivalCombatTestWPF
                     hand.TextPanel.ActualHeight
                     );
 
+            }
+        }
+
+        public void SetInitialHandPosition(List<Card> cards)
+        {
+            Layout.ClearHand();
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (i >= Layout.PlayerHandSlots.Length) break;
+
+                HandCard hand = Mapper.MapToHandCard(cards[i]);
+                hand.MouseLeftButtonDown += HandZone_CardClicked;
+                hand.HandSlotIndex = i;
+                hand.HandIndex.Content = i;
+                hand.SetPos(new Position() { Top = 540, Left = 960 });
+                Layout.Canvas.Children.Add(hand);
+
+                //fix font size if too big
+                hand.UpdateLayout();
+                QuivalText.FitFontSize(hand.CardDescriptionLabel,
+                    hand.TextPanel.ActualWidth,
+                    hand.TextPanel.ActualHeight
+                    );
             }
         }
 

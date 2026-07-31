@@ -1,6 +1,5 @@
 ﻿using QuivalCombatTestWPF.Colours;
 using QuivalCombatTestWPF.Interfaces;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,7 +7,7 @@ using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
-    public partial class HandCard : UserControl, IHasPosition
+    public partial class HandCard : UserControl
     {
         public static double DefaultWidth { get; set; } = 243;
         public static double DefaultHeight { get; set; } = 324;
@@ -25,6 +24,7 @@ namespace QuivalCombatTestWPF
             MouseEnter += HandCard_MouseEnter;
             MouseLeave += HandCard_MouseLeave;
             RenderTransform = new TranslateTransform(0, 0);
+            HandIndex.Visibility = Visibility.Collapsed;
         }
 
         private void HandCard_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -137,12 +137,10 @@ namespace QuivalCombatTestWPF
             TaskCompletionSource tsc = new();
             anim.Completed += (_, _) =>
             {
-                //Overlay.Opacity = 0.0;
                 CardBackground.Opacity = 0.0;
                 tsc.SetResult();
             };
 
-            //Overlay.BeginAnimation(OpacityProperty, anim);
             CardBackground.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
