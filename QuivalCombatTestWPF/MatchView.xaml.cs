@@ -237,11 +237,9 @@ namespace QuivalCombatTestWPF
             {
                 case CastEvent castEvent:
                     await PlayCastAnimation(castEvent, side);
-                    await PlayHandShuffleUp();
                     break;
                 case SummonEvent summonEvent:
                     await PlaySummonAnimation(summonEvent, side);
-                    await PlayHandShuffleUp();
                     break;
                 case MoveToBlockZoneEvent moveToBlockZoneEvent:
                     await PlayBlockAnimation(moveToBlockZoneEvent, side);
@@ -253,6 +251,7 @@ namespace QuivalCombatTestWPF
                     await PlayAttackAnimation(attackEvent, side);
                     break;
                 case CardDrawEvent cardDrawEvent:
+                    await PlayHandShuffleUp();
                     await PlayCardDrawAnimation(cardDrawEvent, side);
                     break;
                 default:
@@ -515,6 +514,8 @@ namespace QuivalCombatTestWPF
                             }
                             break;
                         case DrawCardEffect:
+                            await PlayHandShuffleUp();
+                            await PlayCardDrawAnimation(actionEvent.Value, side);
                             break;
                         default:
                             break;

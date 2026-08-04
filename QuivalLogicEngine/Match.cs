@@ -550,7 +550,7 @@ public class Match
                 case DrawCardEffect:
                     {
                         var cardsDrawn = Players[playerCard.Id].DrawCard(value);
-                        CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn){ PlayerId = playerCard.Id });
+                        //CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn){ PlayerId = playerCard.Id });
                         break;
                     }
             }
