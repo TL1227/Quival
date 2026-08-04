@@ -178,4 +178,7 @@ public partial class LayoutCanvas : UserControl
             Canvas.Children.Remove(card);
         }
     }
+
+    public HandCard? GetHandCard(int cardId) => Canvas.Children .OfType<HandCard>() .SingleOrDefault(c => c.Id == cardId);
+    public BoardCard? GetBoardCard(int cardId) => Canvas.Children.OfType<BoardCard>().SingleOrDefault(c => c.Id == cardId);
 }

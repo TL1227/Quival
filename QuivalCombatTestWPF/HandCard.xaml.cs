@@ -14,6 +14,7 @@ namespace QuivalCombatTestWPF
         public static double SlideSpeed { get; set; } = 0.15;
         public int Id { get; set; }
         public int HandSlotIndex { get; set; }
+        public bool InHand { get; set; } = true;
 
         public HandCard(int cardId)
         {
