@@ -5,7 +5,6 @@ using QuivalLogicEngine.Turns;
 
 namespace QuivalLogicEngine;
 
-
 public class Match
 {
     public List<Player> Players { get; set; }
@@ -811,7 +810,6 @@ public class Match
 
         return !passes.Contains(false); 
     }
-
 
     private void EventMessage(EventMessage message)
     {

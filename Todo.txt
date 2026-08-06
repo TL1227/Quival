@@ -1,0 +1,9 @@
+Priority
+- Add Win/Lose/Draw states
+- Prompt the player to discard cards if the hand size is too large after the cards are processed 
+- Basic deckbuilder
+- Another pass on the card builder app
+
+Nice To Have
+- Username display in matches
+- Have some kind of artwork for all cards
