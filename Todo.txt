@@ -1,9 +1,13 @@
 Priority
 - Add Win/Lose/Draw states
 - Prompt the player to discard cards if the hand size is too large after the cards are processed 
-- Basic deckbuilder
-- Another pass on the card builder app
+- Enough cards for 2 decks (20 Unique cards for 2 decks of 40 each)
+- Ability to select between Aggro and Control decks
+
+- Card Builder App
 
 Nice To Have
+- Basic deckbuilder
 - Username display in matches
 - Have some kind of artwork for all cards
+- Proper room creation, join, deletion
