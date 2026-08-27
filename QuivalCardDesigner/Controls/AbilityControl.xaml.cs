@@ -27,9 +27,9 @@ namespace QuivalCardDesigner.Controls
             CurrentAbility.Effect = effect;
 
             EffectLabel.Content = effect;
-            TargetTypeComboBox.ItemsSource = Enum.GetValues<TargetType>();
+            //TargetTypeComboBox.ItemsSource = Enum.GetValues<TargetType>();
             SideComboBox.ItemsSource = Enum.GetValues<Side>();
-            ValueFromComboBox.ItemsSource = Enum.GetValues<ValueFrom>();
+            //ValueFromComboBox.ItemsSource = Enum.GetValues<ValueFrom>();
             ConditionalsComboBox.ItemsSource = Enum.GetValues<Conditional>();
         }
     }

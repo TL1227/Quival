@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Reflection;
 using System.Diagnostics;
 using QuivalCardDesigner.Controls;
+using System.Windows.Media.Animation;
 
 namespace QuivalCardDesigner.Views;
 
@@ -15,7 +16,7 @@ public partial class CardDesignView : UserControl
 {
     private MainWindow MainWindow { get; set; }
     private CardDefinition CurrentCardDefinition { get; set; }
-
+    
     public CardDesignView(MainWindow mainWindow)
     {
         InitializeComponent();
@@ -30,7 +31,18 @@ public partial class CardDesignView : UserControl
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
-        TriggerTypeComboBox.ItemsSource = Enum.GetValues<TriggerType>();
+        Type baseType = typeof(QuivalLogicEngine.Cards.Trigger);
+
+        var types = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => baseType.IsAssignableFrom(type) &&
+                type != baseType &&
+                !type.IsAbstract)
+            .ToList();
+
+        TriggerTypeComboBox.ItemsSource = types;
+        TriggerTypeComboBox.DisplayMemberPath = "Name";
 
         LoadBlankCard();
     }
@@ -96,23 +108,31 @@ public partial class CardDesignView : UserControl
 
     private void AddTriggerButton_Click(object sender, RoutedEventArgs e)
     {
-        if (TriggerTypeComboBox.SelectedItem is TriggerType triggerType)
+            var selectedType = (Type)TriggerTypeComboBox.SelectedItem;
+            var trigger = (QuivalLogicEngine.Cards.Trigger)Activator.CreateInstance(selectedType)!;
+            TriggerListBox.Items.Add(new TriggerControl(trigger));
+
+        /*
+        switch (trigger)
         {
-            if (triggerType != TriggerType.None)
-            {
-                if (ContainsDuplicateTriggers(TriggerListBox.Items, triggerType))
-                {
-                    MessageBox.Show("You've already made a trigger of that type!");
-                }
-                else
-                {
-                    TriggerControl triggerControl = new(triggerType);
-                    TriggerListBox.Items.Add(triggerControl);
-                }
-            }
+            case CastTrigger:
+                //CurrentCardDefinition.Triggers.Add(new CastTrigger());
+                TriggerListBox.Items.Add(trigger.ToString());
+                TriggerListBox.Items.Add(new TriggerControl(new CastTrigger()));
+                break;
+            case SelfTrigger:
+            case ListeningTrigger:
+            case PhaseTrigger:
+                //TODO: prompt the user for the trigger type
+                TriggerListBox.Items.Add(trigger.ToString());
+                break;
+            default:
+                break;
         }
+        */
     }
 
+    /*
     private bool ContainsDuplicateTriggers(ItemCollection items, TriggerType triggerType)
     {
         foreach (var item in TriggerListBox.Items)
@@ -122,5 +142,6 @@ public partial class CardDesignView : UserControl
 
         return false;
     }
+    */
     #endregion
 }

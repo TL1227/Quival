@@ -6,25 +6,44 @@ namespace QuivalCardDesigner.Controls
 {
     public partial class TriggerControl : UserControl
     {
-        public Trigger CurrentTrigger { get; set; } = new();
+        public Trigger CurrentTrigger { get; set; }
 
-        public TriggerControl(TriggerType triggerType)
+        public TriggerControl(Trigger trigger)
         {
             InitializeComponent();
 
-            CurrentTrigger = new()
+            CurrentTrigger = trigger;
+            TriggerNameLabel.Content = trigger.GetType().Name;
+                
+            if (trigger is CastTrigger)
             {
-                TriggerType = triggerType
-            };
+                TriggerTypeStackPanel.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                TriggerNameLabel.Content = trigger.GetType().Name;
+                TriggerTypeComboBox.ItemsSource = trigger.GetEnums();
+            }
 
-            TriggerTypeLabel.Content = triggerType;
+            if (trigger is ListeningTrigger)
+            {
+                TriggerSideLabel.Visibility = System.Windows.Visibility.Visible;
+                TriggerSideComboBox.Visibility = System.Windows.Visibility.Visible;
+                TriggerSideComboBox.ItemsSource = Enum.GetValues<Side>();
+            }
 
-            SideComboBox.ItemsSource = Enum.GetValues<Side>();
-            ChoiceTypeComboBox.ItemsSource = Enum.GetValues<ChoiceType>();
-            AbilitiyEffectComboBox.ItemsSource = Enum.GetValues<Effect>();
+            Type baseType = typeof(Target);
+
+            var types = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => baseType.IsAssignableFrom(type) &&
+                    type != baseType &&
+                    !type.IsAbstract)
+                .ToList();
+
 
             ToggleCollapse.Click += ToggleCollapse_Click;
-
             AddAbilityButton.Click += AddAbilityButton_Click;
         }
 

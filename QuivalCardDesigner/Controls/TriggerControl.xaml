@@ -13,24 +13,26 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Background="AliceBlue" Margin="0,0,0,10">
+        <Grid Background="RoyalBlue" Margin="0,0,0,10">
 
         <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal">
-                <Label x:Name="TriggerTypeLabel" Content="Attack" />
-                <Label Margin="20,0,0,0" Content="Side: " />
-                <ComboBox BorderThickness="0" Background="AliceBlue"  x:Name="SideComboBox" SelectedIndex="0"></ComboBox>
+                <Label x:Name="TriggerNameLabel" Foreground="WhiteSmoke" HorizontalContentAlignment="Left" Margin="10,0,0,0" />
             </StackPanel>
-            <Button x:Name="ToggleCollapse" Margin="5" Content="▼" Background="AliceBlue" Grid.Column="2" BorderThickness="0"/>
+            <Button x:Name="ToggleCollapse" Margin="5" Foreground="WhiteSmoke" Content="▼" Background="RoyalBlue" Grid.Column="2" BorderThickness="0"/>
         </Grid>
 
         <StackPanel x:Name="ContentPanel" Grid.Row="1">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <StackPanel x:Name="TriggerTypeStackPanel" Orientation="Horizontal" Margin="0,0,0,10">
+                <Label x:Name="TriggerTypeLabel" Margin="10,0,0,0" Content="Type" />
+                <ComboBox BorderThickness="0" Background="AliceBlue"  x:Name="TriggerTypeComboBox" SelectedIndex="0" Width="200"></ComboBox>
+                <Label Visibility="Hidden"  x:Name="TriggerSideLabel" Margin="10,0,0,0" Content="Side " />
+                <ComboBox Visibility="Hidden" BorderThickness="0" Background="AliceBlue"  x:Name="TriggerSideComboBox" SelectedIndex="0" Width="100"></ComboBox>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Margin="20,0,0,10">
                 <Label>Abilities</Label>
                 <Button x:Name="AddAbilityButton">Add Ability</Button>
                 <ComboBox x:Name="AbilitiyEffectComboBox" SelectedIndex="0"></ComboBox>

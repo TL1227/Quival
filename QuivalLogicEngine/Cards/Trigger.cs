@@ -13,6 +13,7 @@ namespace QuivalLogicEngine.Cards
         public ChoiceType ChoiceType { get; set; }
         public int ChoiceNumber { get; set; }
         public abstract bool SameAs(Trigger otherTrigger);
+        public abstract string[]? GetEnums();
 
         public Trigger()
         {
@@ -30,6 +31,8 @@ namespace QuivalLogicEngine.Cards
         {
             return GetType() == otherTrigger.GetType();
         }
+
+        public override string[]? GetEnums() => ["None"];
     }
 
     public enum SelfTriggerType
@@ -44,12 +47,17 @@ namespace QuivalLogicEngine.Cards
 
     public class SelfTrigger : Trigger
     {
-        public required SelfTriggerType SelfTriggerType { get; set; }
+        public SelfTriggerType SelfTriggerType { get; set; }
 
         public override bool SameAs(Trigger otherTrigger)
         {
             return otherTrigger is SelfTrigger st &&
                 st.SelfTriggerType == SelfTriggerType;
+        }
+
+        public override string[]? GetEnums()
+        {
+            return Enum.GetNames<SelfTriggerType>();
         }
     }
 
@@ -69,13 +77,18 @@ namespace QuivalLogicEngine.Cards
 
     public class ListeningTrigger : Trigger
     {
-        public required ListeningTriggerType ListeningTriggerType  { get; set; }
+        public ListeningTriggerType ListeningTriggerType  { get; set; }
         public Side Side { get; set; }
         public bool CanTargetSelf { get; set; }
         public override bool SameAs(Trigger otherTrigger)
         {
             return otherTrigger is ListeningTrigger st &&
                 st.ListeningTriggerType == ListeningTriggerType;
+        }
+
+        public override string[]? GetEnums()
+        {
+            return Enum.GetNames<ListeningTriggerType>();
         }
     }
 
@@ -87,11 +100,16 @@ namespace QuivalLogicEngine.Cards
 
     public class PhaseTrigger : Trigger
     {
-        public required PhaseTriggerType PhaseTriggerType { get; set; }
+        public PhaseTriggerType PhaseTriggerType { get; set; }
         public override bool SameAs(Trigger otherTrigger)
         {
             return otherTrigger is PhaseTrigger st &&
                 st.PhaseTriggerType == PhaseTriggerType;
+        }
+
+        public override string[]? GetEnums()
+        {
+            return Enum.GetNames<PhaseTriggerType>();
         }
     }
 
@@ -125,6 +143,7 @@ namespace QuivalLogicEngine.Cards
     public class Ability
     {
         public int Id { get; set; } 
+
         public Target Target { get; set; }
 
         public Effect Effect { get; set; }
