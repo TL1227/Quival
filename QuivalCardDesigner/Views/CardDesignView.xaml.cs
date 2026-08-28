@@ -32,7 +32,6 @@ public partial class CardDesignView : UserControl
         AddTriggerButton.Click += AddTriggerButton_Click;
 
         Type baseType = typeof(QuivalLogicEngine.Cards.Trigger);
-
         var types = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())

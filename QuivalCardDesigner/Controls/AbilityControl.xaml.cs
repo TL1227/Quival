@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using QuivalLogicEngine.Cards;
 
@@ -25,12 +13,87 @@ namespace QuivalCardDesigner.Controls
         {
             InitializeComponent();
             CurrentAbility.Effect = effect;
+            EffectLabel.Content = effect.GetType().Name.Replace("Effect", "");
 
-            EffectLabel.Content = effect;
-            //TargetTypeComboBox.ItemsSource = Enum.GetValues<TargetType>();
-            SideComboBox.ItemsSource = Enum.GetValues<Side>();
-            //ValueFromComboBox.ItemsSource = Enum.GetValues<ValueFrom>();
-            ConditionalsComboBox.ItemsSource = Enum.GetValues<Conditional>();
+
+            /*
+                NOTE: CreatureTarget class doesn't make sense in this context and should only be used for the 
+                selection target pool. I'm not sure if this means we should go about the design a different
+                or just live with the exception here. 
+            */
+
+            Type baseType = typeof(Target);
+            var targets = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => baseType.IsAssignableFrom(type) &&
+                    type != baseType &&
+                    !type.IsAbstract &&
+                    type != typeof(CreatureTarget)) 
+                .ToList();
+
+            TargetTypeComboBox.ItemsSource = targets;
+            TargetTypeComboBox.DisplayMemberPath = "Name";
+            TargetTypeComboBox.SelectionChanged += TargetTypeComboBox_SelectionChanged;
+
+            SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+        }
+
+        private void SetSelectionTargetOptionsVisibility(Visibility visibility)
+        {
+            SelfTargetLabel.Visibility = Visibility.Collapsed;
+            SelfTargetCheckbox.Visibility = Visibility.Collapsed;
+
+            CreatureTargetLabel.Visibility = Visibility.Collapsed;
+            CreatureTargetCheckbox.Visibility = Visibility.Collapsed;
+
+            /*
+            OpponentTargetLabel.Visibility = Visibility.Collapsed;
+            OpponentTargetCheckbox.Visibility = Visibility.Collapsed;
+
+            PlayerTargetLabel.Visibility = Visibility.Collapsed;
+            PlayerTargetCheckbox.Visibility = Visibility.Collapsed;
+            */
+
+            foreach (var validTarget in CurrentAbility.Effect.ValidTargets)
+            {
+                switch (validTarget)
+                {
+                    case TargetPool.Direct:
+                        break;
+                    case TargetPool.Creature:
+                        SelfTargetLabel.Visibility = visibility;
+                        SelfTargetCheckbox.Visibility = visibility;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            SideLabel.Visibility = visibility;
+            SideComboBox.Visibility = visibility;
+
+            SelfTargetLabel.Visibility = visibility;
+            SelfTargetCheckbox.Visibility = visibility;
+
+            TargetNumberLabel.Visibility = visibility;
+            TargetNumberCombobox.Visibility = visibility;
+        }
+
+        private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedType = (Type)TargetTypeComboBox.SelectedItem;
+            var target = (Target)Activator.CreateInstance(selectedType)!;
+
+            if (target is SelectionTarget)
+            {
+                SetSelectionTargetOptionsVisibility(Visibility.Visible);
+            }
+            else
+            {
+                SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+            }
         }
     }
 }

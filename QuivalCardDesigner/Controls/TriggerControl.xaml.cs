@@ -32,8 +32,7 @@ namespace QuivalCardDesigner.Controls
                 TriggerSideComboBox.ItemsSource = Enum.GetValues<Side>();
             }
 
-            Type baseType = typeof(Target);
-
+            Type baseType = typeof(Effect);
             var types = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
@@ -42,6 +41,8 @@ namespace QuivalCardDesigner.Controls
                     !type.IsAbstract)
                 .ToList();
 
+            AbilitiyEffectComboBox.ItemsSource = types;
+            AbilitiyEffectComboBox.DisplayMemberPath = "Name";
 
             ToggleCollapse.Click += ToggleCollapse_Click;
             AddAbilityButton.Click += AddAbilityButton_Click;
@@ -49,11 +50,9 @@ namespace QuivalCardDesigner.Controls
 
         private void AddAbilityButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (AbilitiyEffectComboBox.SelectedItem is Effect effect)
-            {
-                AbilityControl ab = new(effect);
-                AbilitiesListBox.Items.Add(ab);
-            }
+            var selectedType = (Type)AbilitiyEffectComboBox.SelectedItem;
+            var effect = (Effect)Activator.CreateInstance(selectedType)!;
+            AbilitiesListBox.Items.Add(new AbilityControl(effect));
         }
 
         private void ToggleCollapse_Click(object sender, System.Windows.RoutedEventArgs e)

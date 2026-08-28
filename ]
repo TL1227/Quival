@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards
 {
@@ -12,7 +12,8 @@ namespace QuivalLogicEngine.Cards
     [JsonDerivedType(typeof(DrawCardEffect), 6)]
     public abstract class Effect()
     {
-        public List<TargetPool> ValidTargets { get; set; }
+        //public List<TargetPool> ValidTargets { get; set; }
+        public List<Type> ValidTargets { get; set; }
 
         public abstract string TargetString { get; set; }
 
@@ -41,8 +42,10 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
-                TargetPool.Direct
+                typeof(SelfTarget),
+                typeof(CreatureTarget),
+                typeof(PlayerTarget),
+                typeof(OpponentTarget),
             ];
         }
     }
@@ -53,10 +56,10 @@ namespace QuivalLogicEngine.Cards
 
         public DirectDamageEffect()
         {
-            ValidTargets = 
+            ValidTargets =
             [
                 TargetPool.Creature,
-                TargetPool.Direct
+                TargetPool.Direct,
             ];
         }
     }
@@ -67,10 +70,7 @@ namespace QuivalLogicEngine.Cards
 
         public ReviveEffect()
         {
-            ValidTargets = 
-            [
-                TargetPool.Creature,
-            ];
+            ValidTargets = [TargetPool.Creature];
         }
     }
 
@@ -80,10 +80,7 @@ namespace QuivalLogicEngine.Cards
 
         public AttackBuffRoundEffect()
         {
-            ValidTargets = 
-            [
-                TargetPool.Creature,
-            ];
+            ValidTargets = [TargetPool.Creature];
         }
     }
 
@@ -93,10 +90,7 @@ namespace QuivalLogicEngine.Cards
 
         public AttackBuffEffect()
         {
-            ValidTargets = 
-            [
-                TargetPool.Creature,
-            ];
+            ValidTargets = [TargetPool.Creature];
         }
     }
 
@@ -106,10 +100,7 @@ namespace QuivalLogicEngine.Cards
 
         public AttackDebuffEffect()
         {
-            ValidTargets = 
-            [
-                TargetPool.Creature,
-            ];
+            ValidTargets = [TargetPool.Creature];
         }
     }
 
@@ -119,10 +110,7 @@ namespace QuivalLogicEngine.Cards
 
         public DrawCardEffect()
         {
-            ValidTargets =
-            [
-                TargetPool.Direct
-            ];
+            ValidTargets = [TargetPool.Direct];
         }
     }
 }

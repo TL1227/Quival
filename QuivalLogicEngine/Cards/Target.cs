@@ -9,26 +9,22 @@ namespace QuivalLogicEngine.Cards
     [JsonDerivedType(typeof(OpponentTarget), 3)]
     public abstract class Target { }
 
-    public class SelfTarget : Target
-    {
-    }
-
-    public enum DirectTargetType
-    {
-        Player,
-        Opponent
-    }
+    public class SelfTarget : Target { }
 
     public class PlayerTarget : Target
     {
-        public TargetPool TargetPool { get; set; } = TargetPool.Direct;
         public int GetTargetId(Card card) => card.PlayerId;
     }
 
     public class OpponentTarget : Target
     {
-        public TargetPool TargetPool { get; set; } = TargetPool.Direct;
         public int GetTargetId(Card card) => (card.PlayerId == 0) ? 1 : 0;
+    }
+
+    public class TargetPoolItem
+    {
+        public TargetPool TargetPoolType;
+        public Side Side;
     }
 
     public enum TargetPool
@@ -39,18 +35,19 @@ namespace QuivalLogicEngine.Cards
 
     public class SelectionTarget : Target
     {
-        public List<TargetPool> TargetsPool { get; set; }
-        public Side Side { get; set; }
+        public List<TargetPoolItem> TargetsPool { get; set; }
+        //public Side Side { get; set; }
         public bool CanTargetSelf { get; set; }
         public int NumberToPick {  get; set; }
 
         public List<int> GetTargetPool(Card self, Match match)
         {
-            List<Card> targets = new();
+            List<Card> Alltargets = new();
 
             foreach (var tp in TargetsPool)
             {
-                switch (tp)
+                List<Card> targets = new();
+                switch (tp.TargetPoolType)
                 {
                     case TargetPool.Creature:
                         targets.AddRange(match.GetAllCreaturesOnBoard());
@@ -59,17 +56,26 @@ namespace QuivalLogicEngine.Cards
                         targets.AddRange(match.MatchCards.OfType<PlayerCard>().ToList());
                         break;
                 }
+
+                switch (tp.Side)
+                {
+                    case Side.Opponent:
+                        targets = targets.Where(t => t.PlayerId == Match.GetOpponentId(self.PlayerId)).ToList();
+                        break;
+                    case Side.Player:
+                        targets = targets.Where(t => t.PlayerId == self.PlayerId).ToList();
+                        break;
+                    default:
+                    case Side.Any:
+                        break;
+                }
+
+                Alltargets.AddRange(targets);
             }
 
             if (!CanTargetSelf)
-                targets = targets.Where(x => x.Id != self.Id).ToList();
+                Alltargets = Alltargets.Where(x => x.Id != self.Id).ToList();
 
-            return Side switch
-            {
-                Side.Opponent => targets.Where(t => t.PlayerId == Match.GetOpponentId(self.PlayerId)).Select(x => x.Id).ToList(),
-                Side.Player => targets.Where(t => t.PlayerId == self.PlayerId).Select(x => x.Id).ToList(),
-                _ => targets.Select(x => x.Id).ToList(),
-            };
         }
     }
 }

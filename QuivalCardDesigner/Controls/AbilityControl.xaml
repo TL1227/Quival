@@ -13,23 +13,29 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel Background="LightSeaGreen" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Label>Id</Label>
-            <Label>001</Label>
-            <Label x:Name="EffectLabel"></Label>
-            <Button HorizontalAlignment="Right" x:Name="ToggleCollapse" Margin="0,0,0,0" Grid.Column="1" Content="  ▼  " BorderThickness="0" Background="AliceBlue"></Button>
+            <Label Foreground="WhiteSmoke">Id</Label>
+            <Label Foreground="WhiteSmoke">001</Label>
+            <Label Foreground="WhiteSmoke" x:Name="EffectLabel"></Label>
+            <Button HorizontalAlignment="Right" x:Name="ToggleCollapse" Margin="0,0,0,0" Grid.Column="1" Content="  ▼  " BorderThickness="0" Background="LightSeaGreen" Foreground="WhiteSmoke"></Button>
         </StackPanel>
         <StackPanel Grid.Row="1">
             <StackPanel Orientation="Horizontal">
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Label>Target Type</Label>
-                <ComboBox x:Name="TargetTypeComboBox" SelectedIndex="0"></ComboBox>
-                <Label>Side</Label>
-                <ComboBox x:Name="SideComboBox" SelectedIndex="0"></ComboBox>
-                <Label>Can Target Self</Label>
-                <CheckBox VerticalAlignment="Center"></CheckBox>
-                <Label>Number of targets to select</Label>
-                <ComboBox x:Name="NumberOfTargetsComboBox" SelectedIndex="0">
+                <Label>Target</Label>
+                <ComboBox x:Name="TargetTypeComboBox" SelectedIndex="0" Width="150"></ComboBox>
+                <Label x:Name="SelfTargetLabel">Self</Label>
+                <CheckBox x:Name="SelfTargetCheckbox" VerticalAlignment="Center"></CheckBox>
+                <Label x:Name="CreatureTargetLabel">Creatures</Label>
+                <CheckBox x:Name="CreatureTargetCheckbox" VerticalAlignment="Center"></CheckBox>
+                <Label x:Name="OpponentTargetLabel">Opponent</Label>
+                <CheckBox x:Name="OpponentTargetCheckbox" VerticalAlignment="Center"></CheckBox>
+                <Label x:Name="PlayerTargetLabel">Player</Label>
+                <CheckBox x:Name="PlayerTargetCheckbox" VerticalAlignment="Center"></CheckBox>
+                <Label x:Name="SideLabel">Side</Label>
+                <ComboBox x:Name="SideComboBox" SelectedIndex="0" Width="100"></ComboBox>
+                <Label x:Name="TargetNumberLabel">Targets</Label>
+                <ComboBox x:Name="TargetNumberCombobox" SelectedIndex="0">
                     <ComboBoxItem>0</ComboBoxItem>
                     <ComboBoxItem>1</ComboBoxItem>
                     <ComboBoxItem>2</ComboBoxItem>

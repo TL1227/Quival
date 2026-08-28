@@ -132,7 +132,7 @@ namespace LogicEngineConsole
                                     Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
+                                        TargetsPool = [ typeof(CreatureTarget), typeof(OpponentTarget), typeof(PlayerTarget)],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
