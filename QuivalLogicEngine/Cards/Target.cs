@@ -76,6 +76,7 @@ namespace QuivalLogicEngine.Cards
             if (!CanTargetSelf)
                 Alltargets = Alltargets.Where(x => x.Id != self.Id).ToList();
 
+            return Alltargets.Select(x => x.Id).ToList();
         }
     }
 }
