@@ -20,7 +20,7 @@ namespace QuivalLogicEngine.Cards
         {
             foreach (var targetpool in target.TargetsPool)
             {
-                if (!ValidTargets.Contains(targetpool))
+                if (!ValidTargets.Contains(targetpool.TargetPoolType))
                     return false;
             }
             

@@ -28,8 +28,7 @@ namespace QuivalCardDesigner.Controls
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(type => baseType.IsAssignableFrom(type) &&
                     type != baseType &&
-                    !type.IsAbstract &&
-                    type != typeof(CreatureTarget)) 
+                    !type.IsAbstract)
                 .ToList();
 
             TargetTypeComboBox.ItemsSource = targets;
