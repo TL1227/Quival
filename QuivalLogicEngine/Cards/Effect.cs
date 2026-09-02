@@ -12,7 +12,7 @@ namespace QuivalLogicEngine.Cards
     [JsonDerivedType(typeof(DrawCardEffect), 6)]
     public abstract class Effect()
     {
-        public List<TargetPool> ValidTargets { get; set; }
+        public List<ISelectionTarget> ValidTargets { get; set; }
 
         public abstract string TargetString { get; set; }
 
@@ -20,7 +20,7 @@ namespace QuivalLogicEngine.Cards
         {
             foreach (var targetpool in target.TargetsPool)
             {
-                if (!ValidTargets.Contains(targetpool.TargetPoolType))
+                if (!ValidTargets.Contains(targetpool))
                     return false;
             }
             
@@ -39,10 +39,9 @@ namespace QuivalLogicEngine.Cards
 
         public HealEffect()
         {
-            ValidTargets = 
+            ValidTargets =
             [
-                TargetPool.Creature,
-                TargetPool.Direct
+                new DamageableTarget()
             ];
         }
     }
@@ -55,8 +54,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
-                TargetPool.Direct
+                new DamageableTarget()
             ];
         }
     }
@@ -69,7 +67,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
+                new CreatureTarget()
             ];
         }
     }
@@ -82,7 +80,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
+                new CreatureTarget()
             ];
         }
     }
@@ -95,7 +93,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
+                new CreatureTarget()
             ];
         }
     }
@@ -108,7 +106,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets = 
             [
-                TargetPool.Creature,
+                new CreatureTarget()
             ];
         }
     }
@@ -121,7 +119,7 @@ namespace QuivalLogicEngine.Cards
         {
             ValidTargets =
             [
-                TargetPool.Direct
+                new ControllerTarget()
             ];
         }
     }

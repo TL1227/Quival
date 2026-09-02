@@ -28,14 +28,43 @@ namespace QuivalCardDesigner.Controls
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(type => baseType.IsAssignableFrom(type) &&
                     type != baseType &&
-                    !type.IsAbstract)
+                    !type.IsAbstract &&
+                    !typeof(ISelectionTarget).IsAssignableFrom(type))
                 .ToList();
+
+            var selectionTargets = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => typeof(ISelectionTarget).IsAssignableFrom(type) &&
+                    type != typeof(ISelectionTarget))
+                .ToList();
+
+            SideComboBox.ItemsSource = Enum.GetValues<Side>();
 
             TargetTypeComboBox.ItemsSource = targets;
             TargetTypeComboBox.DisplayMemberPath = "Name";
             TargetTypeComboBox.SelectionChanged += TargetTypeComboBox_SelectionChanged;
 
+            TargetPoolComboBox.ItemsSource = selectionTargets;
+            TargetPoolComboBox.DisplayMemberPath = "Name";
+            TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
+
             SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+        }
+
+        private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelfTargetLabel.Visibility = Visibility.Collapsed;
+            SelfTargetCheckbox.Visibility = Visibility.Collapsed;
+
+            if (TargetPoolComboBox.SelectedItem is ISelectionTarget targetPool)
+            {
+                switch (targetPool)
+                {
+                    default:
+                        break;
+                }
+            }
         }
 
         private void SetSelectionTargetOptionsVisibility(Visibility visibility)
@@ -43,24 +72,12 @@ namespace QuivalCardDesigner.Controls
             SelfTargetLabel.Visibility = Visibility.Collapsed;
             SelfTargetCheckbox.Visibility = Visibility.Collapsed;
 
-            CreatureTargetLabel.Visibility = Visibility.Collapsed;
-            CreatureTargetCheckbox.Visibility = Visibility.Collapsed;
-
-            /*
-            OpponentTargetLabel.Visibility = Visibility.Collapsed;
-            OpponentTargetCheckbox.Visibility = Visibility.Collapsed;
-
-            PlayerTargetLabel.Visibility = Visibility.Collapsed;
-            PlayerTargetCheckbox.Visibility = Visibility.Collapsed;
-            */
-
             foreach (var validTarget in CurrentAbility.Effect.ValidTargets)
             {
                 switch (validTarget)
                 {
-                    case TargetPool.Direct:
-                        break;
-                    case TargetPool.Creature:
+                    case CreatureTarget:
+                    case DamageableTarget:
                         SelfTargetLabel.Visibility = visibility;
                         SelfTargetCheckbox.Visibility = visibility;
                         break;
@@ -69,6 +86,9 @@ namespace QuivalCardDesigner.Controls
                 }
             }
 
+
+            TargetPoolLabel.Visibility = visibility;
+            TargetPoolComboBox.Visibility = visibility;
 
             SideLabel.Visibility = visibility;
             SideComboBox.Visibility = visibility;
@@ -91,7 +111,7 @@ namespace QuivalCardDesigner.Controls
             }
             else
             {
-                SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+                SetSelectionTargetOptionsVisibility(Visibility.Collapsed);
             }
         }
     }

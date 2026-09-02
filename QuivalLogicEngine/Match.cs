@@ -225,7 +225,7 @@ public class Match
         {
             TargetSelection ts = new()
             {
-                TargetsToPickFrom = target.GetTargetPool(card, this),
+                TargetsToPickFrom = target.GetTargetPool(playerId, this),
                 NumberToPick = target.NumberToPick,
 
                 CardId = card.Id,

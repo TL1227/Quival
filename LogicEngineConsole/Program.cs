@@ -44,8 +44,11 @@ namespace LogicEngineConsole
                                     Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
-                                        Side = Side.Any,
+                                        TargetsPool = 
+                                        [
+                                            new (){ TargetPoolType = TargetPool.Creature, Side = Side.Any },
+                                            new (){ TargetPoolType = TargetPool.Player, Side = Side.Any },
+                                        ],
                                         CanTargetSelf = false,
                                         NumberToPick = 1,
                                     },
@@ -160,7 +163,7 @@ namespace LogicEngineConsole
                                     Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [TargetPool.Creature, TargetPool.Direct],
+                                        TargetsPool = [TargetPool.Creature, TargetPool.Player],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -188,7 +191,7 @@ namespace LogicEngineConsole
                                     Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [ TargetPool.Creature, TargetPool.Direct ],
+                                        TargetsPool = [ TargetPool.Creature, TargetPool.Player ],
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },

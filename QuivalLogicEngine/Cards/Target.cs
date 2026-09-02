@@ -9,6 +9,16 @@ namespace QuivalLogicEngine.Cards
     [JsonDerivedType(typeof(OpponentTarget), 3)]
     public abstract class Target { }
 
+    public interface ISelectionTarget 
+    { 
+        public Side Side { get; set; }
+    }
+
+    public interface ICanTargetSelf
+    {
+        public bool CanTargetSelf { get; set; }
+    }
+
     public class SelfTarget : Target { }
 
     public class PlayerTarget : Target
@@ -21,62 +31,75 @@ namespace QuivalLogicEngine.Cards
         public int GetTargetId(Card card) => (card.PlayerId == 0) ? 1 : 0;
     }
 
-    public class TargetPoolItem
+    public class CreatureTarget : Target, ISelectionTarget, ICanTargetSelf 
     {
-        public TargetPool TargetPoolType;
-        public Side Side;
+        public Side Side { get; set; }
+        public bool CanTargetSelf { get; set; }
     }
 
-    public enum TargetPool
+    public class ControllerTarget : Target, ISelectionTarget
     {
-        Creature,
-        Direct,
+        public Side Side { get; set; }
+    }
+
+    public class DamageableTarget : Target, ISelectionTarget, ICanTargetSelf 
+    {
+        public Side Side { get; set; }
+        public bool CanTargetSelf { get; set; }
     }
 
     public class SelectionTarget : Target
     {
-        public List<TargetPoolItem> TargetsPool { get; set; }
-        //public Side Side { get; set; }
-        public bool CanTargetSelf { get; set; }
+        //NOTE: This should probably be a single ISelectionTarget rather than a list
+        public List<ISelectionTarget> TargetsPool { get; set; } = new();
         public int NumberToPick {  get; set; }
 
-        public List<int> GetTargetPool(Card self, Match match)
+        public List<int> GetTargetPool(int playerId, Match match)
         {
             List<Card> Alltargets = new();
 
             foreach (var tp in TargetsPool)
             {
                 List<Card> targets = new();
-                switch (tp.TargetPoolType)
+                switch (tp)
                 {
-                    case TargetPool.Creature:
+                    case CreatureTarget:
                         targets.AddRange(match.GetAllCreaturesOnBoard());
                         break;
-                    case TargetPool.Direct:
+                    case ControllerTarget:
                         targets.AddRange(match.MatchCards.OfType<PlayerCard>().ToList());
                         break;
+                    case DamageableTarget:
+                        targets.AddRange(match.MatchCards.OfType<PlayerCard>().ToList());
+                        targets.AddRange(match.GetAllCreaturesOnBoard());
+                        break;
                 }
 
-                switch (tp.Side)
-                {
-                    case Side.Opponent:
-                        targets = targets.Where(t => t.PlayerId == Match.GetOpponentId(self.PlayerId)).ToList();
-                        break;
-                    case Side.Player:
-                        targets = targets.Where(t => t.PlayerId == self.PlayerId).ToList();
-                        break;
-                    default:
-                    case Side.Any:
-                        break;
-                }
+                targets = GetCardsOnSide(targets, playerId, tp.Side);
 
                 Alltargets.AddRange(targets);
+
+                if (tp is ICanTargetSelf selfTarget && !selfTarget.CanTargetSelf)
+                {
+                    Alltargets = Alltargets.Where(x => x.Id != playerId).ToList();
+                }
             }
 
-            if (!CanTargetSelf)
-                Alltargets = Alltargets.Where(x => x.Id != self.Id).ToList();
-
             return Alltargets.Select(x => x.Id).ToList();
+        }
+
+        private static List<Card> GetCardsOnSide(List<Card> cards, int playerId, Side side)
+        {
+            switch (side)
+            {
+                case Side.Opponent:
+                    return cards.Where(t => t.PlayerId == Match.GetOpponentId(playerId)).ToList();
+                case Side.Player:
+                    return cards.Where(t => t.PlayerId == playerId).ToList();
+                case Side.Any:
+                default:
+                    return cards;
+            }
         }
     }
 }
