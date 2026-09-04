@@ -226,12 +226,10 @@ public class Match
             TargetSelection ts = new()
             {
                 TargetsToPickFrom = target.GetTargetPool(playerId, this),
-                NumberToPick = target.NumberToPick,
-
                 CardId = card.Id,
-
                 AbilityId = ability.Id,
-                Effect = ability.Effect
+                Effect = ability.Effect,
+                NumberToPick = target.NumberToPick,
             };
 
             return ts;
@@ -731,13 +729,17 @@ public class Match
         }
         else if (ability.Target is PlayerTarget playerTarget)
         {
-            int cardId = playerTarget.GetTargetId(cardToPlay);
-            targetsResult.Add(GetCardFromId(cardId));
+            Card? player = GetCardFromId(cardToPlay.PlayerId);
+
+            if (player != null)
+                targetsResult.Add(player);
         }
         else if (ability.Target is OpponentTarget opponentTarget)
         {
-            int cardId = opponentTarget.GetTargetId(cardToPlay);
-            targetsResult.Add(GetCardFromId(cardId));
+            Card? opponent = GetCardFromId(GetOpponentId(cardToPlay.PlayerId));
+
+            if (opponent != null)
+                targetsResult.Add(opponent);
         }
         else if (ability.Target is SelectionTarget selectTarget)
         {

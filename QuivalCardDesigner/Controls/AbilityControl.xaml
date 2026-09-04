@@ -32,10 +32,10 @@
                     <ComboBoxItem>4</ComboBoxItem>
                     <ComboBoxItem>5</ComboBoxItem>
                 </ComboBox>
-                <Label x:Name="SideLabel">Side</Label>
-                <ComboBox x:Name="SideComboBox" SelectedIndex="0" Width="100"></ComboBox>
                 <Label x:Name="TargetPoolLabel">Pool</Label>
                 <ComboBox x:Name="TargetPoolComboBox" SelectedIndex="0" Width="100"></ComboBox>
+                <Label x:Name="SideLabel">Side</Label>
+                <ComboBox x:Name="SideComboBox" SelectedIndex="0" Width="100"></ComboBox>
                 <Label x:Name="SelfTargetLabel" Visibility="Collapsed">Self</Label>
                 <CheckBox x:Name="SelfTargetCheckbox" Visibility="Collapsed" VerticalAlignment="Center"></CheckBox>
             </StackPanel>

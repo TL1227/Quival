@@ -3,116 +3,107 @@ using System.Windows.Controls;
 
 using QuivalLogicEngine.Cards;
 
-namespace QuivalCardDesigner.Controls
+namespace QuivalCardDesigner.Controls;
+public partial class AbilityControl : UserControl
 {
-    public partial class AbilityControl : UserControl
+    Ability CurrentAbility { get; set; } = new();
+
+    public AbilityControl(Effect effect)
     {
-        Ability CurrentAbility { get; set; } = new();
+        InitializeComponent();
+        CurrentAbility.Effect = effect;
+        EffectLabel.Content = effect.GetType().Name.Replace("Effect", "");
 
-        public AbilityControl(Effect effect)
+        List<Target> targets = new();
+        List<TargetPool> targetPools = new();
+        switch (CurrentAbility.Effect.ValidTargetPool)
         {
-            InitializeComponent();
-            CurrentAbility.Effect = effect;
-            EffectLabel.Content = effect.GetType().Name.Replace("Effect", "");
-
-
-            /*
-                NOTE: CreatureTarget class doesn't make sense in this context and should only be used for the 
-                selection target pool. I'm not sure if this means we should go about the design a different
-                or just live with the exception here. 
-            */
-
-            Type baseType = typeof(Target);
-            var targets = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => baseType.IsAssignableFrom(type) &&
-                    type != baseType &&
-                    !type.IsAbstract &&
-                    !typeof(ISelectionTarget).IsAssignableFrom(type))
-                .ToList();
-
-            var selectionTargets = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => typeof(ISelectionTarget).IsAssignableFrom(type) &&
-                    type != typeof(ISelectionTarget))
-                .ToList();
-
-            SideComboBox.ItemsSource = Enum.GetValues<Side>();
-
-            TargetTypeComboBox.ItemsSource = targets;
-            TargetTypeComboBox.DisplayMemberPath = "Name";
-            TargetTypeComboBox.SelectionChanged += TargetTypeComboBox_SelectionChanged;
-
-            TargetPoolComboBox.ItemsSource = selectionTargets;
-            TargetPoolComboBox.DisplayMemberPath = "Name";
-            TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
-
-            SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+            case TargetPool.Creatures:
+                targets.AddRange([new SelfTarget(), new SelectionTarget()]);
+                targetPools.AddRange([TargetPool.Creatures]);
+                break;
+            case TargetPool.Controllers:
+                targets.AddRange([new PlayerTarget(), new OpponentTarget(), new SelectionTarget()]);
+                targetPools.AddRange([TargetPool.Controllers]);
+                break;
+            case TargetPool.Damagables:
+                targets.AddRange([new SelfTarget(), new PlayerTarget(), new OpponentTarget(), new SelectionTarget()]);
+                targetPools.AddRange([TargetPool.Damagables, TargetPool.Creatures, TargetPool.Controllers]);
+                break;
+            default:
+                break;
         }
 
-        private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        SideComboBox.ItemsSource = Enum.GetValues<Side>();
+
+        TargetTypeComboBox.ItemsSource = targets;
+        TargetTypeComboBox.DisplayMemberPath = "DisplayName";
+        TargetTypeComboBox.SelectionChanged += TargetTypeComboBox_SelectionChanged;
+
+        TargetPoolComboBox.ItemsSource = targetPools;
+        TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
+
+        SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+    }
+
+    private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (TargetPoolComboBox.SelectedItem is TargetPool.Controllers)
         {
-            SelfTargetLabel.Visibility = Visibility.Collapsed;
+            SelfTargetCheckbox.IsChecked = false;
             SelfTargetCheckbox.Visibility = Visibility.Collapsed;
-
-            if (TargetPoolComboBox.SelectedItem is ISelectionTarget targetPool)
-            {
-                switch (targetPool)
-                {
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void SetSelectionTargetOptionsVisibility(Visibility visibility)
-        {
             SelfTargetLabel.Visibility = Visibility.Collapsed;
-            SelfTargetCheckbox.Visibility = Visibility.Collapsed;
+            SideComboBox.SelectedIndex = 0;
+            SideComboBox.IsEnabled = false;
+        }
+        else
+        {
+            SelfTargetCheckbox.Visibility = Visibility.Visible;
+            SelfTargetLabel.Visibility = Visibility.Visible;
+            SideComboBox.IsEnabled = true;
+            TargetNumberCombobox.IsEnabled = true;
+        }
+    }
 
-            foreach (var validTarget in CurrentAbility.Effect.ValidTargets)
-            {
-                switch (validTarget)
-                {
-                    case CreatureTarget:
-                    case DamageableTarget:
-                        SelfTargetLabel.Visibility = visibility;
-                        SelfTargetCheckbox.Visibility = visibility;
-                        break;
-                    default:
-                        break;
-                }
-            }
+    private void SetSelectionTargetOptionsVisibility(Visibility visibility)
+    {
+        SelfTargetLabel.Visibility = Visibility.Collapsed;
+        SelfTargetCheckbox.Visibility = Visibility.Collapsed;
 
-
-            TargetPoolLabel.Visibility = visibility;
-            TargetPoolComboBox.Visibility = visibility;
-
-            SideLabel.Visibility = visibility;
-            SideComboBox.Visibility = visibility;
-
-            SelfTargetLabel.Visibility = visibility;
-            SelfTargetCheckbox.Visibility = visibility;
-
-            TargetNumberLabel.Visibility = visibility;
-            TargetNumberCombobox.Visibility = visibility;
+        switch (CurrentAbility.Effect.ValidTargetPool)
+        {
+            case TargetPool.Creatures:
+            case TargetPool.Damagables:
+                SelfTargetLabel.Visibility = visibility;
+                SelfTargetCheckbox.Visibility = visibility;
+                break;
+            default:
+                break;
         }
 
-        private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var selectedType = (Type)TargetTypeComboBox.SelectedItem;
-            var target = (Target)Activator.CreateInstance(selectedType)!;
+        TargetPoolLabel.Visibility = visibility;
+        TargetPoolComboBox.Visibility = visibility;
 
-            if (target is SelectionTarget)
-            {
-                SetSelectionTargetOptionsVisibility(Visibility.Visible);
-            }
-            else
-            {
-                SetSelectionTargetOptionsVisibility(Visibility.Collapsed);
-            }
+        SideLabel.Visibility = visibility;
+        SideComboBox.Visibility = visibility;
+
+        SelfTargetLabel.Visibility = visibility;
+        SelfTargetCheckbox.Visibility = visibility;
+
+        TargetNumberLabel.Visibility = visibility;
+        TargetNumberCombobox.Visibility = visibility;
+    }
+
+    private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+        if (TargetTypeComboBox.SelectedItem is SelectionTarget)
+        {
+            SetSelectionTargetOptionsVisibility(Visibility.Visible);
+        }
+        else
+        {
+            SetSelectionTargetOptionsVisibility(Visibility.Collapsed);
         }
     }
 }

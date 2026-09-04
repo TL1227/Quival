@@ -44,7 +44,7 @@ namespace LogicEngineConsole
                                     Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = 
+                                        TargetPool = 
                                         [
                                             new (){ TargetPoolType = TargetPool.Creature, Side = Side.Any },
                                             new (){ TargetPoolType = TargetPool.Player, Side = Side.Any },
@@ -135,7 +135,7 @@ namespace LogicEngineConsole
                                     Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [ typeof(CreatureTarget), typeof(OpponentTarget), typeof(PlayerTarget)],
+                                        TargetPool = [ typeof(CreatureTarget), typeof(OpponentTarget), typeof(PlayerTarget)],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -163,7 +163,7 @@ namespace LogicEngineConsole
                                     Effect = new HealEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [TargetPool.Creature, TargetPool.Player],
+                                        TargetPool = [TargetPool.Creature, TargetPool.Player],
                                         Side = Side.Any,
                                         CanTargetSelf = true,
                                         NumberToPick = 1
@@ -191,7 +191,7 @@ namespace LogicEngineConsole
                                     Effect = new DirectDamageEffect(),
                                     Target = new SelectionTarget()
                                     {
-                                        TargetsPool = [ TargetPool.Creature, TargetPool.Player ],
+                                        TargetPool = [ TargetPool.Creature, TargetPool.Player ],
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },
