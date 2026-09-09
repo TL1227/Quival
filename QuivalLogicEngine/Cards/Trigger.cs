@@ -8,6 +8,7 @@ namespace QuivalLogicEngine.Cards;
 [JsonDerivedType(typeof(CastTrigger), 0)]
 [JsonDerivedType(typeof(SelfTrigger), 1)]
 [JsonDerivedType(typeof(ListeningTrigger), 2)]
+[JsonDerivedType(typeof(PhaseTrigger), 3)]
 public abstract class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
 {
     //public TriggerType TriggerType { get; set; }
@@ -115,17 +116,6 @@ public class PhaseTrigger : Trigger
     }
 }
 
-public enum Conditional
-{
-    Round1,
-    Round2,
-    Round3,
-    Round4,
-    Round5,
-    PlayerCreatureDiedThisTurn,
-    OpponentCreatureDiedThisTurn,
-    AnyCreatureDiedThisTurn
-}
 
 public enum Side
 {
@@ -140,21 +130,6 @@ public enum ChoiceType
     Or,
     PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
     PickUpTo
-}
-
-public class Ability
-{
-    public int Id { get; set; } 
-
-    public Target Target { get; set; }
-
-    public Effect Effect { get; set; }
-    public Value Value { get; set; }
-    public List<Conditional> Conditionals { get; set; } = new();
-
-    public Effect? BonusEffect { get; set; }
-    public Value? BonusValue { get; set; }
-    public List<Conditional>? BonusConditionals { get; set; } = new();
 }
 
 public class TargetSelection

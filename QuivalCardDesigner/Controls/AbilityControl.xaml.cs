@@ -69,8 +69,32 @@ public partial class AbilityControl : UserControl
 
         CountValueSourceComboBox.ItemsSource = Enum.GetValues<CountValueSource>();
 
+        ConditionalsComboBox.ItemsSource = Enum.GetValues<Conditional>();
+        ConditionalTypeComboBox.ItemsSource = Enum.GetValues<ConditionalType>();
+        AddConditionalButton.Click += AddConditionalButton_Click;
+
 
         SetValueTypeOptionsVisibility();
+    }
+
+    private void AddConditionalButton_Click(object sender, RoutedEventArgs e)
+    {
+        ConditionalsListBox.Visibility = Visibility.Visible;
+
+        if (ConditionalsListBox.Items.Contains(ConditionalsComboBox.SelectedItem))
+        {
+            MessageBox.Show($"Already added {ConditionalsComboBox.SelectedItem}");
+        }
+        else
+        {
+            ConditionalsListBox.Items.Add(ConditionalsComboBox.SelectedItem);
+        }
+
+        if (ConditionalsListBox.Items.Count > 1)
+        {
+            ConditionalTypeComboBox.Visibility = Visibility.Visible;
+            ConditionalTypeLabel.Visibility = Visibility.Visible;
+        }
     }
 
     private void ValueTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

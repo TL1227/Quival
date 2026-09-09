@@ -15,12 +15,26 @@ namespace QuivalCardDesigner.Views;
 public partial class CardDesignView : UserControl
 {
     private MainWindow MainWindow { get; set; }
+
     private CardDefinition CurrentCardDefinition { get; set; }
     
     public CardDesignView(MainWindow mainWindow)
     {
         InitializeComponent();
         MainWindow = mainWindow;
+
+        Type baseType = typeof(Card);
+        var cardTypes = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => baseType.IsAssignableFrom(type) &&
+                type != baseType &&
+                !type.IsAbstract)
+            .ToList();
+
+        CardTypeComboBox.ItemsSource = cardTypes;
+        CardTypeComboBox.DisplayMemberPath = "Name";
+        CardTypeComboBox.SelectionChanged += CardTypeComboBox_SelectionChanged;
 
         CostComboBox.SelectionChanged += CostComboBox_SelectionChanged;
 
@@ -31,7 +45,7 @@ public partial class CardDesignView : UserControl
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
-        Type baseType = typeof(QuivalLogicEngine.Cards.Trigger);
+        baseType = typeof(QuivalLogicEngine.Cards.Trigger);
         var types = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -42,6 +56,8 @@ public partial class CardDesignView : UserControl
 
         TriggerTypeComboBox.ItemsSource = types;
         TriggerTypeComboBox.DisplayMemberPath = "Name";
+
+        SaveCardButton.Click += SaveCardButton_Click;
 
         LoadBlankCard();
     }
@@ -72,7 +88,33 @@ public partial class CardDesignView : UserControl
         CurrentCard.HealthLabel.Content = 0;
     }
 
+    private void ToggleAtkDef(Visibility visibility)
+    {
+        AttackLabel.Visibility = visibility;
+        AttackTextBox.Visibility = visibility;
+
+        HealthLabel.Visibility = visibility;
+        HealthTextBox.Visibility = visibility;
+
+        CurrentCard.AttackLabel.Visibility = visibility;
+        CurrentCard.Divider.Visibility = visibility;
+        CurrentCard.HealthLabel.Visibility = visibility;
+    }
+
     #region Events
+    private void CardTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selectedType = (Type)CardTypeComboBox.SelectedItem;
+        var cardType = (Card)Activator.CreateInstance(selectedType)!;
+
+        Visibility visibility = (cardType is CreatureCard) ? Visibility.Visible : Visibility.Hidden;
+        ToggleAtkDef(visibility);
+    }
+
+    private void SaveCardButton_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
 
     private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

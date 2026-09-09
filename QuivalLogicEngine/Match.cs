@@ -160,7 +160,7 @@ public class Match
 
         foreach (var ability in GetAbilitiesThatRequireSelection(cardToPlay, turn.TurnType))
         {
-            if (ConditionalsMet(playerId, ability.Conditionals))
+            if (ConditionalsMet(playerId, ability.Conditionals, ability.ConditionalType))
             {
                 var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability);
 
@@ -466,7 +466,7 @@ public class Match
                 ability.BonusValue != null &&
                 ability.BonusConditionals != null)
             {
-                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals))
+                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals, ability.BonusConditionalType))
                 {
                     message = new()
                     {
@@ -713,7 +713,7 @@ public class Match
 
         foreach (var ability in GetAbilities(trigger))
         {
-            if (ConditionalsMet(playerId, ability.Conditionals))
+            if (ConditionalsMet(playerId, ability.Conditionals, ability.ConditionalType))
             {
                 ProcessAbility(card, ability);
             }
@@ -786,7 +786,7 @@ public class Match
         return actions;
     }
 
-    private bool ConditionalsMet(int playerId, List<Conditional> conditionals)
+    private bool ConditionalsMet(int playerId, List<Conditional> conditionals, ConditionalType conditionalType)
     {
         if (conditionals.Count <= 0)
             return true;
@@ -811,7 +811,10 @@ public class Match
             }
         }
 
-        return !passes.Contains(false); 
+        if (conditionalType == ConditionalType.And)
+            return !passes.Contains(false);
+        else 
+            return passes.Contains(true);
     }
 
     private void EventMessage(EventMessage message)

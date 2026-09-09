@@ -15,15 +15,22 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <local:FullCard Margin="15" x:Name="CurrentCard" Grid.Column="1" Grid.RowSpan="2" ></local:FullCard>
 
         <StackPanel Margin="10,20,10,5">
-            <Label Content="Name"/>
-            <TextBox Margin="0,0,0,10" x:Name="CardNameTextBox"/>
-
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Label Content="Type"/>
+                <ComboBox x:Name="CardTypeComboBox" Width="100" SelectedIndex="0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Label Content="Name"/>
+                <TextBox 
+                    VerticalAlignment="Center" 
+                    MinWidth="200"
+                    x:Name="CardNameTextBox"/>
                 <Label Content="Cost"/>
                 <ComboBox x:Name="CostComboBox">
                     <ComboBoxItem>1</ComboBoxItem>
@@ -37,27 +44,39 @@
                     <ComboBoxItem>9</ComboBoxItem>
                     <ComboBoxItem>10</ComboBoxItem>
                 </ComboBox>
-                <Label Content="Attack"/>
-                <TextBox Width="50" x:Name="AttackTextBox" VerticalAlignment="Center"/>
-                <Label Content="Health"/>
-                <TextBox Width="50" x:Name="HealthTextBox" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Label x:Name="AttackLabel" Content="Attack"/>
+                <TextBox x:Name="AttackTextBox" Width="50" VerticalAlignment="Center"/>
+                <Label x:Name="HealthLabel" Content="Health"/>
+                <TextBox x:Name="HealthTextBox" Width="50"  VerticalAlignment="Center"/>
             </StackPanel>
 
             <Label Content="Description"/>
-            <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,10"/>
+            <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,20"/>
 
 
-                <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <Label>Triggers</Label>
+                    <ComboBox x:Name="TriggerTypeComboBox" Width="150" SelectedIndex="0" Margin="0,0,5,0"/>
                     <Button x:Name="AddTriggerButton" Width="auto" Content=" Add " HorizontalAlignment="Left"></Button>
-                    <ComboBox x:Name="TriggerTypeComboBox" SelectedIndex="0"/>
-                </StackPanel>
+            </StackPanel>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
         <ItemsControl Margin="10,5,10,10" x:Name="TriggerListBox" 
                   HorizontalContentAlignment="Stretch"/>
         </ScrollViewer>
+
+        <Button 
+            Grid.Row="2" 
+            x:Name="SaveCardButton" 
+            Width="100" 
+            Margin="0,0,10,20"
+            Content="Save Card" 
+            BorderThickness="0"
+            HorizontalAlignment="Right"/>
 
     </Grid>
 </UserControl>
