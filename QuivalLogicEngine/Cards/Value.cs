@@ -3,17 +3,20 @@
 namespace QuivalLogicEngine.Cards
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "valuetype")]
-    [JsonDerivedType(typeof(FixedValue), "fixed")]
-    [JsonDerivedType(typeof(CountValue), "count")]
+    [JsonDerivedType(typeof(Fixed), "fixed")]
+    [JsonDerivedType(typeof(Count), "count")]
     public abstract class Value
     {
+        public abstract string Name { get; set; }
     }
 
-    public class FixedValue : Value
+    public class Fixed : Value
     {
+        public override string Name { get; set; } = "Fixed";
         public int Value { get; set; }
 
-        public FixedValue(int value)
+        public Fixed() { }
+        public Fixed(int value)
         {
             Value = value;
         }
@@ -25,39 +28,55 @@ namespace QuivalLogicEngine.Cards
         CardsInHand,
     }
 
-    public class CountValue : Value
+    public enum CountSide
     {
+        Controller,
+        Opponent,
+        All
+    }
+
+    public class Count : Value
+    {
+        public override string Name { get; set; } = "Count";
+        public int Amount { get; set; } = 1;
         public CountValueSource CountSource { get; set; }
-        public Side Side { get; set; } //NOTE: This isn't needed for Cards in hand
+        public CountSide CountSide { get; set; }
 
         public int Get(int playerId, Match match)
         {
+            int count = 0;
             switch (CountSource)
             {
                 case CountValueSource.CreaturesOnTheBoard:
                     {
-                        if (Side == Side.Player)
-                            return match.BoardState.GetAllSummonedCreaturesByPlayerId(playerId).Count();
-                        else if (Side == Side.Opponent)
-                            return match.BoardState.GetAllSummonedCreaturesByPlayerId(match.GetOpponent(playerId).Id).Count();
+                        if (CountSide == CountSide.Controller)
+                            count = match.BoardState.GetAllSummonedCreaturesByPlayerId(playerId).Count();
+                        else if (CountSide == CountSide.Opponent)
+                            count = match.BoardState.GetAllSummonedCreaturesByPlayerId(match.GetOpponent(playerId).Id).Count();
                         else
-                            return match.GetAllCreatures().Count;
+                            count = match.GetAllCreatures().Count;
+
+                        break;
                     }
                 case CountValueSource.CardsInHand:
                     {
                         int playerHand = match.Players[playerId].Hand.Count;
                         int opponentHand = match.Players[match.GetOpponent(playerId).Id].Hand.Count;
 
-                        if (Side == Side.Player)
-                            return playerHand;
-                        else if (Side == Side.Opponent)
-                            return opponentHand;
+                        if (CountSide == CountSide.Controller)
+                            count = playerHand;
+                        else if (CountSide == CountSide.Opponent)
+                            count = opponentHand;
                         else
-                            return playerHand + opponentHand;
+                            count = playerHand + opponentHand;
+
+                        break;
                     }
                 default:
                     throw new NotImplementedException($"Haven't Implemented {CountSource}");
             }
+
+            return count + Amount;
         }
     }
 }

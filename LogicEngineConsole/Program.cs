@@ -52,7 +52,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = false,
                                         NumberToPick = 1,
                                     },
-                                    Value = new FixedValue(2),
+                                    Value = new Fixed(2),
                                     Conditionals =
                                     {
                                         Conditional.Round2
@@ -103,7 +103,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = new AttackBuffRoundEffect(),
                                     Target = new SelfTarget(),
-                                    Value = new FixedValue(2),
+                                    Value = new Fixed(2),
                                     Conditionals = { Conditional.Round3 }
                                 }
                             },
@@ -140,7 +140,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = true,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(2)
+                                    Value = new Fixed(2)
                                 }
                             }
                         }
@@ -168,7 +168,7 @@ namespace LogicEngineConsole
                                         CanTargetSelf = true,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(2),
+                                    Value = new Fixed(2),
                                 }
                             }
                         }
@@ -195,10 +195,10 @@ namespace LogicEngineConsole
                                         Side = Side.Any,
                                         NumberToPick = 1
                                     },
-                                    Value = new FixedValue(1),
+                                    Value = new Fixed(1),
 
                                     BonusEffect = new DirectDamageEffect(),
-                                    BonusValue = new FixedValue(3),
+                                    BonusValue = new Fixed(3),
                                     BonusConditionals = [ Conditional.Round4 ]
                                 },
                             },
@@ -222,7 +222,7 @@ namespace LogicEngineConsole
                                 {
                                     Effect = new DirectDamageEffect(),
                                     Target = new OpponentTarget(),
-                                    Value = new FixedValue(1)
+                                    Value = new Fixed(1)
                                 }
                             ]
                         }
@@ -241,10 +241,10 @@ namespace LogicEngineConsole
                         {
                             Effect = new AttackBuffEffect(),
                             Target = new SelfTarget(),
-                            Value = new CountValue()
+                            Value = new Count()
                             {
                                 CountSource = CountValueSource.CreaturesOnTheBoard,
-                                Side = Side.Player
+                                CountSide = Side.Player
                             }
                         }
                     ]
@@ -262,10 +262,10 @@ namespace LogicEngineConsole
                         {
                             Effect = new AttackDebuffEffect(),
                             Target = new SelfTarget(),
-                            Value = new CountValue()
+                            Value = new Count()
                             {
                                 CountSource = CountValueSource.CreaturesOnTheBoard,
-                                Side = Side.Opponent
+                                CountSide = Side.Opponent
                             }
                         }
                     ]
@@ -283,10 +283,10 @@ namespace LogicEngineConsole
                         {
                             Effect = new AttackBuffEffect(),
                             Target = new SelfTarget(),
-                            Value = new CountValue()
+                            Value = new Count()
                             {
                                 CountSource = CountValueSource.CardsInHand,
-                                Side = Side.Player
+                                CountSide = Side.Player
                             }
                         }
                     ]
@@ -302,7 +302,7 @@ namespace LogicEngineConsole
                                 new Ability() {
                                     Effect = new DrawCardEffect(),
                                     Target = new PlayerTarget(),
-                                    Value = new FixedValue(1)
+                                    Value = new Fixed(1)
                                 }
                             ]
                         }
@@ -319,9 +319,9 @@ namespace LogicEngineConsole
                                 new Ability() {
                                     Effect = new DrawCardEffect(),
                                     Target = new PlayerTarget(),
-                                    Value = new FixedValue(1),
+                                    Value = new Fixed(1),
                                     BonusEffect = new DrawCardEffect(),
-                                    BonusValue = new FixedValue(1),
+                                    BonusValue = new Fixed(1),
                                     BonusConditionals = [ Conditional.OpponentCreatureDiedThisTurn ]
                                 }
                             ]

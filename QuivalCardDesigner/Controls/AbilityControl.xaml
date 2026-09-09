@@ -40,18 +40,24 @@
                 <CheckBox x:Name="SelfTargetCheckbox" VerticalAlignment="Center"></CheckBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Label>Value</Label>
-                <ComboBox x:Name="ValueComboBox" SelectedIndex="0">
-                    <ComboBoxItem>0</ComboBoxItem>
+
+                <Label x:Name="ValueTypeLabel">Value</Label>
+                <ComboBox x:Name="ValueTypeComboBox" SelectedIndex="0" Width="80"/>
+
+                <Label x:Name="FixedValueLabel">Amount</Label>
+                <ComboBox x:Name="FixedValueComboBox" SelectedIndex="0">
                     <ComboBoxItem>1</ComboBoxItem>
                     <ComboBoxItem>2</ComboBoxItem>
                     <ComboBoxItem>3</ComboBoxItem>
                     <ComboBoxItem>4</ComboBoxItem>
                     <ComboBoxItem>5</ComboBoxItem>
                 </ComboBox>
-                <Label>Get Value From</Label>
-                <ComboBox x:Name="ValueFromComboBox" SelectedIndex="0">
-                </ComboBox>
+
+                <Label x:Name="CountValueSourceLabel">For Each</Label>
+                <ComboBox x:Name="CountValueSourceComboBox" SelectedIndex="0"/>
+
+                <Label x:Name="CountSideLabel">Side</Label>
+                <ComboBox x:Name="CountSideComboBox" SelectedIndex="0"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal">

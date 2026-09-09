@@ -557,11 +557,11 @@ public class Match
 
     private int GetValue(int playerId, Value value)
     {
-        if (value is FixedValue fv)
+        if (value is Fixed fv)
         {
             return fv.Value;
         }
-        else if (value is CountValue cv)
+        else if (value is Count cv)
         {
             return cv.Get(playerId, this);
         }

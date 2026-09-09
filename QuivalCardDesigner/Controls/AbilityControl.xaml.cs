@@ -36,6 +36,7 @@ public partial class AbilityControl : UserControl
         }
 
         SideComboBox.ItemsSource = Enum.GetValues<Side>();
+        CountSideComboBox.ItemsSource = Enum.GetValues<CountSide>();
 
         TargetTypeComboBox.ItemsSource = targets;
         TargetTypeComboBox.DisplayMemberPath = "DisplayName";
@@ -45,11 +46,61 @@ public partial class AbilityControl : UserControl
         TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
 
         SetSelectionTargetOptionsVisibility();
+
+        Type baseType = typeof(Value);
+        var types = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => baseType.IsAssignableFrom(type) &&
+                type != baseType &&
+                !type.IsAbstract)
+            .ToList();
+
+        List<Value> valueItems = new();
+        foreach (var type in types)
+        {
+            var valueType = (Value)Activator.CreateInstance(type)!;
+            valueItems.Add(valueType);
+        }
+
+        ValueTypeComboBox.ItemsSource = valueItems;
+        ValueTypeComboBox.DisplayMemberPath = "Name";
+        ValueTypeComboBox.SelectionChanged += ValueTypeComboBox_SelectionChanged;
+
+        CountValueSourceComboBox.ItemsSource = Enum.GetValues<CountValueSource>();
+
+
+        SetValueTypeOptionsVisibility();
+    }
+
+    private void ValueTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        SetValueTypeOptionsVisibility();
     }
 
     private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplyTargetPoolSelection();
+    }
+
+    private void SetValueTypeOptionsVisibility()
+    {
+        if (ValueTypeComboBox.SelectedItem is Count value)
+        {
+            CountValueSourceLabel.Visibility = Visibility.Visible;
+            CountValueSourceComboBox.Visibility = Visibility.Visible;
+
+            CountSideLabel.Visibility = Visibility.Visible;
+            CountSideComboBox.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            CountValueSourceLabel.Visibility = Visibility.Collapsed;
+            CountValueSourceComboBox.Visibility = Visibility.Collapsed;
+
+            CountSideLabel.Visibility = Visibility.Collapsed;
+            CountSideComboBox.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void ApplyTargetPoolSelection()
