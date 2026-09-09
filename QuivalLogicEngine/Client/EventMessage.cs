@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -133,13 +134,13 @@ namespace QuivalLogicEngine.Client
             {
                 switch (Effect)
                 {
-                    case AttackBuffRoundEffect:
+                    case AttackBuffRound:
                         sb.AppendLine($"Card {target} gets attack buff of {Value}"); 
                         break;
-                    case DirectDamageEffect:
+                    case DirectDamage:
                         sb.AppendLine($"Card {target} takes {Value} damage!"); 
                         break;
-                    case DrawCardEffect:
+                    case DrawCard:
                         break;
                 }
             }

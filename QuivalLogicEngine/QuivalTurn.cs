@@ -1,4 +1,4 @@
-﻿using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalLogicEngine.Turns;
 

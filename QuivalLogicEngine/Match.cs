@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.States;
 using QuivalLogicEngine.Turns;
@@ -491,12 +492,12 @@ public class Match
         {
             switch (effect)
             {
-                case AttackBuffRoundEffect:
+                case AttackBuffRound:
                     {
                         targetCreature.AttackBuffRound += value;
                         break;
                     }
-                case AttackBuffEffect:
+                case AttackBuff:
                     {
                         targetCreature.AttackModifiers[abilityId] = value;
 
@@ -504,7 +505,7 @@ public class Match
                         CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
                         break;
                     }
-                case AttackDebuffEffect:
+                case AttackDebuff:
                     {
                         targetCreature.AttackModifiers[abilityId] = -value;
 
@@ -512,7 +513,7 @@ public class Match
                         CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
                         break;
                     }
-                case DirectDamageEffect:
+                case DirectDamage:
                     {
                         bool hasDied = targetCreature.DamageCreature(value);
                         if (hasDied)
@@ -522,7 +523,7 @@ public class Match
                         }
                         break;
                     }
-                case HealEffect:
+                case Heal:
                     {
                         targetCreature.HealCreature(value);
                         break;
@@ -534,17 +535,17 @@ public class Match
             switch (effect)
             {
                 //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
-                case DirectDamageEffect:
+                case DirectDamage:
                     {
                         Players[playerCard.Id].HealthPoints -= value;
                         break;
                     }
-                case HealEffect:
+                case Heal:
                     {
                         Players[playerCard.Id].HealthPoints += value;
                         break;
                     }
-                case DrawCardEffect:
+                case DrawCard:
                     {
                         var cardsDrawn = Players[playerCard.Id].DrawCard(value);
                         //CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn){ PlayerId = playerCard.Id });

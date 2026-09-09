@@ -1,94 +1,93 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace QuivalLogicEngine.Cards
+namespace QuivalLogicEngine.Cards.Effects;
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "effect")]
+[JsonDerivedType(typeof(Heal), 0)]
+[JsonDerivedType(typeof(DirectDamage), 1)]
+[JsonDerivedType(typeof(Revive), 2)]
+[JsonDerivedType(typeof(AttackBuffRound), 3)]
+[JsonDerivedType(typeof(AttackBuff), 4)]
+[JsonDerivedType(typeof(AttackDebuff), 5)]
+[JsonDerivedType(typeof(DrawCard), 6)]
+public abstract class Effect()
 {
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "effect")]
-    [JsonDerivedType(typeof(HealEffect), 0)]
-    [JsonDerivedType(typeof(DirectDamageEffect), 1)]
-    [JsonDerivedType(typeof(ReviveEffect ), 2)]
-    [JsonDerivedType(typeof(AttackBuffRoundEffect), 3)]
-    [JsonDerivedType(typeof(AttackBuffEffect), 4)]
-    [JsonDerivedType(typeof(AttackDebuffEffect), 5)]
-    [JsonDerivedType(typeof(DrawCardEffect), 6)]
-    public abstract class Effect()
+    public TargetPool ValidTargetPool { get; set; }
+
+    public abstract string EffectString { get; set; }
+
+    public string GetTargetString()
     {
-        public TargetPool ValidTargetPool { get; set; }
-
-        public abstract string TargetString { get; set; }
-
-        public string GetTargetString()
-        {
-            return TargetString;
-        }
+        return EffectString;
     }
+}
 
-    public class HealEffect : Effect 
+public class Heal: Effect 
+{
+    public override string EffectString { get; set; } = "Heal";
+
+    public Heal()
     {
-        public override string TargetString { get; set; } = "Heal";
-
-        public HealEffect()
-        {
-            ValidTargetPool = TargetPool.Damagables;
-        }
+        ValidTargetPool = TargetPool.Damagables;
     }
+}
 
-    public class DirectDamageEffect : Effect 
+public class DirectDamage: Effect 
+{
+    public override string EffectString { get; set; } = "Damage";
+
+    public DirectDamage()
     {
-        public override string TargetString { get; set; } = "Damage";
-
-        public DirectDamageEffect()
-        {
-            ValidTargetPool = TargetPool.Damagables;
-        }
+        ValidTargetPool = TargetPool.Damagables;
     }
+}
 
-    public class ReviveEffect : Effect 
+public class Revive: Effect 
+{
+    public override string EffectString { get; set; } = "Revive";
+
+    public Revive()
     {
-        public override string TargetString { get; set; } = "Revive";
-
-        public ReviveEffect()
-        {
-            ValidTargetPool =  TargetPool.Creatures;
-        }
+        ValidTargetPool =  TargetPool.Creatures;
     }
+}
 
-    public class AttackBuffRoundEffect : Effect 
+public class AttackBuffRound: Effect 
+{
+    public override string EffectString { get; set; } = "Buff";
+
+    public AttackBuffRound()
     {
-        public override string TargetString { get; set; } = "Buff";
-
-        public AttackBuffRoundEffect()
-        {
-            ValidTargetPool =  TargetPool.Creatures;
-        }
+        ValidTargetPool =  TargetPool.Creatures;
     }
+}
 
-    public class AttackBuffEffect : Effect 
+public class AttackBuff: Effect 
+{
+    public override string EffectString { get; set; } = "Buff";
+
+    public AttackBuff()
     {
-        public override string TargetString { get; set; } = "Buff";
-
-        public AttackBuffEffect()
-        {
-            ValidTargetPool =  TargetPool.Creatures;
-        }
+        ValidTargetPool =  TargetPool.Creatures;
     }
+}
 
-    public class AttackDebuffEffect : Effect 
+public class AttackDebuff: Effect 
+{
+    public override string EffectString { get; set; } = "Debuff";
+
+    public AttackDebuff()
     {
-        public override string TargetString { get; set; } = "Debuff";
-
-        public AttackDebuffEffect()
-        {
-            ValidTargetPool =  TargetPool.Creatures;
-        }
+        ValidTargetPool =  TargetPool.Creatures;
     }
+}
 
-    public class DrawCardEffect : Effect 
+public class DrawCard: Effect 
+{
+    public override string EffectString { get; set; } = "Draw";
+
+    public DrawCard()
     {
-        public override string TargetString { get; set; } = "Draw";
-
-        public DrawCardEffect()
-        {
-            ValidTargetPool =  TargetPool.Controllers;
-        }
+        ValidTargetPool =  TargetPool.Controllers;
     }
 }

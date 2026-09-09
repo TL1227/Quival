@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 
 using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalCardDesigner.Controls;
 public partial class AbilityControl : UserControl
@@ -43,44 +44,49 @@ public partial class AbilityControl : UserControl
         TargetPoolComboBox.ItemsSource = targetPools;
         TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
 
-        SetSelectionTargetOptionsVisibility(Visibility.Hidden);
+        SetSelectionTargetOptionsVisibility();
     }
 
     private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        ApplyTargetPoolSelection();
+    }
+
+    private void ApplyTargetPoolSelection()
+    {
+        ChangeSelectionTargetOptionsVisibility(Visibility.Visible);
+
         if (TargetPoolComboBox.SelectedItem is TargetPool.Controllers)
         {
             SelfTargetCheckbox.IsChecked = false;
             SelfTargetCheckbox.Visibility = Visibility.Collapsed;
             SelfTargetLabel.Visibility = Visibility.Collapsed;
+
             SideComboBox.SelectedIndex = 0;
             SideComboBox.IsEnabled = false;
         }
         else
         {
-            SelfTargetCheckbox.Visibility = Visibility.Visible;
-            SelfTargetLabel.Visibility = Visibility.Visible;
+            //SelfTargetCheckbox.Visibility = Visibility.Visible;
+            //SelfTargetLabel.Visibility = Visibility.Visible;
+
             SideComboBox.IsEnabled = true;
             TargetNumberCombobox.IsEnabled = true;
         }
     }
 
-    private void SetSelectionTargetOptionsVisibility(Visibility visibility)
+    private void SetSelectionTargetOptionsVisibility()
     {
-        SelfTargetLabel.Visibility = Visibility.Collapsed;
-        SelfTargetCheckbox.Visibility = Visibility.Collapsed;
+        ChangeSelectionTargetOptionsVisibility(Visibility.Collapsed);
 
-        switch (CurrentAbility.Effect.ValidTargetPool)
+        if (TargetTypeComboBox.SelectedItem is SelectionTarget)
         {
-            case TargetPool.Creatures:
-            case TargetPool.Damagables:
-                SelfTargetLabel.Visibility = visibility;
-                SelfTargetCheckbox.Visibility = visibility;
-                break;
-            default:
-                break;
+            ApplyTargetPoolSelection();
         }
+    }
 
+    private void ChangeSelectionTargetOptionsVisibility(Visibility visibility)
+    {
         TargetPoolLabel.Visibility = visibility;
         TargetPoolComboBox.Visibility = visibility;
 
@@ -96,14 +102,6 @@ public partial class AbilityControl : UserControl
 
     private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-
-        if (TargetTypeComboBox.SelectedItem is SelectionTarget)
-        {
-            SetSelectionTargetOptionsVisibility(Visibility.Visible);
-        }
-        else
-        {
-            SetSelectionTargetOptionsVisibility(Visibility.Collapsed);
-        }
+        SetSelectionTargetOptionsVisibility();
     }
 }

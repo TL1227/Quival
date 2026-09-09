@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
 using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalCardDesigner.Controls
 {

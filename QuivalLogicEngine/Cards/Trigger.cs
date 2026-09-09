@@ -1,169 +1,170 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace QuivalLogicEngine.Cards
+using QuivalLogicEngine.Cards.Effects;
+
+namespace QuivalLogicEngine.Cards;
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "trigger")]
+[JsonDerivedType(typeof(CastTrigger), 0)]
+[JsonDerivedType(typeof(SelfTrigger), 1)]
+[JsonDerivedType(typeof(ListeningTrigger), 2)]
+public abstract class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
 {
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "trigger")]
-    [JsonDerivedType(typeof(CastTrigger), 0)]
-    [JsonDerivedType(typeof(SelfTrigger), 1)]
-    [JsonDerivedType(typeof(ListeningTrigger), 2)]
-    public abstract class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
-    {
-        //public TriggerType TriggerType { get; set; }
-        public List<Ability> Abilities { get; set; } = new();
-        public ChoiceType ChoiceType { get; set; }
-        public int ChoiceNumber { get; set; }
-        public abstract bool SameAs(Trigger otherTrigger);
-        public abstract string[]? GetEnums();
+    //public TriggerType TriggerType { get; set; }
+    public List<Ability> Abilities { get; set; } = new();
+    public ChoiceType ChoiceType { get; set; }
+    public int ChoiceNumber { get; set; }
+    public abstract bool SameAs(Trigger otherTrigger);
+    public abstract string[]? GetEnums();
 
-        public Trigger()
+    public Trigger()
+    {
+        int count = 0;
+        foreach (var ability in Abilities)
         {
-            int count = 0;
-            foreach (var ability in Abilities)
-            {
-                ability.Id = count++;
-            }
+            ability.Id = count++;
         }
     }
+}
 
-    public class CastTrigger : Trigger
+public class CastTrigger : Trigger
+{
+    public override bool SameAs(Trigger otherTrigger)
     {
-        public override bool SameAs(Trigger otherTrigger)
-        {
-            return GetType() == otherTrigger.GetType();
-        }
-
-        public override string[]? GetEnums() => ["None"];
+        return GetType() == otherTrigger.GetType();
     }
 
-    public enum SelfTriggerType
+    public override string[]? GetEnums() => ["None"];
+}
+
+public enum SelfTriggerType
+{
+    Attack,
+    PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
+    MoveToBlockZone,
+    BlockSwap,
+    TakeDamage,
+    Dies
+}
+
+public class SelfTrigger : Trigger
+{
+    public SelfTriggerType SelfTriggerType { get; set; }
+
+    public override bool SameAs(Trigger otherTrigger)
     {
-        Attack,
-        PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
-        MoveToBlockZone,
-        BlockSwap,
-        TakeDamage,
-        Dies
+        return otherTrigger is SelfTrigger st &&
+            st.SelfTriggerType == SelfTriggerType;
     }
 
-    public class SelfTrigger : Trigger
+    public override string[]? GetEnums()
     {
-        public SelfTriggerType SelfTriggerType { get; set; }
+        return Enum.GetNames<SelfTriggerType>();
+    }
+}
 
-        public override bool SameAs(Trigger otherTrigger)
-        {
-            return otherTrigger is SelfTrigger st &&
-                st.SelfTriggerType == SelfTriggerType;
-        }
+public enum ListeningTriggerType
+{
+    CreatureCast,
+    CreatureDies,
+    CreatureAttacks,
+    CreatureTakesDamage,
+    CreatureMovesToBlockZone,
 
-        public override string[]? GetEnums()
-        {
-            return Enum.GetNames<SelfTriggerType>();
-        }
+    SpellCast,
+
+    DrawCard,
+    DiscardCard
+}
+
+public class ListeningTrigger : Trigger
+{
+    public ListeningTriggerType ListeningTriggerType  { get; set; }
+    public Side Side { get; set; }
+    public bool CanTargetSelf { get; set; }
+    public override bool SameAs(Trigger otherTrigger)
+    {
+        return otherTrigger is ListeningTrigger st &&
+            st.ListeningTriggerType == ListeningTriggerType;
     }
 
-    public enum ListeningTriggerType
+    public override string[]? GetEnums()
     {
-        CreatureCast,
-        CreatureDies,
-        CreatureAttacks,
-        CreatureTakesDamage,
-        CreatureMovesToBlockZone,
+        return Enum.GetNames<ListeningTriggerType>();
+    }
+}
 
-        SpellCast,
+public enum PhaseTriggerType
+{
+    EndTurn,
+    EndRound,
+}
 
-        DrawCard,
-        DiscardCard
+public class PhaseTrigger : Trigger
+{
+    public PhaseTriggerType PhaseTriggerType { get; set; }
+    public override bool SameAs(Trigger otherTrigger)
+    {
+        return otherTrigger is PhaseTrigger st &&
+            st.PhaseTriggerType == PhaseTriggerType;
     }
 
-    public class ListeningTrigger : Trigger
+    public override string[]? GetEnums()
     {
-        public ListeningTriggerType ListeningTriggerType  { get; set; }
-        public Side Side { get; set; }
-        public bool CanTargetSelf { get; set; }
-        public override bool SameAs(Trigger otherTrigger)
-        {
-            return otherTrigger is ListeningTrigger st &&
-                st.ListeningTriggerType == ListeningTriggerType;
-        }
-
-        public override string[]? GetEnums()
-        {
-            return Enum.GetNames<ListeningTriggerType>();
-        }
+        return Enum.GetNames<PhaseTriggerType>();
     }
+}
 
-    public enum PhaseTriggerType
-    {
-        EndTurn,
-        EndRound,
-    }
+public enum Conditional
+{
+    Round1,
+    Round2,
+    Round3,
+    Round4,
+    Round5,
+    PlayerCreatureDiedThisTurn,
+    OpponentCreatureDiedThisTurn,
+    AnyCreatureDiedThisTurn
+}
 
-    public class PhaseTrigger : Trigger
-    {
-        public PhaseTriggerType PhaseTriggerType { get; set; }
-        public override bool SameAs(Trigger otherTrigger)
-        {
-            return otherTrigger is PhaseTrigger st &&
-                st.PhaseTriggerType == PhaseTriggerType;
-        }
+public enum Side
+{
+    Any,
+    Opponent,
+    Player,
+}
 
-        public override string[]? GetEnums()
-        {
-            return Enum.GetNames<PhaseTriggerType>();
-        }
-    }
+public enum ChoiceType
+{
+    And, //NOTE: And is the default
+    Or,
+    PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
+    PickUpTo
+}
 
-    public enum Conditional
-    {
-        Round1,
-        Round2,
-        Round3,
-        Round4,
-        Round5,
-        PlayerCreatureDiedThisTurn,
-        OpponentCreatureDiedThisTurn,
-        AnyCreatureDiedThisTurn
-    }
+public class Ability
+{
+    public int Id { get; set; } 
 
-    public enum Side
-    {
-        Any,
-        Opponent,
-        Player,
-    }
+    public Target Target { get; set; }
 
-    public enum ChoiceType
-    {
-        And, //NOTE: And is the default
-        Or,
-        PickNumber, //TODO: should 'Or' just be 'PickNumber 1'?
-        PickUpTo
-    }
+    public Effect Effect { get; set; }
+    public Value Value { get; set; }
+    public List<Conditional> Conditionals { get; set; } = new();
 
-    public class Ability
-    {
-        public int Id { get; set; } 
+    public Effect? BonusEffect { get; set; }
+    public Value? BonusValue { get; set; }
+    public List<Conditional>? BonusConditionals { get; set; } = new();
+}
 
-        public Target Target { get; set; }
+public class TargetSelection
+{
+    public List<int> TargetsToPickFrom { get; set; } = new();
+    public List<int> SelectedTargets { get; set; } = new();
+    public int CardId { get; set; }
 
-        public Effect Effect { get; set; }
-        public Value Value { get; set; }
-        public List<Conditional> Conditionals { get; set; } = new();
-
-        public Effect? BonusEffect { get; set; }
-        public Value? BonusValue { get; set; }
-        public List<Conditional>? BonusConditionals { get; set; } = new();
-    }
-
-    public class TargetSelection
-    {
-        public List<int> TargetsToPickFrom { get; set; } = new();
-        public List<int> SelectedTargets { get; set; } = new();
-        public int CardId { get; set; }
-
-        //NOTE: These are all in Ability. Should we just grab a copy of it?
-        public int NumberToPick {  get; set; }
-        public int AbilityId { get; set; }
-        public Effect Effect { get; set; }
-    }
+    //NOTE: These are all in Ability. Should we just grab a copy of it?
+    public int NumberToPick {  get; set; }
+    public int AbilityId { get; set; }
+    public Effect Effect { get; set; }
 }
