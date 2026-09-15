@@ -1,13 +1,12 @@
-﻿using System.Windows.Controls;
-
-using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Cards.Effects;
+using System.Windows.Controls;
 
 namespace QuivalCardDesigner.Controls
 {
     public partial class TriggerControl : UserControl
     {
-        public Trigger CurrentTrigger { get; set; }
+        private Trigger CurrentTrigger { get; set; }
 
         public TriggerControl(Trigger trigger)
         {
@@ -47,6 +46,39 @@ namespace QuivalCardDesigner.Controls
 
             ToggleCollapse.Click += ToggleCollapse_Click;
             AddAbilityButton.Click += AddAbilityButton_Click;
+
+            ContextMenu menu = new();
+            MenuItem menuItem = new MenuItem() { Header = "Delete" };
+            menuItem.Click += Delete_Click;
+            menu.Items.Add(menuItem);
+            TriggerControlHeader.ContextMenu = menu;
+        }
+
+        public Trigger GetTrigger()
+        {
+            CurrentTrigger.Abilities.Clear();
+
+            int abilityId = 0;
+            foreach (var item in AbilitiesListBox.Items)
+            {
+                if (item is AbilityControl abilityControl)
+                {
+                    var ability = abilityControl.GetAbility();
+                    ability.Id = abilityId++;
+                    CurrentTrigger.Abilities.Add(ability);
+                }
+            }
+
+            return CurrentTrigger;
+        }
+
+        private void Delete_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            string thign = Parent.GetType().ToString();
+            if (Parent is ItemsControl control)
+            {
+                control.Items.Remove(this);
+            }
         }
 
         private void AddAbilityButton_Click(object sender, System.Windows.RoutedEventArgs e)

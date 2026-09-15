@@ -559,7 +559,7 @@ public class Match
     {
         if (value is Fixed fv)
         {
-            return fv.Value;
+            return fv.Amount;
         }
         else if (value is Count cv)
         {

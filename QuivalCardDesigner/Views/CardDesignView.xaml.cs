@@ -9,6 +9,9 @@ using System.Reflection;
 using System.Diagnostics;
 using QuivalCardDesigner.Controls;
 using System.Windows.Media.Animation;
+using System.IO;
+using System.Text.Json;
+using Trigger = QuivalLogicEngine.Cards.Trigger;
 
 namespace QuivalCardDesigner.Views;
 
@@ -17,35 +20,27 @@ public partial class CardDesignView : UserControl
     private MainWindow MainWindow { get; set; }
 
     private CardDefinition CurrentCardDefinition { get; set; }
+
+    private Config Config { get; set; }
     
-    public CardDesignView(MainWindow mainWindow)
+    public CardDesignView(Config config)
     {
         InitializeComponent();
-        MainWindow = mainWindow;
+        Config = config;
 
-        Type baseType = typeof(Card);
-        var cardTypes = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => baseType.IsAssignableFrom(type) &&
-                type != baseType &&
-                !type.IsAbstract)
-            .ToList();
-
-        CardTypeComboBox.ItemsSource = cardTypes;
-        CardTypeComboBox.DisplayMemberPath = "Name";
+        CardTypeComboBox.ItemsSource = Enum.GetValues<CardType>();
         CardTypeComboBox.SelectionChanged += CardTypeComboBox_SelectionChanged;
 
         CostComboBox.SelectionChanged += CostComboBox_SelectionChanged;
 
         CardNameTextBox.TextChanged += TextBoxChanged;
         DescriptionTextBox.TextChanged += TextBoxChanged;
-        AttackTextBox.TextChanged += TextBoxChanged;
-        HealthTextBox.TextChanged += TextBoxChanged;
+        AttackComboBox.SelectionChanged += AttackComboBox_SelectionChanged;
+        HealthComboBox.SelectionChanged += HealthComboBox_SelectionChanged;
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
-        baseType = typeof(QuivalLogicEngine.Cards.Trigger);
+        var baseType = typeof(QuivalLogicEngine.Cards.Trigger);
         var types = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -54,14 +49,33 @@ public partial class CardDesignView : UserControl
                 !type.IsAbstract)
             .ToList();
 
-        TriggerTypeComboBox.ItemsSource = types;
+        List<Trigger> triggerTypes = new();
+        foreach (var type in types)
+        {
+            var triggerType = (Trigger)Activator.CreateInstance(type)!;
+            triggerTypes.Add(triggerType);
+        }
+
+        TriggerTypeComboBox.ItemsSource = triggerTypes;
         TriggerTypeComboBox.DisplayMemberPath = "Name";
 
         SaveCardButton.Click += SaveCardButton_Click;
 
+        HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
         LoadBlankCard();
     }
 
+    private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        => CurrentCard.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
+
+    private void AttackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        => CurrentCard.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
+
+    private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        => CurrentCard.CostContent.Content = (int)CostComboBox.SelectedItem;
 
     private void LoadBlankCard()
     {
@@ -90,11 +104,11 @@ public partial class CardDesignView : UserControl
 
     private void ToggleAtkDef(Visibility visibility)
     {
-        AttackLabel.Visibility = visibility;
-        AttackTextBox.Visibility = visibility;
-
-        HealthLabel.Visibility = visibility;
-        HealthTextBox.Visibility = visibility;
+        if (visibility == Visibility.Collapsed)
+        {
+            AttackComboBox.IsEnabled = false;
+            HealthComboBox.IsEnabled = false;
+        }
 
         CurrentCard.AttackLabel.Visibility = visibility;
         CurrentCard.Divider.Visibility = visibility;
@@ -104,23 +118,79 @@ public partial class CardDesignView : UserControl
     #region Events
     private void CardTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var selectedType = (Type)CardTypeComboBox.SelectedItem;
-        var cardType = (Card)Activator.CreateInstance(selectedType)!;
-
-        Visibility visibility = (cardType is CreatureCard) ? Visibility.Visible : Visibility.Hidden;
-        ToggleAtkDef(visibility);
+        if (CardTypeComboBox.SelectedItem is CardType type)
+        {
+            Visibility visibility = (type == CardType.Creature) ? Visibility.Visible : Visibility.Hidden;
+            ToggleAtkDef(visibility);
+        }
     }
 
     private void SaveCardButton_Click(object sender, RoutedEventArgs e)
     {
+        CardDefinition? card = GetCardFromCurrentView();
 
+        if (card != null)
+        {
+            string fileName = $"{Config.CardDirectory.FullName}\\TEST.csv";
+
+            File.Delete(fileName);
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.WriteIndented = true;
+            var json = JsonSerializer.Serialize(card, options);
+            File.AppendAllText(fileName, json);
+        }
     }
 
-    private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private CardDefinition? GetCardFromCurrentView()
     {
-        if (CostComboBox.SelectedItem is ComboBoxItem item)
+        if (CardTypeComboBox.SelectedItem is CardType cardType)
         {
-            CurrentCard.CostContent.Content = item.Content;
+            CardDefinition card = new();
+
+            try
+            {
+                card.CardType = cardType;
+
+                if (string.IsNullOrWhiteSpace(CardNameTextBox.Text))
+                {
+                    MessageBox.Show("Please enter a card name!");
+                    return null;
+                }
+                else
+                {
+                    card.Name = CardNameTextBox.Text;
+                }
+
+                card.Description = DescriptionTextBox.Text;
+
+                if (CostComboBox.SelectedItem is int cost)
+                {
+                    card.Cost = cost;
+                }
+
+                if (card.CardType is CardType.Creature)
+                {
+                    card.Attack = (int)AttackComboBox.SelectedItem;
+                    card.Health = (int)HealthComboBox.SelectedItem;
+                }
+
+                foreach (var item in TriggerListBox.Items) 
+                    if (item is TriggerControl triggerControl)
+                    {
+                        card.Triggers.Add(triggerControl.GetTrigger());
+                    }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+
+            return card;
+        }
+        else
+        {
+            return null;
         }
     }
 
@@ -149,40 +219,11 @@ public partial class CardDesignView : UserControl
 
     private void AddTriggerButton_Click(object sender, RoutedEventArgs e)
     {
-            var selectedType = (Type)TriggerTypeComboBox.SelectedItem;
-            var trigger = (QuivalLogicEngine.Cards.Trigger)Activator.CreateInstance(selectedType)!;
-            TriggerListBox.Items.Add(new TriggerControl(trigger));
-
-        /*
-        switch (trigger)
+        if (TriggerTypeComboBox.SelectedItem is QuivalLogicEngine.Cards.Trigger trigger)
         {
-            case CastTrigger:
-                //CurrentCardDefinition.Triggers.Add(new CastTrigger());
-                TriggerListBox.Items.Add(trigger.ToString());
-                TriggerListBox.Items.Add(new TriggerControl(new CastTrigger()));
-                break;
-            case SelfTrigger:
-            case ListeningTrigger:
-            case PhaseTrigger:
-                //TODO: prompt the user for the trigger type
-                TriggerListBox.Items.Add(trigger.ToString());
-                break;
-            default:
-                break;
+            TriggerListBox.Items.Add(new TriggerControl(trigger));
         }
-        */
     }
 
-    /*
-    private bool ContainsDuplicateTriggers(ItemCollection items, TriggerType triggerType)
-    {
-        foreach (var item in TriggerListBox.Items)
-            if (item is TriggerControl tc)
-                if (tc.CurrentTrigger.TriggerType == triggerType)
-                    return true;
-
-        return false;
-    }
-    */
     #endregion
 }

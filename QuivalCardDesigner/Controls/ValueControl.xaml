@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="QuivalCardDesigner.Controls.ValueControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuivalCardDesigner.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="30" d:DesignWidth="500" d:Background="White">
+    <StackPanel Orientation="Horizontal">
+        <Label x:Name="ValueTypeLabel">Value</Label>
+        <ComboBox x:Name="ValueTypeComboBox" SelectedIndex="0" Width="80"/>
+
+        <Label x:Name="FixedValueLabel">Amount</Label>
+        <ComboBox x:Name="FixedValueComboBox" SelectedIndex="0"/>
+
+        <Label x:Name="CountValueSourceLabel">For Each</Label>
+        <ComboBox x:Name="CountValueSourceComboBox" SelectedIndex="0"/>
+
+        <Label x:Name="CountSideLabel">Side</Label>
+        <ComboBox x:Name="CountSideComboBox" SelectedIndex="0"/>
+    </StackPanel>
+</UserControl>

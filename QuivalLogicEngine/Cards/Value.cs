@@ -8,17 +8,17 @@ namespace QuivalLogicEngine.Cards
     public abstract class Value
     {
         public abstract string Name { get; set; }
+        public int Amount { get; set; }
     }
 
     public class Fixed : Value
     {
         public override string Name { get; set; } = "Fixed";
-        public int Value { get; set; }
 
         public Fixed() { }
-        public Fixed(int value)
+        public Fixed(int amount)
         {
-            Value = value;
+            Amount = amount;
         }
     }
 
@@ -38,7 +38,6 @@ namespace QuivalLogicEngine.Cards
     public class Count : Value
     {
         public override string Name { get; set; } = "Count";
-        public int Amount { get; set; } = 1;
         public CountValueSource CountSource { get; set; }
         public CountSide CountSide { get; set; }
 

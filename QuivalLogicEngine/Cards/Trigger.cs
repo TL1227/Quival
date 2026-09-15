@@ -11,7 +11,7 @@ namespace QuivalLogicEngine.Cards;
 [JsonDerivedType(typeof(PhaseTrigger), 3)]
 public abstract class Trigger //NOTE: This should probably just be called Trigger and the enum be called TriggerType
 {
-    //public TriggerType TriggerType { get; set; }
+    public abstract string Name { get; set; }
     public List<Ability> Abilities { get; set; } = new();
     public ChoiceType ChoiceType { get; set; }
     public int ChoiceNumber { get; set; }
@@ -30,6 +30,7 @@ public abstract class Trigger //NOTE: This should probably just be called Trigge
 
 public class CastTrigger : Trigger
 {
+    public override string Name { get; set; } = "Cast";
     public override bool SameAs(Trigger otherTrigger)
     {
         return GetType() == otherTrigger.GetType();
@@ -51,7 +52,7 @@ public enum SelfTriggerType
 public class SelfTrigger : Trigger
 {
     public SelfTriggerType SelfTriggerType { get; set; }
-
+    public override string Name { get; set; } = "Self";
     public override bool SameAs(Trigger otherTrigger)
     {
         return otherTrigger is SelfTrigger st &&
@@ -81,6 +82,7 @@ public enum ListeningTriggerType
 public class ListeningTrigger : Trigger
 {
     public ListeningTriggerType ListeningTriggerType  { get; set; }
+    public override string Name { get; set; } = "Listening";
     public Side Side { get; set; }
     public bool CanTargetSelf { get; set; }
     public override bool SameAs(Trigger otherTrigger)
@@ -104,6 +106,7 @@ public enum PhaseTriggerType
 public class PhaseTrigger : Trigger
 {
     public PhaseTriggerType PhaseTriggerType { get; set; }
+    public override string Name { get; set; } = "Phase";
     public override bool SameAs(Trigger otherTrigger)
     {
         return otherTrigger is PhaseTrigger st &&
@@ -115,7 +118,6 @@ public class PhaseTrigger : Trigger
         return Enum.GetNames<PhaseTriggerType>();
     }
 }
-
 
 public enum Side
 {

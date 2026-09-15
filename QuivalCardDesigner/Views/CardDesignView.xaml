@@ -32,42 +32,30 @@
                     MinWidth="200"
                     x:Name="CardNameTextBox"/>
                 <Label Content="Cost"/>
-                <ComboBox x:Name="CostComboBox">
-                    <ComboBoxItem>1</ComboBoxItem>
-                    <ComboBoxItem>2</ComboBoxItem>
-                    <ComboBoxItem>3</ComboBoxItem>
-                    <ComboBoxItem>4</ComboBoxItem>
-                    <ComboBoxItem>5</ComboBoxItem>
-                    <ComboBoxItem>6</ComboBoxItem>
-                    <ComboBoxItem>7</ComboBoxItem>
-                    <ComboBoxItem>8</ComboBoxItem>
-                    <ComboBoxItem>9</ComboBoxItem>
-                    <ComboBoxItem>10</ComboBoxItem>
-                </ComboBox>
+                <ComboBox x:Name="CostComboBox"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label x:Name="AttackLabel" Content="Attack"/>
-                <TextBox x:Name="AttackTextBox" Width="50" VerticalAlignment="Center"/>
+                <ComboBox x:Name="AttackComboBox" Width="50" VerticalAlignment="Center"/>
+
                 <Label x:Name="HealthLabel" Content="Health"/>
-                <TextBox x:Name="HealthTextBox" Width="50"  VerticalAlignment="Center"/>
+                <ComboBox x:Name="HealthComboBox" Width="50" VerticalAlignment="Center"/>
             </StackPanel>
 
             <Label Content="Description"/>
             <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,20"/>
-
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label>Triggers</Label>
-                    <ComboBox x:Name="TriggerTypeComboBox" Width="150" SelectedIndex="0" Margin="0,0,5,0"/>
-                    <Button x:Name="AddTriggerButton" Width="auto" Content=" Add " HorizontalAlignment="Left"></Button>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                <Label>Triggers</Label>
+                <ComboBox x:Name="TriggerTypeComboBox" Width="150" SelectedIndex="0" Margin="0,0,5,0"/>
+                <Button x:Name="AddTriggerButton" Width="auto" Content=" Add " HorizontalAlignment="Left"></Button>
             </StackPanel>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-        <ItemsControl Margin="10,5,10,10" x:Name="TriggerListBox" 
-                  HorizontalContentAlignment="Stretch"/>
+            <ItemsControl Margin="10,5,10,10" x:Name="TriggerListBox" HorizontalContentAlignment="Stretch"/>
         </ScrollViewer>
+
 
         <Button 
             Grid.Row="2" 

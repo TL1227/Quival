@@ -16,7 +16,8 @@ public partial class MainWindow : Window
 
     public void OpenCardDesignView()
     {
-        CurrentView.Content = new CardDesignView(this);
+        Config config = new("Cards");
+        CurrentView.Content = new CardDesignView(config);
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)

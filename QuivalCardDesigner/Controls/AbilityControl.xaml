@@ -6,68 +6,33 @@
              xmlns:local="clr-namespace:QuivalCardDesigner.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="WhiteSmoke" Margin="0,0,0,10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <StackPanel Background="LightSeaGreen" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Label Foreground="WhiteSmoke">Id</Label>
-            <Label Foreground="WhiteSmoke">001</Label>
-            <Label Foreground="WhiteSmoke" x:Name="EffectLabel"></Label>
-            <Button HorizontalAlignment="Right" x:Name="ToggleCollapse" Margin="0,0,0,0" Grid.Column="1" Content="  ▼  " BorderThickness="0" Background="LightSeaGreen" Foreground="WhiteSmoke"></Button>
-        </StackPanel>
-        <StackPanel Grid.Row="1">
-            <StackPanel Orientation="Horizontal">
+    <Border BorderThickness="1" BorderBrush="LightSeaGreen" Margin="0,0,0,10">
+        <Grid Background="WhiteSmoke" Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Background="LightSeaGreen" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                <Label Foreground="WhiteSmoke">Id</Label>
+                <Label Foreground="WhiteSmoke">001</Label>
+                <Label Foreground="WhiteSmoke" x:Name="EffectLabel"></Label>
+                <Button HorizontalAlignment="Right" x:Name="ToggleCollapse" Margin="0,0,0,0" Grid.Column="1" Content="  ▼  " BorderThickness="0" Background="LightSeaGreen" Foreground="WhiteSmoke"></Button>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Label>Target</Label>
-                <ComboBox x:Name="TargetTypeComboBox" SelectedIndex="0" Width="150"></ComboBox>
-                <Label x:Name="TargetNumberLabel">Choose</Label>
-                <ComboBox x:Name="TargetNumberCombobox" SelectedIndex="0">
-                    <ComboBoxItem>1</ComboBoxItem>
-                    <ComboBoxItem>2</ComboBoxItem>
-                    <ComboBoxItem>3</ComboBoxItem>
-                    <ComboBoxItem>4</ComboBoxItem>
-                    <ComboBoxItem>5</ComboBoxItem>
-                </ComboBox>
-                <Label x:Name="TargetPoolLabel">Pool</Label>
-                <ComboBox x:Name="TargetPoolComboBox" SelectedIndex="0" Width="100"></ComboBox>
-                <Label x:Name="SideLabel">Side</Label>
-                <ComboBox x:Name="SideComboBox" SelectedIndex="0" Width="100"></ComboBox>
-                <Label x:Name="SelfTargetLabel">Self</Label>
-                <CheckBox x:Name="SelfTargetCheckbox" VerticalAlignment="Center"></CheckBox>
+            <StackPanel Grid.Row="1">
+                <local:TargetControl x:Name="TargetControl" Margin="0,0,0,10"></local:TargetControl>
+                <local:ValueControl x:Name="ValueControl" Margin="0,0,0,10"></local:ValueControl>
+                <local:ConditionalControl x:Name="ConditionalControl" Margin="0,0,0,15"></local:ConditionalControl>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BonusEffectButton" Content=" Add Bonus Effect " Margin="5,0,0,0"></Button>
+                </StackPanel>
+                <StackPanel x:Name="BonusEffect">
+                <Label FontWeight="Bold" >Bonus Effect</Label>
+                    <local:ValueControl x:Name="BonusValueControl" Margin="0,0,0,10"></local:ValueControl>
+                    <local:ConditionalControl x:Name="BonusConditionalControl" Margin="0,0,0,10"></local:ConditionalControl>
+                </StackPanel>
+
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-
-                <Label x:Name="ValueTypeLabel">Value</Label>
-                <ComboBox x:Name="ValueTypeComboBox" SelectedIndex="0" Width="80"/>
-
-                <Label x:Name="FixedValueLabel">Amount</Label>
-                <ComboBox x:Name="FixedValueComboBox" SelectedIndex="0">
-                    <ComboBoxItem>1</ComboBoxItem>
-                    <ComboBoxItem>2</ComboBoxItem>
-                    <ComboBoxItem>3</ComboBoxItem>
-                    <ComboBoxItem>4</ComboBoxItem>
-                    <ComboBoxItem>5</ComboBoxItem>
-                </ComboBox>
-
-                <Label x:Name="CountValueSourceLabel">For Each</Label>
-                <ComboBox x:Name="CountValueSourceComboBox" SelectedIndex="0"/>
-
-                <Label x:Name="CountSideLabel">Side</Label>
-                <ComboBox x:Name="CountSideComboBox" SelectedIndex="0"/>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal">
-                <Label Grid.Row="0">Conditionals</Label>
-                <ComboBox x:Name="ConditionalsComboBox" Width="150" SelectedIndex="0" Margin="0,0,5,0"></ComboBox>
-                <Button x:Name="AddConditionalButton" Margin="0,0,0,0" Width="30" HorizontalAlignment="Left">Add</Button>
-                <Label x:Name="ConditionalTypeLabel" Grid.Row="0" Visibility="Collapsed">Type</Label>
-                <ComboBox x:Name="ConditionalTypeComboBox" Width="150" SelectedIndex="0" Visibility="Collapsed"></ComboBox>
-            </StackPanel>
-        </StackPanel>
-        <ListBox Grid.Row="2" Margin="5" x:Name="ConditionalsListBox" Visibility="Collapsed"/>
-    </Grid>
+        </Grid>
+    </Border>
 </UserControl>

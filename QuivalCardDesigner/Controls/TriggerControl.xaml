@@ -14,7 +14,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid Background="RoyalBlue" Margin="0,0,0,10">
+            <Grid x:Name="TriggerControlHeader" Background="RoyalBlue" Margin="0,0,0,10">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -33,6 +33,9 @@
                     <Label Visibility="Hidden"  x:Name="TriggerSideLabel" Margin="10,0,0,0" Content="Side " />
                     <ComboBox Visibility="Hidden" BorderThickness="0" Background="AliceBlue"  x:Name="TriggerSideComboBox" SelectedIndex="0" Width="100"></ComboBox>
                 </StackPanel>
+
+                <ItemsControl Grid.Row="2" Margin="20,0,5,10" x:Name="AbilitiesListBox" HorizontalContentAlignment="Stretch"/>
+
                 <StackPanel Orientation="Horizontal" Margin="20,0,0,10">
                     <Label Content="Effect"></Label>
                     <ComboBox x:Name="AbilitiyEffectComboBox" SelectedIndex="0" Width="150" Margin="0,0,10,0"></ComboBox>
@@ -40,10 +43,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 </StackPanel>
-                <ItemsControl Grid.Row="2" Margin="20,0,5,0" x:Name="AbilitiesListBox" HorizontalContentAlignment="Stretch"/>
             </StackPanel>
-
-
         </Grid>
     </Border>
 </UserControl>
