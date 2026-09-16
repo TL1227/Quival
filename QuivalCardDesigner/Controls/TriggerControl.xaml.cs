@@ -1,6 +1,9 @@
 ﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Cards.Effects;
 using System.Windows.Controls;
+using System.Windows;
+
+using Trigger = QuivalLogicEngine.Cards.Trigger;
 
 namespace QuivalCardDesigner.Controls
 {
@@ -17,7 +20,7 @@ namespace QuivalCardDesigner.Controls
                 
             if (trigger is CastTrigger)
             {
-                TriggerTypeStackPanel.Visibility = System.Windows.Visibility.Collapsed;
+                TriggerTypeStackPanel.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -52,6 +55,41 @@ namespace QuivalCardDesigner.Controls
             menuItem.Click += Delete_Click;
             menu.Items.Add(menuItem);
             TriggerControlHeader.ContextMenu = menu;
+
+            EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
+        }
+
+        private void EffectChoiceTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (EffectChoiceTypeComboBox.SelectedItem is ChoiceType type)
+            {
+                switch (type)
+                {
+                    case ChoiceType.And:
+                    case ChoiceType.Or:
+                        EffectChoiceNumberComboBox.Visibility = Visibility.Collapsed;
+                        EffectChoiceNumberComboBox.SelectedIndex = 0;
+                        break;
+                    case ChoiceType.PickNumber:
+                    case ChoiceType.PickUpTo:
+                        EffectChoiceNumberComboBox.ItemsSource = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+                        EffectChoiceNumberComboBox.SelectedIndex = 1;
+                        EffectChoiceNumberComboBox.Visibility = Visibility.Visible;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public void HideEffectChoices()
+        {
+            EffectChoiceNumberComboBox.Visibility = Visibility.Collapsed;
+            EffectChoiceNumberComboBox.SelectedIndex = 0;
+
+            EffectChoiceTypeLabel.Visibility = Visibility.Collapsed;
+            EffectChoiceTypeComboBox.Visibility = Visibility.Collapsed;
+            EffectChoiceTypeComboBox.SelectedIndex = 0;
         }
 
         public Trigger GetTrigger()
@@ -69,10 +107,13 @@ namespace QuivalCardDesigner.Controls
                 }
             }
 
+            CurrentTrigger.ChoiceType = (ChoiceType)EffectChoiceTypeComboBox.SelectedItem;
+            CurrentTrigger.ChoiceNumber = (int)EffectChoiceNumberComboBox.SelectedItem;
+
             return CurrentTrigger;
         }
 
-        private void Delete_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void Delete_Click(object sender, RoutedEventArgs e)
         {
             string thign = Parent.GetType().ToString();
             if (Parent is ItemsControl control)
@@ -81,19 +122,26 @@ namespace QuivalCardDesigner.Controls
             }
         }
 
-        private void AddAbilityButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void AddAbilityButton_Click(object sender, RoutedEventArgs e)
         {
             var selectedType = (Type)AbilitiyEffectComboBox.SelectedItem;
             var effect = (Effect)Activator.CreateInstance(selectedType)!;
             AbilitiesListBox.Items.Add(new AbilityControl(effect));
+
+            if (AbilitiesListBox.Items.Count > 1)
+            {
+                EffectChoiceTypeLabel.Visibility = Visibility.Visible;
+                EffectChoiceTypeComboBox.Visibility = Visibility.Visible;
+                EffectChoiceTypeComboBox.ItemsSource = Enum.GetValues<ChoiceType>();
+            }
         }
 
-        private void ToggleCollapse_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ToggleCollapse_Click(object sender, RoutedEventArgs e)
         {
-            if (ContentPanel.Visibility == System.Windows.Visibility.Visible)
-                ContentPanel.Visibility = System.Windows.Visibility.Collapsed;
+            if (ContentPanel.Visibility == Visibility.Visible)
+                ContentPanel.Visibility = Visibility.Collapsed;
             else
-                ContentPanel.Visibility = System.Windows.Visibility.Visible;
+                ContentPanel.Visibility = Visibility.Visible;
         }
     }
 }
