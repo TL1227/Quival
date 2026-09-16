@@ -7,6 +7,8 @@ namespace QuivalCardDesigner.Controls;
 
 public partial class TargetControl : UserControl
 {
+    public EventHandler ChangeToTarget;
+
     public TargetControl()
     {
         InitializeComponent();
@@ -113,13 +115,16 @@ public partial class TargetControl : UserControl
             TargetNumberCombobox.IsEnabled = true;
         }
     }
+
     private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplyTargetPoolSelection();
+        ChangeToTarget.Invoke(sender, e);
     }
 
     private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SetSelectionTargetOptionsVisibility();
+        ChangeToTarget.Invoke(sender, e);
     }
 }

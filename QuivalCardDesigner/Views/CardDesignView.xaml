@@ -32,15 +32,15 @@
                     MinWidth="200"
                     x:Name="CardNameTextBox"/>
                 <Label Content="Cost"/>
-                <ComboBox x:Name="CostComboBox"/>
+                <ComboBox x:Name="CostComboBox" SelectedIndex="0"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label x:Name="AttackLabel" Content="Attack"/>
-                <ComboBox x:Name="AttackComboBox" Width="50" VerticalAlignment="Center"/>
+                <ComboBox x:Name="AttackComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"/>
 
                 <Label x:Name="HealthLabel" Content="Health"/>
-                <ComboBox x:Name="HealthComboBox" Width="50" VerticalAlignment="Center"/>
+                <ComboBox x:Name="HealthComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"/>
             </StackPanel>
 
             <Label Content="Description"/>

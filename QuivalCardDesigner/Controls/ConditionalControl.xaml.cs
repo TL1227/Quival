@@ -28,19 +28,33 @@ public partial class ConditionalControl : UserControl
         AddConditionalButton.Click += AddConditionalButton_Click;
     }
 
-    public void PopulateConditional(Ability ability)
+    public void PopulateConditional(Ability ability, bool bonusConditional = false)
     {
         foreach (var item in ConditionalsListBox.Items)
         {
             if (item is Conditional conditional)
             {
-                ability.Conditionals.Add(conditional);
+                if (bonusConditional)
+                {
+                    ability.BonusConditionals.Add(conditional);
+                }
+                else
+                {
+                    ability.Conditionals.Add(conditional);
+                }
             }
         }
 
         if (ConditionalTypeComboBox.SelectedItem is ConditionalType conType)
         {
-            ability.ConditionalType = conType;
+            if (bonusConditional)
+            {
+                ability.BonusConditionalType = conType;
+            }
+            else
+            {
+                ability.ConditionalType = conType;
+            }
         }
     }
 

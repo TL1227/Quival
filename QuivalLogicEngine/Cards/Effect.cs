@@ -54,7 +54,7 @@ public class Revive: Effect
 
 public class AttackBuffRound: Effect 
 {
-    public override string EffectString { get; set; } = "Buff";
+    public override string EffectString { get; set; } = "Attack Buff Round";
 
     public AttackBuffRound()
     {
@@ -64,7 +64,7 @@ public class AttackBuffRound: Effect
 
 public class AttackBuff: Effect 
 {
-    public override string EffectString { get; set; } = "Buff";
+    public override string EffectString { get; set; } = "Attack Buff";
 
     public AttackBuff()
     {
@@ -74,7 +74,7 @@ public class AttackBuff: Effect
 
 public class AttackDebuff: Effect 
 {
-    public override string EffectString { get; set; } = "Debuff";
+    public override string EffectString { get; set; } = "Attack Debuff";
 
     public AttackDebuff()
     {

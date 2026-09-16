@@ -10,21 +10,25 @@ namespace QuivalLogicEngine.Cards;
 public abstract class Target 
 {
     public abstract string DisplayName { get; set; }
+    public abstract TargetPool GetTargetPool();
 }
 
 public class SelfTarget : Target 
 {
     public override string DisplayName { get; set; } = "Self";
+    public override TargetPool GetTargetPool() => TargetPool.Creatures;
 }
 
 public class PlayerTarget : Target
 {
     public override string DisplayName { get; set; } = "Player";
+    public override TargetPool GetTargetPool() => TargetPool.Controllers;
 }
 
 public class OpponentTarget : Target
 {
     public override string DisplayName { get; set; } = "Opponent";
+    public override TargetPool GetTargetPool() => TargetPool.Controllers;
 }
 
 public enum TargetPool
@@ -44,6 +48,8 @@ public class SelectionTarget : Target
 
     //TODO:This needs to actually be implemented in our selector
     public bool CanPickUpTo { get; set; }
+
+    public override TargetPool GetTargetPool() => TargetPool;
 
     public List<int> GetTargetPool(int playerId, Match match)
     {

@@ -35,5 +35,5 @@ public class Ability
     public Effect? BonusEffect { get; set; }
     public Value? BonusValue { get; set; }
     public List<Conditional>? BonusConditionals { get; set; } = new();
-    public ConditionalType BonusConditionalType { get; set; }
+    public ConditionalType? BonusConditionalType { get; set; }
 }

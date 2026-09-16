@@ -2,8 +2,8 @@
 
 public enum CardType
 {
-    Spell,
     Creature,
+    Spell,
 }
 
 public class CardDefinition

@@ -3,6 +3,7 @@ using QuivalLogicEngine.Cards.Effects;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.States;
 using QuivalLogicEngine.Turns;
+using System.Security.Cryptography;
 
 namespace QuivalLogicEngine;
 
@@ -464,9 +465,11 @@ public class Match
 
             if (ability.BonusEffect != null && 
                 ability.BonusValue != null &&
-                ability.BonusConditionals != null)
+                ability.BonusConditionals != null &&
+                ability.BonusConditionalType != null
+                )
             {
-                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals, ability.BonusConditionalType))
+                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals, (ConditionalType)ability.BonusConditionalType))
                 {
                     message = new()
                     {

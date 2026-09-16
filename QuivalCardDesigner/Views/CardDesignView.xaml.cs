@@ -40,7 +40,7 @@ public partial class CardDesignView : UserControl
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
-        var baseType = typeof(QuivalLogicEngine.Cards.Trigger);
+        var baseType = typeof(Trigger);
         var types = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -131,7 +131,7 @@ public partial class CardDesignView : UserControl
 
         if (card != null)
         {
-            string fileName = $"{Config.CardDirectory.FullName}\\TEST.csv";
+            string fileName = $"{Config.CardDirectory.FullName}\\{card.Name}.csv";
 
             File.Delete(fileName);
 
@@ -178,7 +178,22 @@ public partial class CardDesignView : UserControl
                 foreach (var item in TriggerListBox.Items) 
                     if (item is TriggerControl triggerControl)
                     {
-                        card.Triggers.Add(triggerControl.GetTrigger());
+                        var trigger = triggerControl.GetTrigger();
+
+                        foreach (var ability in trigger.Abilities)
+                        {
+                            if (ability.BonusEffect != null)
+                            {
+                                if (ability.BonusConditionals == null || 
+                                    ability.BonusConditionals.Count == 0)
+                                {
+                                    MessageBox.Show("A Bonus effect needs a conditional!");
+                                    return null;
+                                }
+                            }
+                        }
+
+                        card.Triggers.Add(trigger);
                     }
             }
             catch (Exception e)

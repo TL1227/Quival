@@ -39,7 +39,7 @@ public partial class ValueControl : UserControl
         SetValueTypeOptionsVisibility();
     }
 
-    public void PopulateValue(Ability ability)
+    public void PopulateValue(Ability ability, bool bonusValue = false)
     {
         if (ValueTypeComboBox.SelectedItem is Value value)
         {
@@ -49,8 +49,31 @@ public partial class ValueControl : UserControl
                 countValue.CountSide = (CountSide)CountSideComboBox.SelectedItem;
             }
 
-            ability.Value = value;
-            ability.Value.Amount = (int)FixedValueComboBox.SelectedItem;
+            if (bonusValue)
+            {
+                ability.BonusValue = value;
+                ability.BonusValue.Amount = (int)FixedValueComboBox.SelectedItem;
+            }
+            else
+            {
+                ability.Value = value;
+                ability.Value.Amount = (int)FixedValueComboBox.SelectedItem;
+            }
+        }
+    }
+
+    public void PopulateBonusValue(Ability ability)
+    {
+        if (ValueTypeComboBox.SelectedItem is Value value)
+        {
+            if (value is Count countValue)
+            {
+                countValue.CountSource = (CountValueSource)CountValueSourceComboBox.SelectedItem;
+                countValue.CountSide = (CountSide)CountSideComboBox.SelectedItem;
+            }
+
+            ability.BonusValue = value;
+            ability.BonusValue.Amount = (int)FixedValueComboBox.SelectedItem;
         }
     }
 
