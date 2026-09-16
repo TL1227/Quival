@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 
-//TODO: pull the shared references out of these and into some kind of quival core project
 using QuivalLogicEngine.Cards;
 using System.Windows.Media;
 using System.Reflection;
@@ -12,6 +11,7 @@ using System.Windows.Media.Animation;
 using System.IO;
 using System.Text.Json;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
+using System.Text;
 
 namespace QuivalCardDesigner.Views;
 
@@ -65,7 +65,29 @@ public partial class CardDesignView : UserControl
         AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
+        GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
+
         LoadBlankCard();
+    }
+
+    private void GenerateDescriptionButton_Click(object sender, RoutedEventArgs e)
+    {
+        StringBuilder sb = new();
+
+        foreach (var item in TriggerListBox.Items)
+        {
+            if (item is TriggerControl triggercontrol)
+            {
+                var trigger = triggercontrol.CurrentTrigger;
+                sb.Append(trigger.GetTriggerDescription().Replace("[cardname]", CardNameTextBox.Text));
+
+                foreach (var ability in trigger.Abilities)
+                {
+                }
+            }
+        }
+
+        DescriptionTextBox.Text = sb.ToString();
     }
 
     private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

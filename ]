@@ -1,4 +1,4 @@
-﻿using System.Net.NetworkInformation;
+using System.Net.NetworkInformation;
 using System.Text.Json.Serialization;
 
 using QuivalLogicEngine.Cards.Effects;
@@ -30,6 +30,19 @@ public abstract class Trigger //NOTE: This should probably just be called Trigge
             ability.Id = count++;
         }
     }
+
+    public static string GetTriggerDescription(Trigger trigger)
+    {
+        switch (trigger)
+        {
+            case CastTrigger:
+            case:
+            SelfTrigger:
+
+                default:
+                break;
+        }
+    }
 }
 
 public class CastTrigger : Trigger
@@ -51,6 +64,7 @@ public class CastTrigger : Trigger
 public enum SelfTriggerType
 {
     Attack,
+    PlayerActivate, //This is what we'll use to say that an ability can be triggered by the player as an action
     MoveToBlockZone,
     BlockSwap,
     TakeDamage,
@@ -71,25 +85,6 @@ public class SelfTrigger : Trigger
     {
         return Enum.GetNames<SelfTriggerType>();
     }
-
-    public override string GetTriggerDescription()
-    {
-        switch (SelfTriggerType)
-        {
-            case SelfTriggerType.Attack:
-                return $"When {CardNameVar} attacks,";
-            case SelfTriggerType.MoveToBlockZone:
-                return $"When {CardNameVar} moves to the block zone,";
-            case SelfTriggerType.BlockSwap:
-                return $"When {CardNameVar} block swaps with another creature,";
-            case SelfTriggerType.TakeDamage:
-                return $"When {CardNameVar} takes damage,";
-            case SelfTriggerType.Dies:
-                return $"When {CardNameVar} dies,";
-        }
-
-        return $"No description text for {SelfTriggerType}";
-    }
 }
 
 public enum ListeningTriggerType
@@ -108,7 +103,7 @@ public enum ListeningTriggerType
 
 public class ListeningTrigger : Trigger
 {
-    public ListeningTriggerType ListeningTriggerType { get; set; }
+    public ListeningTriggerType ListeningTriggerType  { get; set; }
     public override string Name { get; set; } = "Listening";
     public Side Side { get; set; }
     public bool CanTargetSelf { get; set; }
@@ -121,53 +116,6 @@ public class ListeningTrigger : Trigger
     public override string[]? GetEnums()
     {
         return Enum.GetNames<ListeningTriggerType>();
-    }
-
-    public override string GetTriggerDescription()
-    {
-        switch (ListeningTriggerType)
-        {
-            case ListeningTriggerType.CreatureCast:
-                switch (Side)
-                {
-                    case Side.Any:
-                        return "Whenever a creature is cast";
-                    case Side.Opponent:
-                        return "Whenever your opponent casts a creature";
-                    case Side.Player:
-                        return "Whenever you cast a creature";
-                }
-                break;
-
-            case ListeningTriggerType.CreatureDies:
-                switch (Side)
-                {
-                    case Side.Any:
-                        return "Whenever a creature dies";
-                    case Side.Opponent:
-                        return "Whenever a creature your opponent controls dies";
-                    case Side.Player:
-                        return "Whenever a creature you control dies";
-                }
-                break;
-
-            case ListeningTriggerType.CreatureAttacks:
-                break;
-            case ListeningTriggerType.CreatureTakesDamage:
-                break;
-            case ListeningTriggerType.CreatureMovesToBlockZone:
-                break;
-            case ListeningTriggerType.SpellCast:
-                break;
-            case ListeningTriggerType.DrawCard:
-                break;
-            case ListeningTriggerType.DiscardCard:
-                break;
-            default:
-                break;
-        }
-
-        return $"no description text for {ListeningTriggerType}";
     }
 }
 
@@ -190,11 +138,6 @@ public class PhaseTrigger : Trigger
     public override string[]? GetEnums()
     {
         return Enum.GetNames<PhaseTriggerType>();
-    }
-
-    public override string GetTriggerDescription()
-    {
-        throw new NotImplementedException();
     }
 }
 
@@ -220,7 +163,7 @@ public class TargetSelection
     public int CardId { get; set; }
 
     //NOTE: These are all in Ability. Should we just grab a copy of it?
-    public int NumberToPick { get; set; }
+    public int NumberToPick {  get; set; }
     public int AbilityId { get; set; }
     public Effect Effect { get; set; }
 }

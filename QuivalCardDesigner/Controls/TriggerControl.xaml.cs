@@ -9,7 +9,7 @@ namespace QuivalCardDesigner.Controls
 {
     public partial class TriggerControl : UserControl
     {
-        private Trigger CurrentTrigger { get; set; }
+        public Trigger CurrentTrigger { get; set; }
 
         public TriggerControl(Trigger trigger)
         {
@@ -26,12 +26,13 @@ namespace QuivalCardDesigner.Controls
             {
                 TriggerNameLabel.Content = trigger.GetType().Name;
                 TriggerTypeComboBox.ItemsSource = trigger.GetEnums();
+                TriggerTypeComboBox.SelectionChanged += TriggerTypeComboBox_SelectionChanged;
             }
 
             if (trigger is ListeningTrigger)
             {
-                TriggerSideLabel.Visibility = System.Windows.Visibility.Visible;
-                TriggerSideComboBox.Visibility = System.Windows.Visibility.Visible;
+                TriggerSideLabel.Visibility = Visibility.Visible;
+                TriggerSideComboBox.Visibility = Visibility.Visible;
                 TriggerSideComboBox.ItemsSource = Enum.GetValues<Side>();
             }
 
@@ -57,6 +58,20 @@ namespace QuivalCardDesigner.Controls
             TriggerControlHeader.ContextMenu = menu;
 
             EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
+        }
+
+        private void TriggerTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CurrentTrigger is SelfTrigger selfTrigger)
+            {
+                if (TriggerTypeComboBox.SelectedItem != null)
+                    selfTrigger.SelfTriggerType = (SelfTriggerType)TriggerTypeComboBox.SelectedIndex;
+            }
+            else if (CurrentTrigger is ListeningTrigger listeningTrigger)
+            {
+                if (TriggerTypeComboBox.SelectedItem != null)
+                    listeningTrigger.ListeningTriggerType = (ListeningTriggerType)TriggerTypeComboBox.SelectedIndex;
+            }
         }
 
         private void EffectChoiceTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -107,8 +122,11 @@ namespace QuivalCardDesigner.Controls
                 }
             }
 
-            CurrentTrigger.ChoiceType = (ChoiceType)EffectChoiceTypeComboBox.SelectedItem;
-            CurrentTrigger.ChoiceNumber = (int)EffectChoiceNumberComboBox.SelectedItem;
+            if (EffectChoiceTypeComboBox.SelectedItem != null)
+                CurrentTrigger.ChoiceType = (ChoiceType)EffectChoiceTypeComboBox.SelectedItem;
+
+            if (EffectChoiceNumberComboBox.SelectedItem != null)
+                CurrentTrigger.ChoiceNumber = (int)EffectChoiceNumberComboBox.SelectedItem;
 
             return CurrentTrigger;
         }
