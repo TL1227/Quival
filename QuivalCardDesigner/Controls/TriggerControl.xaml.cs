@@ -34,6 +34,7 @@ namespace QuivalCardDesigner.Controls
                 TriggerSideLabel.Visibility = Visibility.Visible;
                 TriggerSideComboBox.Visibility = Visibility.Visible;
                 TriggerSideComboBox.ItemsSource = Enum.GetValues<Side>();
+                TriggerSideComboBox.SelectionChanged += TriggerSideComboBox_SelectionChanged;
             }
 
             Type baseType = typeof(Effect);
@@ -58,6 +59,14 @@ namespace QuivalCardDesigner.Controls
             TriggerControlHeader.ContextMenu = menu;
 
             EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
+        }
+
+        private void TriggerSideComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CurrentTrigger is ListeningTrigger listeningTrigger && TriggerSideComboBox.SelectedItem != null)
+            {
+                listeningTrigger.Side = (Side)TriggerSideComboBox.SelectedIndex;
+            }
         }
 
         private void TriggerTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

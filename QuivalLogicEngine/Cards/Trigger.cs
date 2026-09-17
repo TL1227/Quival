@@ -20,7 +20,7 @@ public abstract class Trigger //NOTE: This should probably just be called Trigge
     public abstract string[]? GetEnums();
     public abstract string GetTriggerDescription();
 
-    public static string CardNameVar { get; set; } = "[cardname]";
+    public static string CardNameVariable { get; set; } = "[cardname]";
 
     public Trigger()
     {
@@ -44,7 +44,7 @@ public class CastTrigger : Trigger
 
     public override string GetTriggerDescription()
     {
-        return $"When {CardNameVar} is cast,";
+        return $"When {CardNameVariable} is cast,";
     }
 }
 
@@ -77,15 +77,15 @@ public class SelfTrigger : Trigger
         switch (SelfTriggerType)
         {
             case SelfTriggerType.Attack:
-                return $"When {CardNameVar} attacks,";
+                return $"{CardNameVariable} attacks";
             case SelfTriggerType.MoveToBlockZone:
-                return $"When {CardNameVar} moves to the block zone,";
+                return $"{CardNameVariable} moves to the block zone";
             case SelfTriggerType.BlockSwap:
-                return $"When {CardNameVar} block swaps with another creature,";
+                return $"{CardNameVariable} block swaps with another creature";
             case SelfTriggerType.TakeDamage:
-                return $"When {CardNameVar} takes damage,";
+                return $"{CardNameVariable} takes damage";
             case SelfTriggerType.Dies:
-                return $"When {CardNameVar} dies,";
+                return $"{CardNameVariable} dies";
         }
 
         return $"No description text for {SelfTriggerType}";
@@ -111,7 +111,6 @@ public class ListeningTrigger : Trigger
     public ListeningTriggerType ListeningTriggerType { get; set; }
     public override string Name { get; set; } = "Listening";
     public Side Side { get; set; }
-    public bool CanTargetSelf { get; set; }
     public override bool SameAs(Trigger otherTrigger)
     {
         return otherTrigger is ListeningTrigger st &&
@@ -127,47 +126,99 @@ public class ListeningTrigger : Trigger
     {
         switch (ListeningTriggerType)
         {
-            case ListeningTriggerType.CreatureCast:
-                switch (Side)
-                {
-                    case Side.Any:
-                        return "Whenever a creature is cast";
-                    case Side.Opponent:
-                        return "Whenever your opponent casts a creature";
-                    case Side.Player:
-                        return "Whenever you cast a creature";
-                }
-                break;
-
             case ListeningTriggerType.CreatureDies:
-                switch (Side)
-                {
-                    case Side.Any:
-                        return "Whenever a creature dies";
-                    case Side.Opponent:
-                        return "Whenever a creature your opponent controls dies";
-                    case Side.Player:
-                        return "Whenever a creature you control dies";
-                }
+            case ListeningTriggerType.CreatureAttacks:
+            case ListeningTriggerType.CreatureTakesDamage:
+            case ListeningTriggerType.CreatureMovesToBlockZone:
+            {
+                return GetListeningToCreatureActionDescription();
+            }
+
+            case ListeningTriggerType.DiscardCard:
+            case ListeningTriggerType.SpellCast:
+            case ListeningTriggerType.CreatureCast:
+            case ListeningTriggerType.DrawCard:
+            {
+                return GetListeningToPlayerActionDescription();
+            }
+        }
+
+        throw new NotImplementedException("Can't get listeningtrigger description");
+    }
+
+    private string GetListeningToCreatureActionDescription()
+    {
+        string triggerText = "";
+
+        switch (ListeningTriggerType)
+        {
+            case ListeningTriggerType.CreatureDies:
+                triggerText = "dies";
                 break;
 
             case ListeningTriggerType.CreatureAttacks:
+                triggerText = "attacks";
                 break;
+
             case ListeningTriggerType.CreatureTakesDamage:
+                triggerText = "takes damage";
                 break;
+
             case ListeningTriggerType.CreatureMovesToBlockZone:
-                break;
-            case ListeningTriggerType.SpellCast:
-                break;
-            case ListeningTriggerType.DrawCard:
-                break;
-            case ListeningTriggerType.DiscardCard:
-                break;
-            default:
+                triggerText = "enters the block zone";
                 break;
         }
 
-        return $"no description text for {ListeningTriggerType}";
+        switch (Side)
+        {
+            case Side.Any:
+                return $"a creature {triggerText}";
+            case Side.Opponent:
+                return $"a creature your opponent controls {triggerText}";
+            case Side.Player:
+                return $"a creature you control {triggerText}";
+        }
+
+        throw new NotImplementedException("can't find listeningtriggertype description");
+    }
+
+    private string GetListeningToPlayerActionDescription()
+    {
+        string triggerText = "";
+        string triggerTextFirstPerson = "";
+
+        switch (ListeningTriggerType)
+        {
+            case ListeningTriggerType.SpellCast:
+                triggerText = "casts a spell";
+                triggerTextFirstPerson = "cast a spell";
+                break;
+            case ListeningTriggerType.CreatureCast:
+                triggerText = "summons a creature";
+                triggerTextFirstPerson = "summon a creature";
+                break;
+
+            case ListeningTriggerType.DrawCard:
+                triggerText = "draws a card";
+                triggerTextFirstPerson = "draw a card";
+                break;
+            case ListeningTriggerType.DiscardCard:
+                triggerText = "discards a card";
+                triggerTextFirstPerson = "discard a card";
+                break;
+        }
+
+        switch (Side)
+        {
+            case Side.Any:
+                return $"a player {triggerText}";
+            case Side.Opponent:
+                return $"your opponent {triggerText}";
+            case Side.Player:
+                return $"you {triggerTextFirstPerson}";
+        }
+
+        throw new NotImplementedException("can't find listeningtriggertype description");
     }
 }
 
@@ -194,7 +245,12 @@ public class PhaseTrigger : Trigger
 
     public override string GetTriggerDescription()
     {
-        throw new NotImplementedException();
+        if (PhaseTriggerType == PhaseTriggerType.EndTurn)
+            return "the turn ends";
+        if (PhaseTriggerType == PhaseTriggerType.EndRound)
+            return "the round ends";
+
+        throw new NotImplementedException("Can't get phasetrigger description");
     }
 }
 

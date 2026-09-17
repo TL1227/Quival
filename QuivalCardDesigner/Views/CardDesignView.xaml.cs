@@ -1,17 +1,17 @@
-﻿using System;
+﻿using QuivalCardDesigner.Controls;
+using QuivalLogicEngine.Cards;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-
-using QuivalLogicEngine.Cards;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using System.Reflection;
-using System.Diagnostics;
-using QuivalCardDesigner.Controls;
 using System.Windows.Media.Animation;
-using System.IO;
-using System.Text.Json;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
-using System.Text;
 
 namespace QuivalCardDesigner.Views;
 
@@ -67,10 +67,23 @@ public partial class CardDesignView : UserControl
 
         GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
 
+        AddHandler(
+        Selector.SelectionChangedEvent,
+        new SelectionChangedEventHandler(OnAnySelectionChanged));
+
         LoadBlankCard();
     }
 
+    private void OnAnySelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        GenerateCardDescription();
+    }
+
     private void GenerateDescriptionButton_Click(object sender, RoutedEventArgs e)
+    {
+    }
+
+    private void GenerateCardDescription()
     {
         StringBuilder sb = new();
 
@@ -79,7 +92,10 @@ public partial class CardDesignView : UserControl
             if (item is TriggerControl triggercontrol)
             {
                 var trigger = triggercontrol.CurrentTrigger;
-                sb.Append(trigger.GetTriggerDescription().Replace("[cardname]", CardNameTextBox.Text));
+
+                sb.Append("Whenever ");
+                sb.Append(trigger.GetTriggerDescription().Replace(Trigger.CardNameVariable, CardNameTextBox.Text));
+                sb.Append(", ");
 
                 foreach (var ability in trigger.Abilities)
                 {

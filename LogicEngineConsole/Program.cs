@@ -23,6 +23,7 @@ namespace LogicEngineConsole
         
         static void Main(string[] args)
         {
+            /*
             List<CardDefinition> cards =
             [
                 new (){
@@ -357,6 +358,7 @@ namespace LogicEngineConsole
 
             string json = JsonSerializer.Serialize(set, options);
             File.WriteAllText("..\\QuivalServer\\QuivalCards.json", json);
+            */
         }
     }
 }
