@@ -1,4 +1,5 @@
 ﻿using QuivalCardDesigner.Controls;
+using QuivalLogicEngine.CardDescription;
 using QuivalLogicEngine.Cards;
 using System;
 using System.Diagnostics;
@@ -12,6 +13,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
+using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
 
 namespace QuivalCardDesigner.Views;
 
@@ -87,23 +89,47 @@ public partial class CardDesignView : UserControl
     {
         StringBuilder sb = new();
 
-        foreach (var item in TriggerListBox.Items)
+        var currentCard = GetCardFromCurrentView();
+        if (currentCard != null)
         {
-            if (item is TriggerControl triggercontrol)
+            foreach (var trigger in currentCard.Triggers)
             {
-                var trigger = triggercontrol.CurrentTrigger;
-
                 sb.Append("Whenever ");
-                sb.Append(trigger.GetTriggerDescription().Replace(Trigger.CardNameVariable, CardNameTextBox.Text));
+                sb.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
                 sb.Append(", ");
 
                 foreach (var ability in trigger.Abilities)
                 {
-                }
-            }
-        }
+                    var targetSelectionText = "";
+                    var targetText = "";
+                    if (ability.Target is SelectionTarget )
+                    {
+                        targetSelectionText = ability.Target.GetTargetDescription();
+                        targetText = "it";
+                    }
+                    else
+                    {
+                        targetText = ability.Target.GetTargetDescription();
+                    }
 
-        DescriptionTextBox.Text = sb.ToString();
+                    var abilityText = ability.Effect.GetEffectCardDescription()
+                        .Replace(Key.EffectValue, ability.Value.Amount.ToString());
+
+                    if (ability.Value.Amount > 1)
+                        abilityText = abilityText .Replace("(", "") .Replace(")", "");
+                    else
+                        abilityText = abilityText.Replace("(s)", "");
+
+                    abilityText = abilityText.Replace(Key.Target, targetText);
+
+                    sb.Append(targetSelectionText + abilityText);
+                }
+
+                sb.Append(".");
+            }
+
+            DescriptionTextBox.Text = sb.ToString();
+        }
     }
 
     private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

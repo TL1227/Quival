@@ -11,24 +11,39 @@ public abstract class Target
 {
     public abstract string DisplayName { get; set; }
     public abstract TargetPool GetTargetPool();
+
+    public abstract string GetTargetDescription();
 }
 
 public class SelfTarget : Target 
 {
     public override string DisplayName { get; set; } = "Self";
     public override TargetPool GetTargetPool() => TargetPool.Creatures;
+
+    public override string GetTargetDescription()
+    {
+        return "it";
+    }
 }
 
 public class PlayerTarget : Target
 {
     public override string DisplayName { get; set; } = "Player";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
+    public override string GetTargetDescription()
+    {
+        return "yourself";
+    }
 }
 
 public class OpponentTarget : Target
 {
     public override string DisplayName { get; set; } = "Opponent";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
+    public override string GetTargetDescription()
+    {
+        return "your opponent";
+    }
 }
 
 public enum TargetPool
@@ -94,5 +109,53 @@ public class SelectionTarget : Target
             default:
                 return cards;
         }
+    }
+
+    public override string GetTargetDescription()
+    {
+        string targetPool = "";
+        switch (TargetPool)
+        {
+            case TargetPool.Creatures:
+                targetPool = "creature(s)";
+                break;
+            case TargetPool.Controllers:
+                targetPool = "player(s)";
+                break;
+            case TargetPool.Damagables:
+                targetPool = "damagable target(s)";
+                break;
+            default:
+                break;
+        }
+
+        if (NumberToPick > 1)
+            targetPool = targetPool.Replace("(", "").Replace(")", "");
+        else
+            targetPool = targetPool.Replace("(s)", "");
+
+        string side = "";
+        switch (Side)
+        {
+            case Side.Any:
+                break;
+            case Side.Opponent:
+                side = "of your opponent's";
+                break;
+            case Side.Player:
+                side = "of your";
+                break;
+            default:
+                break;
+        }
+
+        string text = $"select {NumberToPick} {side} {targetPool} and ";
+
+        return text;
+    }
+
+    public string GetTargetNoun()
+    {
+        return "hello";
     }
 }

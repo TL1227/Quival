@@ -1,7 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards;
 using QuivalLogicEngine.Cards.Effects;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace QuivalCardDesigner.Controls;
 

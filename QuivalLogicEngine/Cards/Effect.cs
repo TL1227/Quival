@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using QuivalLogicEngine.CardDescription;
+using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards.Effects;
 
@@ -20,6 +21,9 @@ public abstract class Effect()
     {
         return EffectString;
     }
+
+    public abstract string GetEffectCardDescription();
+
 }
 
 public class Heal: Effect 
@@ -29,6 +33,11 @@ public class Heal: Effect
     public Heal()
     {
         ValidTargetPool = TargetPool.Damagables;
+    }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"heal {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
     }
 }
 
@@ -40,6 +49,11 @@ public class DirectDamage: Effect
     {
         ValidTargetPool = TargetPool.Damagables;
     }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"deal {CardDescriptionKeys.EffectValue} point(s) of direct damage to {CardDescriptionKeys.Target}";
+    }
 }
 
 public class Revive: Effect 
@@ -49,6 +63,11 @@ public class Revive: Effect
     public Revive()
     {
         ValidTargetPool =  TargetPool.Creatures;
+    }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"revive {CardDescriptionKeys.EffectValue} creature";
     }
 }
 
@@ -60,6 +79,11 @@ public class AttackBuffRound: Effect
     {
         ValidTargetPool =  TargetPool.Creatures;
     }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"buff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} till end of round";
+    }
 }
 
 public class AttackBuff: Effect 
@@ -69,6 +93,11 @@ public class AttackBuff: Effect
     public AttackBuff()
     {
         ValidTargetPool =  TargetPool.Creatures;
+    }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"buff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue}";
     }
 }
 
@@ -80,6 +109,11 @@ public class AttackDebuff: Effect
     {
         ValidTargetPool =  TargetPool.Creatures;
     }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"defbuff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} point(s)";
+    }
 }
 
 public class DrawCard: Effect 
@@ -89,5 +123,10 @@ public class DrawCard: Effect
     public DrawCard()
     {
         ValidTargetPool =  TargetPool.Controllers;
+    }
+
+    public override string GetEffectCardDescription()
+    {
+        return $"Draw {CardDescriptionKeys.EffectValue} card(s)";
     }
 }

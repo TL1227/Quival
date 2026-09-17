@@ -1,7 +1,6 @@
-﻿using System.Net.NetworkInformation;
-using System.Text.Json.Serialization;
-
+﻿using System.Text.Json.Serialization;
 using QuivalLogicEngine.Cards.Effects;
+using QuivalLogicEngine.CardDescription;
 
 namespace QuivalLogicEngine.Cards;
 
@@ -19,8 +18,6 @@ public abstract class Trigger //NOTE: This should probably just be called Trigge
     public abstract bool SameAs(Trigger otherTrigger);
     public abstract string[]? GetEnums();
     public abstract string GetTriggerDescription();
-
-    public static string CardNameVariable { get; set; } = "[cardname]";
 
     public Trigger()
     {
@@ -44,7 +41,7 @@ public class CastTrigger : Trigger
 
     public override string GetTriggerDescription()
     {
-        return $"When {CardNameVariable} is cast,";
+        return $"{CardDescriptionKeys.CardName} is cast";
     }
 }
 
@@ -77,15 +74,15 @@ public class SelfTrigger : Trigger
         switch (SelfTriggerType)
         {
             case SelfTriggerType.Attack:
-                return $"{CardNameVariable} attacks";
+                return $"{CardDescriptionKeys.CardName} attacks";
             case SelfTriggerType.MoveToBlockZone:
-                return $"{CardNameVariable} moves to the block zone";
+                return $"{CardDescriptionKeys.CardName} moves to the block zone";
             case SelfTriggerType.BlockSwap:
-                return $"{CardNameVariable} block swaps with another creature";
+                return $"{CardDescriptionKeys.CardName} block swaps with another creature";
             case SelfTriggerType.TakeDamage:
-                return $"{CardNameVariable} takes damage";
+                return $"{CardDescriptionKeys.CardName} takes damage";
             case SelfTriggerType.Dies:
-                return $"{CardNameVariable} dies";
+                return $"{CardDescriptionKeys.CardName} dies";
         }
 
         return $"No description text for {SelfTriggerType}";
