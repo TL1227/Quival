@@ -12,7 +12,7 @@ public abstract class Target
     public abstract string DisplayName { get; set; }
     public abstract TargetPool GetTargetPool();
 
-    public abstract string GetTargetDescription();
+    public abstract string GetTargetDescription(bool isCreatureCard);
 }
 
 public class SelfTarget : Target 
@@ -20,9 +20,9 @@ public class SelfTarget : Target
     public override string DisplayName { get; set; } = "Self";
     public override TargetPool GetTargetPool() => TargetPool.Creatures;
 
-    public override string GetTargetDescription()
+    public override string GetTargetDescription(bool isCreatureCard)
     {
-        return "it";
+        return "itself";
     }
 }
 
@@ -30,9 +30,12 @@ public class PlayerTarget : Target
 {
     public override string DisplayName { get; set; } = "Player";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
-    public override string GetTargetDescription()
+    public override string GetTargetDescription(bool isCreatureCard)
     {
-        return "yourself";
+        if (isCreatureCard)
+            return "it's controller";
+        else
+            return "yourself";
     }
 }
 
@@ -40,7 +43,7 @@ public class OpponentTarget : Target
 {
     public override string DisplayName { get; set; } = "Opponent";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
-    public override string GetTargetDescription()
+    public override string GetTargetDescription(bool isCreatureCard)
     {
         return "your opponent";
     }
@@ -111,20 +114,50 @@ public class SelectionTarget : Target
         }
     }
 
-    public override string GetTargetDescription()
+    public override string GetTargetDescription(bool isCreatureCard)
     {
         string targetPool = "";
         switch (TargetPool)
         {
             case TargetPool.Creatures:
-                targetPool = "creature(s)";
+                targetPool = " creature(s) ";
+                switch (Side)
+                {
+                    case Side.Any:
+                        targetPool = " creature(s) ";
+                        break;
+                    case Side.Opponent:
+                        targetPool = " opponent's creature(s) ";
+                        break;
+                    case Side.Player:
+                        targetPool = " creature(s) you control ";
+                        break;
+                    default:
+                        break;
+                }
                 break;
-            case TargetPool.Controllers:
-                targetPool = "player(s)";
-                break;
+
             case TargetPool.Damagables:
-                targetPool = "damagable target(s)";
+                switch (Side)
+                {
+                    case Side.Any:
+                        targetPool = " damagable target(s) ";
+                        break;
+                    case Side.Opponent:
+                        targetPool = " opponent's damagable target(s) ";
+                        break;
+                    case Side.Player:
+                        targetPool = " damagable target(s) of yours";
+                        break;
+                    default:
+                        break;
+                }
                 break;
+
+            case TargetPool.Controllers:
+                targetPool = " player(s)" ;
+                break;
+
             default:
                 break;
         }
@@ -134,22 +167,19 @@ public class SelectionTarget : Target
         else
             targetPool = targetPool.Replace("(s)", "");
 
-        string side = "";
-        switch (Side)
-        {
-            case Side.Any:
-                break;
-            case Side.Opponent:
-                side = "of your opponent's";
-                break;
-            case Side.Player:
-                side = "of your";
-                break;
-            default:
-                break;
-        }
 
-        string text = $"select {NumberToPick} {side} {targetPool} and ";
+        string text = "";
+        if (NumberToPick == 1)
+        {
+            if (Side == Side.Opponent)
+                text = $"an{targetPool}";
+            else
+                text = $"a{targetPool}";
+        }
+        else
+        {
+            text = $"{NumberToPick}{targetPool}";
+        }
 
         return text;
     }

@@ -98,31 +98,24 @@ public partial class CardDesignView : UserControl
                 sb.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
                 sb.Append(", ");
 
+                bool isCreatureCard = currentCard.CardType == CardType.Creature;
                 foreach (var ability in trigger.Abilities)
                 {
-                    var targetSelectionText = "";
-                    var targetText = "";
-                    if (ability.Target is SelectionTarget )
-                    {
-                        targetSelectionText = ability.Target.GetTargetDescription();
-                        targetText = "it";
-                    }
-                    else
-                    {
-                        targetText = ability.Target.GetTargetDescription();
-                    }
+                    var targetText = ability.Target.GetTargetDescription(isCreatureCard);
 
-                    var abilityText = ability.Effect.GetEffectCardDescription()
+
+                    bool isSelfTarget = ability.Target is SelfTarget;
+                    var effectText = ability.Effect.GetEffectCardDescription(isCreatureCard, isSelfTarget)
                         .Replace(Key.EffectValue, ability.Value.Amount.ToString());
 
                     if (ability.Value.Amount > 1)
-                        abilityText = abilityText .Replace("(", "") .Replace(")", "");
+                        effectText = effectText .Replace("(", "") .Replace(")", "");
                     else
-                        abilityText = abilityText.Replace("(s)", "");
+                        effectText = effectText.Replace("(s)", "");
 
-                    abilityText = abilityText.Replace(Key.Target, targetText);
+                    effectText = effectText.Replace(Key.Target, targetText);
 
-                    sb.Append(targetSelectionText + abilityText);
+                    sb.Append(effectText);
                 }
 
                 sb.Append(".");
