@@ -59,8 +59,6 @@ public class DirectDamage: Effect
     {
         if (isCreatureCard)
             return $"it deals {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
-        else if (isSelfTarget)
-            return $"it damages itself by {CardDescriptionKeys.EffectValue}";
         else
             return $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
     }
@@ -78,10 +76,10 @@ public class Revive: Effect
 
     public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
     {
-        if (isCreatureCard)
-            return $"it revives {CardDescriptionKeys.EffectValue} creature";
-        else if (isSelfTarget)
+        if (isSelfTarget)
             return $"it revives itself by {CardDescriptionKeys.EffectValue}";
+        else if (isCreatureCard)
+            return $"it revives {CardDescriptionKeys.EffectValue} creature";
         else
             return $"revive {CardDescriptionKeys.EffectValue} creature";
     }
@@ -98,12 +96,12 @@ public class AttackBuffRound: Effect
 
     public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
     {
-        if (isCreatureCard)
-            return $"it buffs the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} till end of round";
-        else if (isSelfTarget)
-            return $"it buffs it's attack by {CardDescriptionKeys.EffectValue}";
+        if (isSelfTarget)
+            return $"it increases it's attack by {CardDescriptionKeys.EffectValue} until the end of the round";
+        else if (isCreatureCard)
+            return $"it increases the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} until the end of the round";
         else
-            return $"buff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} till end of round";
+            return $"increase the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} until the end of the round";
     }
 }
 

@@ -173,6 +173,8 @@ public class SelectionTarget : Target
         {
             if (Side == Side.Opponent)
                 text = $"an{targetPool}";
+            if (Side == Side.Any)
+                text = $"any{targetPool}";
             else
                 text = $"a{targetPool}";
         }

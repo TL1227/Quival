@@ -118,7 +118,7 @@ public partial class CardDesignView : UserControl
                     sb.Append(effectText);
                 }
 
-                sb.Append(".");
+                sb.Append('.');
             }
 
             DescriptionTextBox.Text = sb.ToString();
