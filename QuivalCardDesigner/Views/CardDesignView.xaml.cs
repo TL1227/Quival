@@ -42,6 +42,26 @@ public partial class CardDesignView : UserControl
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
+        TriggerTypeComboBox.DisplayMemberPath = "Name";
+        PopulateTriggerTypeComboBox();
+
+        SaveCardButton.Click += SaveCardButton_Click;
+
+        HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+        GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
+
+        AddHandler(Selector.SelectionChangedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        //AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        //AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+
+        LoadBlankCard();
+    }
+
+    public void PopulateTriggerTypeComboBox(CardType cardType = CardType.Creature)
+    {
         var baseType = typeof(Trigger);
         var types = AppDomain.CurrentDomain
             .GetAssemblies()
@@ -52,37 +72,31 @@ public partial class CardDesignView : UserControl
             .ToList();
 
         List<Trigger> triggerTypes = new();
-        foreach (var type in types)
+
+        if (cardType == CardType.Creature)
         {
-            var triggerType = (Trigger)Activator.CreateInstance(type)!;
-            triggerTypes.Add(triggerType);
+            foreach (var type in types)
+            {
+                var triggerType = (Trigger)Activator.CreateInstance(type)!;
+                triggerTypes.Add(triggerType);
+            }
+        }
+        else if (cardType == CardType.Spell)
+        {
+            triggerTypes.Add(new CastTrigger());
         }
 
         TriggerTypeComboBox.ItemsSource = triggerTypes;
-        TriggerTypeComboBox.DisplayMemberPath = "Name";
-
-        SaveCardButton.Click += SaveCardButton_Click;
-
-        HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-        GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
-
-        AddHandler(
-        Selector.SelectionChangedEvent,
-        new SelectionChangedEventHandler(OnAnySelectionChanged));
-
-        LoadBlankCard();
     }
 
-    private void OnAnySelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void OnAnySelectionChanged(object sender, RoutedEventArgs e)
     {
         GenerateCardDescription();
     }
 
     private void GenerateDescriptionButton_Click(object sender, RoutedEventArgs e)
     {
+        GenerateCardDescription();
     }
 
     private void GenerateCardDescription()
@@ -94,9 +108,12 @@ public partial class CardDesignView : UserControl
         {
             foreach (var trigger in currentCard.Triggers)
             {
-                sb.Append("Whenever ");
-                sb.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
-                sb.Append(", ");
+                if (currentCard.CardType == CardType.Creature)
+                {
+                    sb.Append("Whenever ");
+                    sb.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
+                    sb.Append(", ");
+                }
 
                 bool isCreatureCard = currentCard.CardType == CardType.Creature;
                 foreach (var ability in trigger.Abilities)
@@ -107,6 +124,12 @@ public partial class CardDesignView : UserControl
                     bool isSelfTarget = ability.Target is SelfTarget;
                     var effectText = ability.Effect.GetEffectCardDescription(isCreatureCard, isSelfTarget)
                         .Replace(Key.EffectValue, ability.Value.Amount.ToString());
+
+                    if (trigger is ListeningTrigger)
+                    {
+                        effectText = effectText.Replace("it", currentCard.Name);
+                    }
+
 
                     if (ability.Value.Amount > 1)
                         effectText = effectText .Replace("(", "") .Replace(")", "");
@@ -177,8 +200,11 @@ public partial class CardDesignView : UserControl
     {
         if (CardTypeComboBox.SelectedItem is CardType type)
         {
+            //TODO: some pop-up that will explain that changing the card type will remove all current triggers
             Visibility visibility = (type == CardType.Creature) ? Visibility.Visible : Visibility.Hidden;
             ToggleAtkDef(visibility);
+            PopulateTriggerTypeComboBox(type);
+            TriggerListBox.Items.Clear();
         }
     }
 

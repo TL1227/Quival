@@ -46,9 +46,11 @@ public partial class TargetControl : UserControl
         TargetNumberCombobox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
         SideComboBox.ItemsSource = Enum.GetValues<Side>();
+        SideComboBox.SelectionChanged += SideComboBox_SelectionChanged;
 
         SetSelectionTargetOptionsVisibility();
     }
+
 
     public void PopulateTarget(Ability ability)
     {
@@ -97,6 +99,9 @@ public partial class TargetControl : UserControl
     {
         ChangeSelectionTargetOptionsVisibility(Visibility.Visible);
 
+        SideComboBox.IsEnabled = true;
+        TargetNumberCombobox.IsEnabled = true;
+
         if (TargetPoolComboBox.SelectedItem is TargetPool.Controllers)
         {
             SelfTargetCheckbox.IsChecked = false;
@@ -106,13 +111,12 @@ public partial class TargetControl : UserControl
             SideComboBox.SelectedIndex = 0;
             SideComboBox.IsEnabled = false;
         }
-        else
-        {
-            //SelfTargetCheckbox.Visibility = Visibility.Visible;
-            //SelfTargetLabel.Visibility = Visibility.Visible;
 
-            SideComboBox.IsEnabled = true;
-            TargetNumberCombobox.IsEnabled = true;
+        if (SideComboBox.SelectedItem is Side.Opponent)
+        {
+            SelfTargetCheckbox.IsChecked = false;
+            SelfTargetCheckbox.Visibility = Visibility.Collapsed;
+            SelfTargetLabel.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -125,6 +129,12 @@ public partial class TargetControl : UserControl
     private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SetSelectionTargetOptionsVisibility();
+        ChangeToTarget.Invoke(sender, e);
+    }
+
+    private void SideComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ApplyTargetPoolSelection();
         ChangeToTarget.Invoke(sender, e);
     }
 }

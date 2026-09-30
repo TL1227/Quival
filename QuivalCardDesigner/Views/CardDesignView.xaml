@@ -30,7 +30,8 @@
                 <TextBox 
                     VerticalAlignment="Center" 
                     MinWidth="200"
-                    x:Name="CardNameTextBox"/>
+                    x:Name="CardNameTextBox"
+                    Text="Place Holder"/>
                 <Label Content="Cost"/>
                 <ComboBox x:Name="CostComboBox" SelectedIndex="0"/>
             </StackPanel>

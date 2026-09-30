@@ -44,6 +44,30 @@ public class Heal: Effect
         else
             return $"heal {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
     }
+
+    /*
+    public string GetEffectCardDescriptionTest(bool isCreatureCard, bool isSelfTarget, Target target)
+    {
+        string text = "";
+        switch (target)
+        {
+            case SelectionTarget:
+                break;
+            case SelfTarget:
+                return $"it heals itself by {CardDescriptionKeys.EffectValue} point(s)";
+            case PlayerTarget:
+                return $"it heals {CardDescriptionKeys.EffectValue} point(s) of health to it's controller";
+            case OpponentTarget:
+                return $"it heals each opponent by {CardDescriptionKeys.EffectValue} point(s)";
+        }
+
+        if (isCreatureCard)
+            return $"it heals {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
+        else if (isSelfTarget)
+        else
+            return $"heal {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
+    }
+    */
 }
 
 public class DirectDamage: Effect 

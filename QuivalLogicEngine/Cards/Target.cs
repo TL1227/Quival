@@ -120,45 +120,13 @@ public class SelectionTarget : Target
         switch (TargetPool)
         {
             case TargetPool.Creatures:
-                targetPool = " creature(s) ";
-                switch (Side)
-                {
-                    case Side.Any:
-                        targetPool = " creature(s) ";
-                        break;
-                    case Side.Opponent:
-                        targetPool = " opponent's creature(s) ";
-                        break;
-                    case Side.Player:
-                        targetPool = " creature(s) you control ";
-                        break;
-                    default:
-                        break;
-                }
+                targetPool = "creature(s)";
                 break;
-
             case TargetPool.Damagables:
-                switch (Side)
-                {
-                    case Side.Any:
-                        targetPool = " damagable target(s) ";
-                        break;
-                    case Side.Opponent:
-                        targetPool = " opponent's damagable target(s) ";
-                        break;
-                    case Side.Player:
-                        targetPool = " damagable target(s) of yours";
-                        break;
-                    default:
-                        break;
-                }
+                targetPool = "damagable target(s)";
                 break;
-
             case TargetPool.Controllers:
-                targetPool = " player(s)" ;
-                break;
-
-            default:
+                targetPool = "player(s)" ;
                 break;
         }
 
@@ -167,20 +135,31 @@ public class SelectionTarget : Target
         else
             targetPool = targetPool.Replace("(s)", "");
 
+        string sideText = "";
+        switch (Side)
+        {
+            case Side.Any:
+                break;
+            case Side.Opponent:
+                sideText = "your opponent controls";
+                break;
+            case Side.Player:
+                sideText = "you control";
+                break;
+        }
 
         string text = "";
         if (NumberToPick == 1)
         {
-            if (Side == Side.Opponent)
-                text = $"an{targetPool}";
-            if (Side == Side.Any)
-                text = $"any{targetPool}";
-            else
-                text = $"a{targetPool}";
+            text = $"any {targetPool} {sideText}";
+
+            if (CanTargetSelf == true)
+                text = text.Replace("any", "any other");
         }
         else
         {
-            text = $"{NumberToPick}{targetPool}";
+            text = $"any {targetPool} {sideText}";
+            text = text.Replace("any", NumberToPick.ToString());
         }
 
         return text;
