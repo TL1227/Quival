@@ -7,4 +7,5 @@ public class CardDescriptionKeys
     public static string CardName { get; set; } = "[cardname]";
     public static string TargetNumber { get; set; } = "[targetnumber]";
     public static string Target { get; set; } = "[target]";
+    public static string CountValue { get; set; } = "[countvalue]";
 }

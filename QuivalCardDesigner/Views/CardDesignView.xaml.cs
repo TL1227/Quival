@@ -118,16 +118,40 @@ public partial class CardDesignView : UserControl
 
                 foreach (var ability in trigger.Abilities)
                 {
-                    string effectText = ability.Effect
-                        .GetEffectCardDescription(ability.Target, currentCard.CardType, trigger)
-                        .Replace(Key.EffectValue, ability.Value.Amount.ToString());
+                    //TODO: There is some bug here causing the conditional to keep appending for some reason.
+                    string conditionalText = ability.GetConditionalText();
+
+                    string effectText = ability.Effect.GetEffectCardDescription(ability.Target, currentCard.CardType, trigger);
+
+                    effectText = effectText.Replace(Key.EffectValue, ability.Value.Amount.ToString());
+
+                    if (ability.Value is Count count)
+                    {
+                        if (effectText.Contains(Key.CountValue))
+                        {
+                            effectText = effectText.Replace(Key.CountValue, count.GetCountText());
+                        }
+                        else
+                        {
+                            effectText += ' ' + count.GetCountText();
+                        }
+                    }
+                    else
+                    {
+                        if (effectText.Contains(Key.CountValue))
+                        {
+                            effectText = effectText.Replace(Key.CountValue, "");
+                        }
+                    }
 
                     if (ability.Value.Amount > 1)
-                        effectText = effectText .Replace("(", "") .Replace(")", "");
+                        effectText = effectText.Replace("(", "").Replace(")", "");
                     else
                         effectText = effectText.Replace("(s)", "");
 
-                    sb.Append(effectText);
+                    effectText = effectText.Replace("  ", " ");
+
+                    sb.Append(conditionalText + effectText);
                 }
 
                 sb.Append('.');

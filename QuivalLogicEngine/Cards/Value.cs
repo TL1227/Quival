@@ -77,5 +77,36 @@ namespace QuivalLogicEngine.Cards
 
             return count + Amount;
         }
+
+        public string GetCountText()
+        {
+            switch (CountSource)
+            {
+                case CountValueSource.CreaturesOnTheBoard:
+                    switch (CountSide)
+                    {
+                        case CountSide.Controller:
+                            return "for every creature you control";
+                        case CountSide.Opponent:
+                            return "for every creature your opponent controls";
+                        case CountSide.All:
+                            return "for every creature on the board";
+                    }
+                    break;
+                case CountValueSource.CardsInHand:
+                    switch (CountSide)
+                    {
+                        case CountSide.Controller:
+                            return "for every card in your hand";
+                        case CountSide.Opponent:
+                            return "for every card in your opponent's hand";
+                        case CountSide.All:
+                            return "for every card in both player's hands";
+                    }
+                    break;
+            }
+
+            return "No Count Text Found";
+        }
     }
 }

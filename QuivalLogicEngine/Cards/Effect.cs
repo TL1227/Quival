@@ -1,5 +1,5 @@
-﻿using QuivalLogicEngine.CardDescription;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
 
 namespace QuivalLogicEngine.Cards.Effects;
 
@@ -42,23 +42,23 @@ public class Heal: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"heal {CardDescriptionKeys.EffectValue} point(s) of life to {selectionTarget.GetSelectionTargetDescription()}";
+                text = $"heal {Key.EffectValue} point(s) of life {Key.CountValue} to {selectionTarget.GetSelectionTargetDescription()}";
                 break;
             case SelfTarget:
                 if (trigger is PhaseTrigger || trigger is ListeningTrigger)
                 {
-                    text = $"heal {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue} point(s)";
+                    text = $"heal {Key.CardName} by {Key.EffectValue} point(s)";
                 }
                 else
                 {
-                    text = $"it heals itself by {CardDescriptionKeys.EffectValue} point(s)";
+                    text = $"it heals itself by {Key.EffectValue} point(s)";
                 }
                 break;
             case PlayerTarget:
-                    text = $"you gain {CardDescriptionKeys.EffectValue} point(s) of life";
+                    text = $"you gain {Key.EffectValue} point(s) of life";
                 break;
             case OpponentTarget:
-                text = $"each opponent gains {CardDescriptionKeys.EffectValue} point(s) of life";
+                text = $"each opponent gains {Key.EffectValue} point(s) of life";
                 break;
         }
 
@@ -82,23 +82,23 @@ public class DirectDamage: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"deal {CardDescriptionKeys.EffectValue} damage to {selectionTarget.GetSelectionTargetDescription()}";
+                text = $"deal {Key.EffectValue} damage {Key.CountValue} to {selectionTarget.GetSelectionTargetDescription()}";
                 break;
             case SelfTarget:
                 if (trigger is PhaseTrigger || trigger is ListeningTrigger)
                 {
-                    text = $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.CardName}";
+                    text = $"deal {Key.EffectValue} damage to {Key.CardName}";
                 }
                 else
                 {
-                    text = $"it deals {CardDescriptionKeys.EffectValue} damage to itself";
+                    text = $"it deals {Key.EffectValue} damage to itself";
                 }
                 break;
             case PlayerTarget:
-                text = $"you take {CardDescriptionKeys.EffectValue} damage";
+                text = $"you take {Key.EffectValue} damage";
                 break;
             case OpponentTarget:
-                text = $"deal {CardDescriptionKeys.EffectValue} damage to each oppononent";
+                text = $"deal {Key.EffectValue} damage to each oppononent";
                 break;
         }
 
@@ -125,16 +125,16 @@ public class Revive: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
+                text = $"deal {Key.EffectValue} damage to {Key.Target}";
                 break;
             case SelfTarget:
-                text = $"it deals {CardDescriptionKeys.EffectValue} damage to itself";
+                text = $"it deals {Key.EffectValue} damage to itself";
                 break;
             case PlayerTarget:
-                text = $"deal {CardDescriptionKeys.EffectValue} damage to it's controller ";
+                text = $"deal {Key.EffectValue} damage to it's controller ";
                 break;
             case OpponentTarget:
-                text = $"deal {CardDescriptionKeys.EffectValue} damage to each oppononent";
+                text = $"deal {Key.EffectValue} damage to each oppononent";
                 break;
         }
 
@@ -158,16 +158,16 @@ public class AttackBuffRound: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"increase {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue} until the end of the round";
+                text = $"increase {selectionTarget.GetSelectionTargetDescription()} by {Key.EffectValue} {Key.CountValue} until the end of the round";
                 break;
             case SelfTarget:
                 if (trigger is PhaseTrigger || trigger is ListeningTrigger)
                 {
-                    text = $"increase the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue} until the end of the round";
+                    text = $"increase the attack of {Key.CardName} by {Key.EffectValue} until the end of the round";
                 }
                 else
                 {
-                    text = $"increase it's own attack by {CardDescriptionKeys.CardName} until the end of the round";
+                    text = $"increase it's own attack by {Key.CardName} until the end of the round";
                 }
                 break;
         }
@@ -192,16 +192,16 @@ public class AttackBuff: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"increase the attack of {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue}";
+                text = $"increase the attack of {selectionTarget.GetSelectionTargetDescription()} by {Key.EffectValue} {Key.CountValue}";
                 break;
             case SelfTarget:
                 if (trigger is PhaseTrigger || trigger is ListeningTrigger)
                 {
-                    text = $"increase the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue}";
+                    text = $"increase the attack of {Key.CardName} by {Key.EffectValue}";
                 }
                 else
                 {
-                    text = $"increase it's own attack by {CardDescriptionKeys.CardName}";
+                    text = $"increase it's own attack by {Key.CardName}";
                 }
                 break;
         }
@@ -226,16 +226,16 @@ public class AttackDebuff: Effect
         switch (target)
         {
             case SelectionTarget selectionTarget:
-                text = $"decrease the attack of {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue}";
+                text = $"decrease the attack of {selectionTarget.GetSelectionTargetDescription()} by {Key.EffectValue} {Key.CountValue}";
                 break;
             case SelfTarget:
                 if (trigger is PhaseTrigger || trigger is ListeningTrigger)
                 {
-                    text = $"decrease the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue}";
+                    text = $"decrease the attack of {Key.CardName} by {Key.EffectValue}";
                 }
                 else
                 {
-                    text = $"decrease it's own attack by {CardDescriptionKeys.CardName}";
+                    text = $"decrease it's own attack by {Key.CardName}";
                 }
                 break;
         }
@@ -255,6 +255,6 @@ public class DrawCard: Effect
 
     public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        return $"Draw {CardDescriptionKeys.EffectValue} card(s)";
+        return $"Draw {Key.EffectValue} card(s) {Key.CountValue}";
     }
 }
