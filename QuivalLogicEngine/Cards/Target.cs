@@ -11,42 +11,24 @@ public abstract class Target
 {
     public abstract string DisplayName { get; set; }
     public abstract TargetPool GetTargetPool();
-
-    public abstract string GetTargetDescription(bool isCreatureCard);
 }
 
 public class SelfTarget : Target 
 {
     public override string DisplayName { get; set; } = "Self";
     public override TargetPool GetTargetPool() => TargetPool.Creatures;
-
-    public override string GetTargetDescription(bool isCreatureCard)
-    {
-        return "itself";
-    }
 }
 
 public class PlayerTarget : Target
 {
     public override string DisplayName { get; set; } = "Player";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
-    public override string GetTargetDescription(bool isCreatureCard)
-    {
-        if (isCreatureCard)
-            return "it's controller";
-        else
-            return "yourself";
-    }
 }
 
 public class OpponentTarget : Target
 {
     public override string DisplayName { get; set; } = "Opponent";
     public override TargetPool GetTargetPool() => TargetPool.Controllers;
-    public override string GetTargetDescription(bool isCreatureCard)
-    {
-        return "your opponent";
-    }
 }
 
 public enum TargetPool
@@ -114,7 +96,7 @@ public class SelectionTarget : Target
         }
     }
 
-    public override string GetTargetDescription(bool isCreatureCard)
+    public string GetSelectionTargetDescription()
     {
         string targetPool = "";
         switch (TargetPool)
@@ -149,18 +131,14 @@ public class SelectionTarget : Target
         }
 
         string text = "";
-        if (NumberToPick == 1)
-        {
-            text = $"any {targetPool} {sideText}";
 
-            if (CanTargetSelf == true)
-                text = text.Replace("any", "any other");
-        }
-        else
-        {
+        if (NumberToPick == 1)
             text = $"any {targetPool} {sideText}";
-            text = text.Replace("any", NumberToPick.ToString());
-        }
+        else
+            text = $"any {NumberToPick.ToString()} {targetPool} {sideText}";
+
+        if (CanTargetSelf == true)
+            text = text.Replace("any", "any other");
 
         return text;
     }

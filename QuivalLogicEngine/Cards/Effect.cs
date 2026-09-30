@@ -22,7 +22,7 @@ public abstract class Effect()
         return EffectString;
     }
 
-    public abstract string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget);
+    public abstract string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger);
 
 }
 
@@ -35,39 +35,35 @@ public class Heal: Effect
         ValidTargetPool = TargetPool.Damagables;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
-    {
-        if (isCreatureCard)
-            return $"it heals {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
-        else if (isSelfTarget)
-            return $"it heals itself by {CardDescriptionKeys.EffectValue} point(s)";
-        else
-            return $"heal {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
-    }
-
-    /*
-    public string GetEffectCardDescriptionTest(bool isCreatureCard, bool isSelfTarget, Target target)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
         string text = "";
+
         switch (target)
         {
-            case SelectionTarget:
+            case SelectionTarget selectionTarget:
+                text = $"heal {CardDescriptionKeys.EffectValue} point(s) of life to {selectionTarget.GetSelectionTargetDescription()}";
                 break;
             case SelfTarget:
-                return $"it heals itself by {CardDescriptionKeys.EffectValue} point(s)";
+                if (trigger is PhaseTrigger || trigger is ListeningTrigger)
+                {
+                    text = $"heal {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue} point(s)";
+                }
+                else
+                {
+                    text = $"it heals itself by {CardDescriptionKeys.EffectValue} point(s)";
+                }
+                break;
             case PlayerTarget:
-                return $"it heals {CardDescriptionKeys.EffectValue} point(s) of health to it's controller";
+                    text = $"you gain {CardDescriptionKeys.EffectValue} point(s) of life";
+                break;
             case OpponentTarget:
-                return $"it heals each opponent by {CardDescriptionKeys.EffectValue} point(s)";
+                text = $"each opponent gains {CardDescriptionKeys.EffectValue} point(s) of life";
+                break;
         }
 
-        if (isCreatureCard)
-            return $"it heals {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
-        else if (isSelfTarget)
-        else
-            return $"heal {CardDescriptionKeys.EffectValue} point(s) of health to {CardDescriptionKeys.Target}";
+        return text;
     }
-    */
 }
 
 public class DirectDamage: Effect 
@@ -79,12 +75,34 @@ public class DirectDamage: Effect
         ValidTargetPool = TargetPool.Damagables;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        if (isCreatureCard)
-            return $"it deals {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
-        else
-            return $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
+        string text = "";
+
+        switch (target)
+        {
+            case SelectionTarget selectionTarget:
+                text = $"deal {CardDescriptionKeys.EffectValue} damage to {selectionTarget.GetSelectionTargetDescription()}";
+                break;
+            case SelfTarget:
+                if (trigger is PhaseTrigger || trigger is ListeningTrigger)
+                {
+                    text = $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.CardName}";
+                }
+                else
+                {
+                    text = $"it deals {CardDescriptionKeys.EffectValue} damage to itself";
+                }
+                break;
+            case PlayerTarget:
+                text = $"you take {CardDescriptionKeys.EffectValue} damage";
+                break;
+            case OpponentTarget:
+                text = $"deal {CardDescriptionKeys.EffectValue} damage to each oppononent";
+                break;
+        }
+
+        return text;
     }
 }
 
@@ -98,14 +116,29 @@ public class Revive: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        if (isSelfTarget)
-            return $"it revives itself by {CardDescriptionKeys.EffectValue}";
-        else if (isCreatureCard)
-            return $"it revives {CardDescriptionKeys.EffectValue} creature";
-        else
-            return $"revive {CardDescriptionKeys.EffectValue} creature";
+        return "Revive effect text not yet completed";
+
+        string text = "";
+
+        switch (target)
+        {
+            case SelectionTarget selectionTarget:
+                text = $"deal {CardDescriptionKeys.EffectValue} damage to {CardDescriptionKeys.Target}";
+                break;
+            case SelfTarget:
+                text = $"it deals {CardDescriptionKeys.EffectValue} damage to itself";
+                break;
+            case PlayerTarget:
+                text = $"deal {CardDescriptionKeys.EffectValue} damage to it's controller ";
+                break;
+            case OpponentTarget:
+                text = $"deal {CardDescriptionKeys.EffectValue} damage to each oppononent";
+                break;
+        }
+
+        return text;
     }
 }
 
@@ -118,14 +151,28 @@ public class AttackBuffRound: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        if (isSelfTarget)
-            return $"it increases it's attack by {CardDescriptionKeys.EffectValue} until the end of the round";
-        else if (isCreatureCard)
-            return $"it increases the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} until the end of the round";
-        else
-            return $"increase the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} until the end of the round";
+        string text = "";
+
+        switch (target)
+        {
+            case SelectionTarget selectionTarget:
+                text = $"increase {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue} until the end of the round";
+                break;
+            case SelfTarget:
+                if (trigger is PhaseTrigger || trigger is ListeningTrigger)
+                {
+                    text = $"increase the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue} until the end of the round";
+                }
+                else
+                {
+                    text = $"increase it's own attack by {CardDescriptionKeys.CardName} until the end of the round";
+                }
+                break;
+        }
+
+        return text;
     }
 }
 
@@ -138,12 +185,28 @@ public class AttackBuff: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        if (isCreatureCard)
-            return $"it buffs the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue}";
-        else
-            return $"buff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue}";
+        string text = "";
+
+        switch (target)
+        {
+            case SelectionTarget selectionTarget:
+                text = $"increase the attack of {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue}";
+                break;
+            case SelfTarget:
+                if (trigger is PhaseTrigger || trigger is ListeningTrigger)
+                {
+                    text = $"increase the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue}";
+                }
+                else
+                {
+                    text = $"increase it's own attack by {CardDescriptionKeys.CardName}";
+                }
+                break;
+        }
+
+        return text;
     }
 }
 
@@ -156,12 +219,28 @@ public class AttackDebuff: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
-        if (isCreatureCard)
-            return $"it defbuffs the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} point(s)";
-        else
-            return $"defbuff the attack of {CardDescriptionKeys.Target} by {CardDescriptionKeys.EffectValue} point(s)";
+        string text = "";
+
+        switch (target)
+        {
+            case SelectionTarget selectionTarget:
+                text = $"decrease the attack of {selectionTarget.GetSelectionTargetDescription()} by {CardDescriptionKeys.EffectValue}";
+                break;
+            case SelfTarget:
+                if (trigger is PhaseTrigger || trigger is ListeningTrigger)
+                {
+                    text = $"decrease the attack of {CardDescriptionKeys.CardName} by {CardDescriptionKeys.EffectValue}";
+                }
+                else
+                {
+                    text = $"decrease it's own attack by {CardDescriptionKeys.CardName}";
+                }
+                break;
+        }
+
+        return text;
     }
 }
 
@@ -174,7 +253,7 @@ public class DrawCard: Effect
         ValidTargetPool =  TargetPool.Controllers;
     }
 
-    public override string GetEffectCardDescription(bool isCreatureCard, bool isSelfTarget)
+    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
     {
         return $"Draw {CardDescriptionKeys.EffectValue} card(s)";
     }

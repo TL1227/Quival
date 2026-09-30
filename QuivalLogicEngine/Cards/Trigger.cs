@@ -208,7 +208,7 @@ public class ListeningTrigger : Trigger
         switch (Side)
         {
             case Side.Any:
-                return $"a player {triggerText}";
+                return $"any player {triggerText}";
             case Side.Opponent:
                 return $"your opponent {triggerText}";
             case Side.Player:

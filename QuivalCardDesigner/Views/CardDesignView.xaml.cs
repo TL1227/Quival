@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
 using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
+using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalCardDesigner.Views;
 
@@ -54,8 +55,8 @@ public partial class CardDesignView : UserControl
         GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
 
         AddHandler(Selector.SelectionChangedEvent, new RoutedEventHandler(OnAnySelectionChanged));
-        //AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
-        //AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
 
         LoadBlankCard();
     }
@@ -115,28 +116,16 @@ public partial class CardDesignView : UserControl
                     sb.Append(", ");
                 }
 
-                bool isCreatureCard = currentCard.CardType == CardType.Creature;
                 foreach (var ability in trigger.Abilities)
                 {
-                    var targetText = ability.Target.GetTargetDescription(isCreatureCard);
-
-
-                    bool isSelfTarget = ability.Target is SelfTarget;
-                    var effectText = ability.Effect.GetEffectCardDescription(isCreatureCard, isSelfTarget)
+                    string effectText = ability.Effect
+                        .GetEffectCardDescription(ability.Target, currentCard.CardType, trigger)
                         .Replace(Key.EffectValue, ability.Value.Amount.ToString());
-
-                    if (trigger is ListeningTrigger)
-                    {
-                        effectText = effectText.Replace("it", currentCard.Name);
-                    }
-
 
                     if (ability.Value.Amount > 1)
                         effectText = effectText .Replace("(", "") .Replace(")", "");
                     else
                         effectText = effectText.Replace("(s)", "");
-
-                    effectText = effectText.Replace(Key.Target, targetText);
 
                     sb.Append(effectText);
                 }
