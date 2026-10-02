@@ -151,7 +151,10 @@ public partial class CardDesignView : UserControl
 
                     effectText = effectText.Replace("  ", " ");
 
-                    sb.Append(conditionalText + effectText);
+                    if (conditionalText == "")
+                        sb.Append($"{effectText}");
+                    else
+                        sb.Append($"{conditionalText} {effectText}");
                 }
 
                 sb.Append('.');

@@ -36,13 +36,14 @@ public class Ability
     public List<Conditional>? BonusConditionals { get; set; } = new();
     public ConditionalType? BonusConditionalType { get; set; }
 
+    //TODO: this function should probably live in another file
     public string GetConditionalText()
     {
         string conditionalText = "";
 
         foreach (var conditional in Conditionals)
         {
-            string text = "if";
+            string text = "";
 
             switch (conditional)
             {
@@ -74,18 +75,27 @@ public class Ability
                     break;
             }
 
-            conditionalText += $" {text} _";
+            conditionalText += $"{text} _";
         }
 
         switch (ConditionalType)
         {
             case ConditionalType.And:
-                conditionalText = conditionalText.Replace("_", "and");
+                conditionalText = conditionalText.Replace("_", "and ");
                 break;
             case ConditionalType.Or:
-                conditionalText = conditionalText.Replace("_", "or");
+                conditionalText = conditionalText.Replace("_", "or ");
                 break;
         }
+
+        //TODO: There is a more elegant way of doing all of this I'm sure
+        conditionalText += "+";
+        conditionalText = conditionalText.Replace(" and +", "").Replace(" or +", ""); 
+
+        if (conditionalText != "+")
+            conditionalText = $"if {conditionalText},";
+        else
+            conditionalText = "";
 
         return conditionalText;
     }

@@ -30,6 +30,9 @@ public partial class ConditionalControl : UserControl
 
     public void PopulateConditional(Ability ability, bool bonusConditional = false)
     {
+        ability.Conditionals.Clear();
+        ability.BonusConditionals?.Clear();
+
         foreach (var item in ConditionalsListBox.Items)
         {
             if (item is Conditional conditional)
