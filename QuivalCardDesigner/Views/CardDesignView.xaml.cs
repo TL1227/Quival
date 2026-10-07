@@ -9,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
 using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
+using System.CodeDom;
 
 namespace QuivalCardDesigner.Views;
 
@@ -19,11 +20,10 @@ public partial class CardDesignView : UserControl
     private CardDefinition CurrentCardDefinition { get; set; }
 
     private Config Config { get; set; }
-    
-    public CardDesignView(Config config)
+
+    public CardDesignView()
     {
         InitializeComponent();
-        Config = config;
 
         CardTypeComboBox.ItemsSource = Enum.GetValues<CardType>();
         CardTypeComboBox.SelectionChanged += CardTypeComboBox_SelectionChanged;
@@ -51,7 +51,16 @@ public partial class CardDesignView : UserControl
         AddHandler(Selector.SelectionChangedEvent, new RoutedEventHandler(OnAnySelectionChanged));
         AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
         AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+    }
 
+    public CardDesignView(string json) : this()
+    {
+        string sup = json;
+    }
+
+    public CardDesignView(Config config) : this()
+    {
+        Config = config;
         LoadBlankCard();
     }
 
@@ -96,6 +105,7 @@ public partial class CardDesignView : UserControl
 
     private void GenerateCardDescription()
     {
+        //TODO: maybe this whole thing should be a function that lives in CardDefinition???
         var currentCard = GetCardFromCurrentView();
 
         if (currentCard != null)
@@ -103,7 +113,6 @@ public partial class CardDesignView : UserControl
             StringBuilder triggerString = new();
             foreach (var trigger in currentCard.Triggers)
             {
-
                 if (currentCard.CardType == CardType.Creature)
                 {
                     triggerString.Append("Whenever ");
@@ -129,56 +138,16 @@ public partial class CardDesignView : UserControl
                         }
                     }
                 }
+                else if (abilityTexts.Count > 0)
+                {
+                    triggerString.Append(abilityTexts[0]);
+                }
 
                 triggerString.Append('.');
             }
 
             DescriptionTextBox.Text = triggerString.ToString();
         }
-    }
-
-    private static string GetAbilityDescription(Ability ability, Trigger trigger)
-    {
-        StringBuilder sb = new();
-
-        string conditionalText = ability.GetConditionalText();
-
-        string effectText = ability.Effect.GetEffectCardDescription(ability.Target, trigger);
-
-        effectText = effectText.Replace(Key.EffectValue, ability.Value.Amount.ToString());
-
-        if (ability.Value is Count count)
-        {
-            if (effectText.Contains(Key.CountValue))
-            {
-                effectText = effectText.Replace(Key.CountValue, count.GetCountText());
-            }
-            else
-            {
-                effectText += ' ' + count.GetCountText();
-            }
-        }
-        else
-        {
-            if (effectText.Contains(Key.CountValue))
-            {
-                effectText = effectText.Replace(Key.CountValue, "");
-            }
-        }
-
-        if (ability.Value.Amount > 1)
-            effectText = effectText.Replace("(", "").Replace(")", "");
-        else
-            effectText = effectText.Replace("(s)", "");
-
-        effectText = effectText.Replace("  ", " ");
-
-        if (conditionalText == "")
-            sb.Append($"{effectText}");
-        else
-            sb.Append($"{conditionalText} {effectText}");
-
-        return sb.ToString();
     }
 
     private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

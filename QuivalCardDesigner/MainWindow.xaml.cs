@@ -1,6 +1,7 @@
 ﻿using QuivalCardDesigner.Views;
 using System.Windows.Input;
 using System.Windows;
+using System.IO;
 
 namespace QuivalCardDesigner;
 
@@ -18,6 +19,17 @@ public partial class MainWindow : Window
     {
         Config config = new("Cards");
         CurrentView.Content = new CardDesignView(config);
+    }
+
+    public void EditCard()
+    {
+        //TODO: we will move this to some kind of card select screen first but for now we just want to load the most recent to work on loading cards!
+        Config config = new("Cards");
+
+        var cards = config.CardDirectory.GetFiles();
+        string json = File.ReadAllText(cards[0].FullName);
+
+        CurrentView.Content = new CardDesignView(json);
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)
