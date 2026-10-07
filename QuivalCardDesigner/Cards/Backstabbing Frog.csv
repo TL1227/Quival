@@ -1,0 +1,67 @@
+{
+  "UniqueId": null,
+  "CardType": 0,
+  "Name": "Backstabbing Frog",
+  "Description": "Whenever Backstabbing Frog is cast, each opponent gains 1 point of life and you take 1 damage.",
+  "FlavourText": null,
+  "Cost": 1,
+  "Attack": 2,
+  "Health": 3,
+  "Triggers": [
+    {
+      "trigger": 0,
+      "Name": "Cast",
+      "Abilities": [
+        {
+          "Id": 0,
+          "Target": {
+            "targettype": 3,
+            "DisplayName": "Opponent"
+          },
+          "Effect": {
+            "effect": 0,
+            "EffectString": "Heal",
+            "ValidTargetPool": 2
+          },
+          "Value": {
+            "valuetype": "fixed",
+            "Name": "Fixed",
+            "Amount": 1
+          },
+          "Conditionals": [],
+          "ConditionalType": 0,
+          "BonusEffect": null,
+          "BonusValue": null,
+          "BonusConditionals": [],
+          "BonusConditionalType": null
+        },
+        {
+          "Id": 1,
+          "Target": {
+            "targettype": 2,
+            "DisplayName": "Player"
+          },
+          "Effect": {
+            "effect": 1,
+            "EffectString": "Damage",
+            "ValidTargetPool": 2
+          },
+          "Value": {
+            "valuetype": "fixed",
+            "Name": "Fixed",
+            "Amount": 1
+          },
+          "Conditionals": [],
+          "ConditionalType": 0,
+          "BonusEffect": null,
+          "BonusValue": null,
+          "BonusConditionals": [],
+          "BonusConditionalType": null
+        }
+      ],
+      "ChoiceType": 0,
+      "ChoiceNumber": 0
+    }
+  ],
+  "PassiveAbilities": []
+}

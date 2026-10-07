@@ -22,7 +22,7 @@ public abstract class Effect()
         return EffectString;
     }
 
-    public abstract string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger);
+    public abstract string GetEffectCardDescription(Target target, Trigger trigger);
 
 }
 
@@ -35,7 +35,7 @@ public class Heal: Effect
         ValidTargetPool = TargetPool.Damagables;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target, Trigger trigger)
     {
         string text = "";
 
@@ -75,7 +75,7 @@ public class DirectDamage: Effect
         ValidTargetPool = TargetPool.Damagables;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         string text = "";
 
@@ -116,7 +116,7 @@ public class Revive: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         return "Revive effect text not yet completed";
 
@@ -151,7 +151,7 @@ public class AttackBuffRound: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         string text = "";
 
@@ -185,7 +185,7 @@ public class AttackBuff: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         string text = "";
 
@@ -219,7 +219,7 @@ public class AttackDebuff: Effect
         ValidTargetPool =  TargetPool.Creatures;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         string text = "";
 
@@ -253,7 +253,7 @@ public class DrawCard: Effect
         ValidTargetPool =  TargetPool.Controllers;
     }
 
-    public override string GetEffectCardDescription(Target target, CardType cardType, Trigger trigger)
+    public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
         return $"Draw {Key.EffectValue} card(s) {Key.CountValue}";
     }
