@@ -18,7 +18,7 @@ namespace QuivalCombatTestWPF
         private void UpdateLabel()
         {
             CardSelectorLabel.Content = 
-                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} targets to {TargetSelections[index].Effect.GetTargetString()}";
+                $"Select {TargetSelections[index].NumberToPick - TargetSelections[index].SelectedTargets.Count} targets to {TargetSelections[index].Effect.EffectString}";
         }
 
         public bool CardIsValidTarget(int cardId)

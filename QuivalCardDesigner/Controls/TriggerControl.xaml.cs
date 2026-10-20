@@ -59,6 +59,11 @@ namespace QuivalCardDesigner.Controls
             TriggerControlHeader.ContextMenu = menu;
 
             EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
+
+            foreach (var ability in CurrentTrigger.Abilities)
+            {
+
+            }
         }
 
         private void TriggerSideComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

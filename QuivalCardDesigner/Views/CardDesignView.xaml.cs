@@ -53,14 +53,21 @@ public partial class CardDesignView : UserControl
         AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
     }
 
-    public CardDesignView(string json) : this()
+    public CardDesignView(Config config, string json) : this()
     {
-        string sup = json;
+        Config = config;
+
+        var cardDef = JsonSerializer.Deserialize<CardDefinition>(json);
+        if (cardDef != null)
+        {
+            LoadCard(cardDef);
+        }
     }
 
     public CardDesignView(Config config) : this()
     {
         Config = config;
+
         LoadBlankCard();
     }
 
@@ -182,6 +189,35 @@ public partial class CardDesignView : UserControl
 
         CurrentCard.AttackLabel.Content = 0;
         CurrentCard.HealthLabel.Content = 0;
+    }
+
+    private void LoadCard(CardDefinition cardDefinition)
+    {
+        CurrentCardDefinition = cardDefinition;
+
+        CurrentCard.CardNameLabel.Content = CurrentCardDefinition.Name;
+        CardNameTextBox.Text = CurrentCardDefinition.Name;
+
+        CurrentCard.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
+        DescriptionTextBox.Text = CurrentCardDefinition.Description;
+
+        CostComboBox.SelectedIndex = CurrentCardDefinition.Cost - 1;
+        CurrentCard.CostContent.Content = CurrentCardDefinition.Cost;
+
+        AttackComboBox.SelectedIndex = CurrentCardDefinition.Attack - 1;
+        CurrentCard.AttackLabel.Content = CurrentCardDefinition.Attack;
+
+        HealthComboBox.SelectedIndex = CurrentCardDefinition.Health - 1;
+        CurrentCard.HealthLabel.Content = CurrentCardDefinition.Health;
+
+        //todo: get the triggers
+        foreach (var trigger in CurrentCardDefinition.Triggers)
+        {
+            TriggerListBox.Items.Add(new TriggerControl(trigger));
+        }
+
+        CurrentCard.CardBackground.Background = Brushes.CornflowerBlue;
+        CurrentCard.GlobalId.Content = CurrentCardDefinition.UniqueId;
     }
 
     private void ToggleAtkDef(Visibility visibility)
@@ -319,7 +355,7 @@ public partial class CardDesignView : UserControl
 
     private void AddTriggerButton_Click(object sender, RoutedEventArgs e)
     {
-        if (TriggerTypeComboBox.SelectedItem is QuivalLogicEngine.Cards.Trigger trigger)
+        if (TriggerTypeComboBox.SelectedItem is Trigger trigger)
         {
             TriggerListBox.Items.Add(new TriggerControl(trigger));
         }

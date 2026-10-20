@@ -13,14 +13,11 @@ namespace QuivalLogicEngine.Cards.Effects;
 [JsonDerivedType(typeof(DrawCard), 6)]
 public abstract class Effect()
 {
+    [JsonIgnore]
     public TargetPool ValidTargetPool { get; set; }
 
-    public abstract string EffectString { get; set; }
-
-    public string GetTargetString()
-    {
-        return EffectString;
-    }
+    [JsonIgnore]
+    public string EffectString { get; set; }
 
     public abstract string GetEffectCardDescription(Target target, Trigger trigger);
 
@@ -28,10 +25,9 @@ public abstract class Effect()
 
 public class Heal: Effect 
 {
-    public override string EffectString { get; set; } = "Heal";
-
     public Heal()
     {
+        EffectString = "Heal";
         ValidTargetPool = TargetPool.Damagables;
     }
 
@@ -68,10 +64,9 @@ public class Heal: Effect
 
 public class DirectDamage: Effect 
 {
-    public override string EffectString { get; set; } = "Damage";
-
     public DirectDamage()
     {
+        EffectString = "Damage";
         ValidTargetPool = TargetPool.Damagables;
     }
 
@@ -109,10 +104,9 @@ public class DirectDamage: Effect
 //TODO: actually implement this in game
 public class Revive: Effect 
 {
-    public override string EffectString { get; set; } = "Revive";
-
     public Revive()
     {
+        EffectString = "Revive";
         ValidTargetPool =  TargetPool.Creatures;
     }
 
@@ -144,10 +138,9 @@ public class Revive: Effect
 
 public class AttackBuffRound: Effect 
 {
-    public override string EffectString { get; set; } = "Attack Buff Round";
-
     public AttackBuffRound()
     {
+        EffectString = "Attack Buff Round";
         ValidTargetPool =  TargetPool.Creatures;
     }
 
@@ -178,10 +171,9 @@ public class AttackBuffRound: Effect
 
 public class AttackBuff: Effect 
 {
-    public override string EffectString { get; set; } = "Attack Buff";
-
     public AttackBuff()
     {
+        EffectString = "Attack Buff";
         ValidTargetPool =  TargetPool.Creatures;
     }
 
@@ -212,10 +204,9 @@ public class AttackBuff: Effect
 
 public class AttackDebuff: Effect 
 {
-    public override string EffectString { get; set; } = "Attack Debuff";
-
     public AttackDebuff()
     {
+        EffectString = "Attack Debuff";
         ValidTargetPool =  TargetPool.Creatures;
     }
 
@@ -246,10 +237,9 @@ public class AttackDebuff: Effect
 
 public class DrawCard: Effect 
 {
-    public override string EffectString { get; set; } = "Draw";
-
     public DrawCard()
     {
+        EffectString = "Draw";
         ValidTargetPool =  TargetPool.Controllers;
     }
 
