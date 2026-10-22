@@ -158,25 +158,25 @@ public partial class CardDesignView : UserControl
     }
 
     private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCard.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
+        => CurrentCardPreview.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
 
     private void AttackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCard.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
+        => CurrentCardPreview.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
 
     private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCard.CostContent.Content = (int)CostComboBox.SelectedItem;
+        => CurrentCardPreview.CostContent.Content = (int)CostComboBox.SelectedItem;
 
     private void LoadBlankCard()
     {
         CurrentCardDefinition = new CardDefinition();
 
-        CurrentCard.CardNameLabel.Content = "";
-        CurrentCard.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
-        CurrentCard.CostContent.Content = 0;
+        CurrentCardPreview.CardNameLabel.Content = "";
+        CurrentCardPreview.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
+        CurrentCardPreview.CostContent.Content = 0;
         //fullCard.CardBackground.Background = GetColor(CurrentCard);
 
         //NOTE: 
-        CurrentCard.CardBackground.Background = Brushes.CornflowerBlue;
+        CurrentCardPreview.CardBackground.Background = Brushes.CornflowerBlue;
 
         /*
         string imagePath = GetImagePath(CurrentCard.Name);
@@ -185,30 +185,30 @@ public partial class CardDesignView : UserControl
         */
 
         //We could get this by querying the card database?
-        CurrentCard.GlobalId.Content = CurrentCardDefinition.UniqueId;
+        CurrentCardPreview.GlobalId.Content = CurrentCardDefinition.UniqueId;
 
-        CurrentCard.AttackLabel.Content = 0;
-        CurrentCard.HealthLabel.Content = 0;
+        CurrentCardPreview.AttackLabel.Content = 0;
+        CurrentCardPreview.HealthLabel.Content = 0;
     }
 
     private void LoadCard(CardDefinition cardDefinition)
     {
         CurrentCardDefinition = cardDefinition;
 
-        CurrentCard.CardNameLabel.Content = CurrentCardDefinition.Name;
+        CurrentCardPreview.CardNameLabel.Content = CurrentCardDefinition.Name;
         CardNameTextBox.Text = CurrentCardDefinition.Name;
 
-        CurrentCard.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
+        CurrentCardPreview.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
         DescriptionTextBox.Text = CurrentCardDefinition.Description;
 
         CostComboBox.SelectedIndex = CurrentCardDefinition.Cost - 1;
-        CurrentCard.CostContent.Content = CurrentCardDefinition.Cost;
+        CurrentCardPreview.CostContent.Content = CurrentCardDefinition.Cost;
 
         AttackComboBox.SelectedIndex = CurrentCardDefinition.Attack - 1;
-        CurrentCard.AttackLabel.Content = CurrentCardDefinition.Attack;
+        CurrentCardPreview.AttackLabel.Content = CurrentCardDefinition.Attack;
 
         HealthComboBox.SelectedIndex = CurrentCardDefinition.Health - 1;
-        CurrentCard.HealthLabel.Content = CurrentCardDefinition.Health;
+        CurrentCardPreview.HealthLabel.Content = CurrentCardDefinition.Health;
 
         //todo: get the triggers
         foreach (var trigger in CurrentCardDefinition.Triggers)
@@ -216,8 +216,8 @@ public partial class CardDesignView : UserControl
             TriggerListBox.Items.Add(new TriggerControl(trigger));
         }
 
-        CurrentCard.CardBackground.Background = Brushes.CornflowerBlue;
-        CurrentCard.GlobalId.Content = CurrentCardDefinition.UniqueId;
+        CurrentCardPreview.CardBackground.Background = Brushes.CornflowerBlue;
+        CurrentCardPreview.GlobalId.Content = CurrentCardDefinition.UniqueId;
     }
 
     private void ToggleAtkDef(Visibility visibility)
@@ -228,9 +228,9 @@ public partial class CardDesignView : UserControl
             HealthComboBox.IsEnabled = false;
         }
 
-        CurrentCard.AttackLabel.Visibility = visibility;
-        CurrentCard.Divider.Visibility = visibility;
-        CurrentCard.HealthLabel.Visibility = visibility;
+        CurrentCardPreview.AttackLabel.Visibility = visibility;
+        CurrentCardPreview.Divider.Visibility = visibility;
+        CurrentCardPreview.HealthLabel.Visibility = visibility;
     }
 
     #region Events
@@ -336,19 +336,19 @@ public partial class CardDesignView : UserControl
         {
             if (textBox.Name == "AttackTextBox")
             {
-                CurrentCard.AttackLabel.Content = textBox.Text;
+                CurrentCardPreview.AttackLabel.Content = textBox.Text;
             }
             else if (textBox.Name == "HealthTextBox")
             {
-                CurrentCard.HealthLabel.Content = textBox.Text;
+                CurrentCardPreview.HealthLabel.Content = textBox.Text;
             }
             else if (textBox.Name == "CardNameTextBox")
             {
-                CurrentCard.CardNameLabel.Content = textBox.Text;
+                CurrentCardPreview.CardNameLabel.Content = textBox.Text;
             }
             else if (textBox.Name == "DescriptionTextBox")
             {
-                CurrentCard.CardDescriptionLabel.Text = textBox.Text;
+                CurrentCardPreview.CardDescriptionLabel.Text = textBox.Text;
             }
         }
     }
