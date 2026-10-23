@@ -11,14 +11,17 @@ public partial class AbilityControl : UserControl
     Ability CurrentAbility { get; set; } = new();
     bool BonusEffectVisible { get; set; }
 
-    public AbilityControl(Effect effect)
+    public AbilityControl(Ability ability)
     {
         InitializeComponent();
-        CurrentAbility.Effect = effect;
-        EffectLabel.Content = effect.GetType().Name.Replace("Effect", "");
+        CurrentAbility = ability;
+        EffectLabel.Content = CurrentAbility.Effect.GetType().Name.Replace("Effect", "");
 
         TargetControl.Initialise(CurrentAbility);
         TargetControl.ChangeToTarget += TargetControlHasChanged;
+
+        ValueControl.PopulateValue(CurrentAbility);
+        ConditionalControl.PopulateConditional(CurrentAbility);
 
         BonusEffectButton.Click += BonusEffectButton_Click;
     }

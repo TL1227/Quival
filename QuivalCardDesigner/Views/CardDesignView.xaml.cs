@@ -9,7 +9,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using Trigger = QuivalLogicEngine.Cards.Trigger;
 using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
-using System.CodeDom;
 
 namespace QuivalCardDesigner.Views;
 
@@ -21,6 +20,8 @@ public partial class CardDesignView : UserControl
 
     private Config Config { get; set; }
 
+    private bool LoadingCard { get; set; }
+
     public CardDesignView()
     {
         InitializeComponent();
@@ -28,12 +29,8 @@ public partial class CardDesignView : UserControl
         CardTypeComboBox.ItemsSource = Enum.GetValues<CardType>();
         CardTypeComboBox.SelectionChanged += CardTypeComboBox_SelectionChanged;
 
-        CostComboBox.SelectionChanged += CostComboBox_SelectionChanged;
-
         CardNameTextBox.TextChanged += TextBoxChanged;
         DescriptionTextBox.TextChanged += TextBoxChanged;
-        AttackComboBox.SelectionChanged += AttackComboBox_SelectionChanged;
-        HealthComboBox.SelectionChanged += HealthComboBox_SelectionChanged;
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
@@ -43,8 +40,13 @@ public partial class CardDesignView : UserControl
         SaveCardButton.Click += SaveCardButton_Click;
 
         HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        HealthComboBox.SelectionChanged += HealthComboBox_SelectionChanged;
+
         AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        AttackComboBox.SelectionChanged += AttackComboBox_SelectionChanged;
+
         CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        CostComboBox.SelectionChanged += CostComboBox_SelectionChanged;
 
         GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
 
@@ -102,69 +104,108 @@ public partial class CardDesignView : UserControl
 
     private void OnAnySelectionChanged(object sender, RoutedEventArgs e)
     {
-        GenerateCardDescription();
+        if (!LoadingCard)
+        {
+            SyncTriggersWithCurrentCardDefinition();
+            GenerateCardDescription();
+        }
     }
 
     private void GenerateDescriptionButton_Click(object sender, RoutedEventArgs e)
     {
+        SyncTriggersWithCurrentCardDefinition();
         GenerateCardDescription();
     }
 
+    //TODO: maybe this whole thing should be a function that lives in CardDefinition???
     private void GenerateCardDescription()
     {
-        //TODO: maybe this whole thing should be a function that lives in CardDefinition???
-        var currentCard = GetCardFromCurrentView();
-
-        if (currentCard != null)
+        StringBuilder triggerString = new();
+        foreach (var trigger in CurrentCardDefinition.Triggers)
         {
-            StringBuilder triggerString = new();
-            foreach (var trigger in currentCard.Triggers)
+            if (CurrentCardDefinition.CardType == CardType.Creature)
             {
-                if (currentCard.CardType == CardType.Creature)
-                {
-                    triggerString.Append("Whenever ");
-                    triggerString.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
-                    triggerString.Append(", ");
-                }
-
-                List<string> abilityTexts = new();
-                foreach (var ability in trigger.Abilities)
-                {
-                    abilityTexts.Add(CardDescription.Ability(ability, trigger));
-                }
-
-                if (abilityTexts.Count > 1)
-                {
-                    for (int i = 0; i < abilityTexts.Count; i++)
-                    {
-                        triggerString.Append(abilityTexts[i]);
-
-                        if (i != abilityTexts.Count - 1)
-                        {
-                            triggerString.Append($" {trigger.ChoiceType.ToString().ToLower()} ");
-                        }
-                    }
-                }
-                else if (abilityTexts.Count > 0)
-                {
-                    triggerString.Append(abilityTexts[0]);
-                }
-
-                triggerString.Append('.');
+                triggerString.Append("Whenever ");
+                triggerString.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
+                triggerString.Append(", ");
             }
 
-            DescriptionTextBox.Text = triggerString.ToString();
+            List<string> abilityTexts = new();
+            foreach (var ability in trigger.Abilities)
+            {
+                abilityTexts.Add(CardDescription.Ability(ability, trigger));
+            }
+
+            if (abilityTexts.Count > 1)
+            {
+                for (int i = 0; i < abilityTexts.Count; i++)
+                {
+                    triggerString.Append(abilityTexts[i]);
+
+                    if (i != abilityTexts.Count - 1)
+                    {
+                        triggerString.Append($" {trigger.ChoiceType.ToString().ToLower()} ");
+                    }
+                }
+            }
+            else if (abilityTexts.Count > 0)
+            {
+                triggerString.Append(abilityTexts[0]);
+            }
+
+            triggerString.Append('.');
         }
+
+        DescriptionTextBox.Text = triggerString.ToString();
     }
 
     private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCardPreview.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
+    {
+        CurrentCardPreview.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
+        CurrentCardDefinition.Health = (int)HealthComboBox.SelectedItem;
+    }
 
     private void AttackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCardPreview.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
+    {
+        CurrentCardPreview.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
+        CurrentCardDefinition.Attack = (int)AttackComboBox.SelectedItem;
+    }
 
     private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        => CurrentCardPreview.CostContent.Content = (int)CostComboBox.SelectedItem;
+    {
+        CurrentCardPreview.CostContent.Content = (int)CostComboBox.SelectedItem;
+        CurrentCardDefinition.Cost = (int)CostComboBox.SelectedItem;
+    }
+
+    private void TextBoxChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            if (textBox.Name == "CardNameTextBox")
+            {
+                CurrentCardPreview.CardNameLabel.Content = textBox.Text;
+                CurrentCardDefinition.Name = textBox.Text;
+            }
+            else if (textBox.Name == "DescriptionTextBox")
+            {
+                CurrentCardPreview.CardDescriptionLabel.Text = textBox.Text;
+                CurrentCardDefinition.Description = textBox.Text;
+            }
+        }
+    }
+    private void CardTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CardTypeComboBox.SelectedItem is CardType type)
+        {
+            //TODO: some pop-up that will explain that changing the card type will remove all current triggers
+            Visibility visibility = (type == CardType.Creature) ? Visibility.Visible : Visibility.Hidden;
+            ToggleAtkDef(visibility);
+            PopulateTriggerTypeComboBox(type);
+            TriggerListBox.Items.Clear();
+
+            CurrentCardDefinition.CardType = type;
+        }
+    }
 
     private void LoadBlankCard()
     {
@@ -193,6 +234,8 @@ public partial class CardDesignView : UserControl
 
     private void LoadCard(CardDefinition cardDefinition)
     {
+        LoadingCard = true;
+
         CurrentCardDefinition = cardDefinition;
 
         CurrentCardPreview.CardNameLabel.Content = CurrentCardDefinition.Name;
@@ -218,6 +261,8 @@ public partial class CardDesignView : UserControl
 
         CurrentCardPreview.CardBackground.Background = Brushes.CornflowerBlue;
         CurrentCardPreview.GlobalId.Content = CurrentCardDefinition.UniqueId;
+
+        LoadingCard = false;
     }
 
     private void ToggleAtkDef(Visibility visibility)
@@ -233,123 +278,51 @@ public partial class CardDesignView : UserControl
         CurrentCardPreview.HealthLabel.Visibility = visibility;
     }
 
-    #region Events
-    private void CardTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (CardTypeComboBox.SelectedItem is CardType type)
-        {
-            //TODO: some pop-up that will explain that changing the card type will remove all current triggers
-            Visibility visibility = (type == CardType.Creature) ? Visibility.Visible : Visibility.Hidden;
-            ToggleAtkDef(visibility);
-            PopulateTriggerTypeComboBox(type);
-            TriggerListBox.Items.Clear();
-        }
-    }
 
     private void SaveCardButton_Click(object sender, RoutedEventArgs e)
     {
-        CardDefinition? card = GetCardFromCurrentView();
+        SyncTriggersWithCurrentCardDefinition();
 
-        if (card != null)
-        {
-            string fileName = $"{Config.CardDirectory.FullName}\\{card.Name}.csv";
+        string fileName = $"{Config.CardDirectory.FullName}\\{CurrentCardDefinition.Name}.csv";
 
-            File.Delete(fileName);
+        File.Delete(fileName);
 
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.WriteIndented = true;
-            var json = JsonSerializer.Serialize(card, options);
-            File.AppendAllText(fileName, json);
-        }
+        JsonSerializerOptions options = new JsonSerializerOptions();
+        options.WriteIndented = true;
+        var json = JsonSerializer.Serialize(CurrentCardDefinition, options);
+        File.AppendAllText(fileName, json);
     }
 
-    private CardDefinition? GetCardFromCurrentView()
+    //TODO: we need to change this once we fix the view/model stuff
+    private void SyncTriggersWithCurrentCardDefinition()
     {
-        if (CardTypeComboBox.SelectedItem is CardType cardType)
+        try
         {
-            CardDefinition card = new();
+            CurrentCardDefinition.Triggers.Clear();
 
-            try
-            {
-                card.CardType = cardType;
-
-                if (string.IsNullOrWhiteSpace(CardNameTextBox.Text))
+            foreach (var item in TriggerListBox.Items)
+                if (item is TriggerControl triggerControl)
                 {
-                    MessageBox.Show("Please enter a card name!");
-                    return null;
-                }
-                else
-                {
-                    card.Name = CardNameTextBox.Text;
-                }
+                    var trigger = triggerControl.GetTrigger();
 
-                card.Description = DescriptionTextBox.Text;
-
-                if (CostComboBox.SelectedItem is int cost)
-                {
-                    card.Cost = cost;
-                }
-
-                if (card.CardType is CardType.Creature)
-                {
-                    card.Attack = (int)AttackComboBox.SelectedItem;
-                    card.Health = (int)HealthComboBox.SelectedItem;
-                }
-
-                foreach (var item in TriggerListBox.Items) 
-                    if (item is TriggerControl triggerControl)
+                    foreach (var ability in trigger.Abilities)
                     {
-                        var trigger = triggerControl.GetTrigger();
-
-                        foreach (var ability in trigger.Abilities)
+                        if (ability.BonusEffect != null)
                         {
-                            if (ability.BonusEffect != null)
+                            if (ability.BonusConditionals == null ||
+                                ability.BonusConditionals.Count == 0)
                             {
-                                if (ability.BonusConditionals == null || 
-                                    ability.BonusConditionals.Count == 0)
-                                {
-                                    MessageBox.Show("A Bonus effect needs a conditional!");
-                                    return null;
-                                }
+                                MessageBox.Show("A Bonus effect needs a conditional!");
                             }
                         }
-
-                        card.Triggers.Add(trigger);
                     }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
-            }
 
-            return card;
+                    CurrentCardDefinition.Triggers.Add(trigger);
+                }
         }
-        else
+        catch (Exception e)
         {
-            return null;
-        }
-    }
-
-    private void TextBoxChanged(object sender, TextChangedEventArgs e)
-    {
-        if (sender is TextBox textBox)
-        {
-            if (textBox.Name == "AttackTextBox")
-            {
-                CurrentCardPreview.AttackLabel.Content = textBox.Text;
-            }
-            else if (textBox.Name == "HealthTextBox")
-            {
-                CurrentCardPreview.HealthLabel.Content = textBox.Text;
-            }
-            else if (textBox.Name == "CardNameTextBox")
-            {
-                CurrentCardPreview.CardNameLabel.Content = textBox.Text;
-            }
-            else if (textBox.Name == "DescriptionTextBox")
-            {
-                CurrentCardPreview.CardDescriptionLabel.Text = textBox.Text;
-            }
+            MessageBox.Show(e.ToString());
         }
     }
 
@@ -360,6 +333,4 @@ public partial class CardDesignView : UserControl
             TriggerListBox.Items.Add(new TriggerControl(trigger));
         }
     }
-
-    #endregion
 }

@@ -59,10 +59,11 @@ namespace QuivalCardDesigner.Controls
             TriggerControlHeader.ContextMenu = menu;
 
             EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
+            
 
             foreach (var ability in CurrentTrigger.Abilities)
             {
-
+                AbilitiesListBox.Items.Add(new AbilityControl(ability));
             }
         }
 
@@ -158,7 +159,9 @@ namespace QuivalCardDesigner.Controls
         {
             var selectedType = (Type)AbilitiyEffectComboBox.SelectedItem;
             var effect = (Effect)Activator.CreateInstance(selectedType)!;
-            AbilitiesListBox.Items.Add(new AbilityControl(effect));
+            Ability newAbility = new();
+            newAbility.Effect = effect;
+            AbilitiesListBox.Items.Add(new AbilityControl(newAbility));
 
             if (AbilitiesListBox.Items.Count > 1)
             {
