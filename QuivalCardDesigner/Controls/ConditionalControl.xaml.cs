@@ -1,12 +1,13 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-
 using QuivalLogicEngine.Cards;
 
 namespace QuivalCardDesigner.Controls;
 
 public partial class ConditionalControl : UserControl
 {
+    private List<Conditional> CurrentConditionals { get; set; } = new();
+
     public ConditionalControl()
     {
         InitializeComponent();
@@ -16,56 +17,44 @@ public partial class ConditionalControl : UserControl
         AddConditionalButton.Click += AddConditionalButton_Click;
     }
 
-    public void PopulateConditional(Ability ability, bool bonusConditional = false)
+    public void SetConditionals(List<Conditional>? conditionals)
     {
-        ability.Conditionals.Clear();
-        ability.BonusConditionals?.Clear();
-
-        foreach (var item in ConditionalsListBox.Items)
+        if (conditionals != null)
         {
-            if (item is Conditional conditional)
-            {
-                if (bonusConditional)
-                {
-                    ability.BonusConditionals.Add(conditional);
-                }
-                else
-                {
-                    ability.Conditionals.Add(conditional);
-                }
-            }
-        }
+            CurrentConditionals = conditionals;
 
-        if (ConditionalTypeComboBox.SelectedItem is ConditionalType conType)
-        {
-            if (bonusConditional)
+            foreach (Conditional conditional in CurrentConditionals)
             {
-                ability.BonusConditionalType = conType;
-            }
-            else
-            {
-                ability.ConditionalType = conType;
+                ConditionalsListBox.Items.Add(conditional);
             }
         }
     }
 
     private void AddConditionalButton_Click(object sender, RoutedEventArgs e)
     {
-        ConditionalsListBox.Visibility = Visibility.Visible;
+        if (ConditionalsComboBox.SelectedItem is Conditional conditional)
+        {
+            if (ConditionalsListBox.Items.Contains(conditional))
+            {
+                MessageBox.Show($"Already added {conditional}");
+            }
+            else
+            {
+                ConditionalsListBox.Items.Add(conditional);
+                CurrentConditionals.Add(conditional);
+            }
 
-        if (ConditionalsListBox.Items.Contains(ConditionalsComboBox.SelectedItem))
-        {
-            MessageBox.Show($"Already added {ConditionalsComboBox.SelectedItem}");
-        }
-        else
-        {
-            ConditionalsListBox.Items.Add(ConditionalsComboBox.SelectedItem);
-        }
+            //set visibilities
+            if (ConditionalsListBox.Items.Count > 0)
+            {
+                ConditionalsListBox.Visibility = Visibility.Visible;
+            }
 
-        if (ConditionalsListBox.Items.Count > 1)
-        {
-            ConditionalTypeComboBox.Visibility = Visibility.Visible;
-            ConditionalTypeLabel.Visibility = Visibility.Visible;
+            if (ConditionalsListBox.Items.Count > 1)
+            {
+                ConditionalTypeComboBox.Visibility = Visibility.Visible;
+                ConditionalTypeLabel.Visibility = Visibility.Visible;
+            }
         }
     }
 }

@@ -21,7 +21,9 @@ public partial class AbilityControl : UserControl
         TargetControl.ChangeToTarget += TargetControlHasChanged;
 
         ValueControl.PopulateValue(CurrentAbility);
-        ConditionalControl.PopulateConditional(CurrentAbility);
+
+        ConditionalControl.SetConditionals(CurrentAbility.Conditionals);
+        BonusConditionalControl.SetConditionals(CurrentAbility.BonusConditionals);
 
         BonusEffectButton.Click += BonusEffectButton_Click;
     }
@@ -116,14 +118,12 @@ public partial class AbilityControl : UserControl
     {
         TargetControl.PopulateTarget(CurrentAbility);
         ValueControl.PopulateValue(CurrentAbility);
-        ConditionalControl.PopulateConditional(CurrentAbility);
 
         if (BonusEffectVisible)
         {
             bool bonus = true;
             CurrentAbility.BonusEffect = (Effect)BonusEffectComboBox.SelectedItem;
             BonusValueControl.PopulateValue(CurrentAbility, bonus);
-            BonusConditionalControl.PopulateConditional(CurrentAbility, bonus);
         }
 
         return CurrentAbility;

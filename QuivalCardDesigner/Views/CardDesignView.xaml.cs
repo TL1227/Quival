@@ -51,8 +51,8 @@ public partial class CardDesignView : UserControl
         GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
 
         AddHandler(Selector.SelectionChangedEvent, new RoutedEventHandler(OnAnySelectionChanged));
-        AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
-        AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        //AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+        //AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
     }
 
     public CardDesignView(Config config, string json) : this()
