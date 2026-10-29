@@ -71,7 +71,7 @@ internal class Room
         {
             case SubmitTurn submitTurn:
                 {
-                    Console.WriteLine($"Player {player.Id} submitting {submitTurn.Turn.Trigger}");
+                    Console.WriteLine($"Player {player.Id} submitting {submitTurn.Turn.TurnType}");
 
                     if (Match.PlayerHasSetTurn(player.Id))
                     {
@@ -133,8 +133,6 @@ internal class Room
                 GameState = Match.GetGameState(player.Id)
             };
 
-            //string? gs = JsonSerializer.Serialize(update, update.GetType());
-            //await player.Writer.WriteLineAsync(gs);
             await player.SendMessageAsync(update);
         }
     }

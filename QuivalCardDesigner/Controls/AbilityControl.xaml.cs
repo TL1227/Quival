@@ -1,36 +1,131 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
-using QuivalLogicEngine.Cards;
+namespace QuivalCardDesigner.Controls;
 
-namespace QuivalCardDesigner.Controls
+public partial class AbilityControl : UserControl
 {
-    public partial class AbilityControl : UserControl
+    Ability CurrentAbility { get; set; } = new();
+    bool BonusEffectVisible { get; set; }
+
+    public AbilityControl(Ability ability)
     {
-        Ability CurrentAbility { get; set; } = new();
+        InitializeComponent();
+        CurrentAbility = ability;
+        EffectLabel.Content = CurrentAbility.Effect.GetType().Name.Replace("Effect", "");
 
-        public AbilityControl(Effect effect)
+        TargetControl.Initialise(CurrentAbility);
+        TargetControl.ChangeToTarget += TargetControlHasChanged;
+
+        ValueControl.PopulateValue(CurrentAbility);
+
+        ConditionalControl.SetConditionals(CurrentAbility.Conditionals);
+        BonusConditionalControl.SetConditionals(CurrentAbility.BonusConditionals);
+
+        BonusEffectButton.Click += BonusEffectButton_Click;
+    }
+
+    private void TargetControlHasChanged(object? sender, EventArgs e)
+    {
+        if (TargetControl.TargetTypeComboBox.SelectedItem is Target target)
         {
-            InitializeComponent();
-            CurrentAbility.Effect = effect;
-
-            EffectLabel.Content = effect;
-            TargetTypeComboBox.ItemsSource = Enum.GetValues<TargetType>();
-            SideComboBox.ItemsSource = Enum.GetValues<Side>();
-            ValueFromComboBox.ItemsSource = Enum.GetValues<ValueFrom>();
-            ConditionalsComboBox.ItemsSource = Enum.GetValues<Conditional>();
+            PopulateBonusEffectComboBox(target);
         }
+    }
+
+    private void BonusEffectButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (TargetControl.TargetTypeComboBox.SelectedItem is Target target)
+        {
+            if (BonusEffectVisible)
+            {
+                BonusEffectStackPanel.Visibility = Visibility.Collapsed;
+                BonusEffectButton.Content = " Add Bonus Effect ";
+
+                CurrentAbility.BonusValue = null;
+                CurrentAbility.BonusEffect = null;
+                CurrentAbility.BonusConditionals = null;
+                CurrentAbility.BonusConditionalType = null;
+
+                BonusEffectVisible = false;
+            }
+            else
+            {
+                BonusEffectStackPanel.Visibility = Visibility.Visible;
+                PopulateBonusEffectComboBox(target);
+                BonusEffectButton.Content = " Remove Bonus Effect ";
+                BonusEffectVisible = true;
+            }
+        }
+    }
+
+    private void PopulateBonusEffectComboBox(Target target)
+    {
+        TargetPool pool = new();
+
+        if (target is SelectionTarget st)
+        {
+            pool = (TargetPool)TargetControl.TargetPoolComboBox.SelectedItem;
+        }
+        else
+        {
+            pool = target.GetTargetPool();
+        }
+
+        var baseType = typeof(Effect);
+        var types = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => baseType.IsAssignableFrom(type) &&
+                type != baseType &&
+                !type.IsAbstract)
+            .ToList();
+
+        List<Effect> effects = new();
+        foreach (var type in types)
+        {
+            var effect = (Effect)Activator.CreateInstance(type)!;
+
+            switch (effect.ValidTargetPool)
+            {
+                case TargetPool.Creatures:
+                    if (TargetPool.Creatures == pool)
+                        effects.Add(effect);
+                    break;
+                case TargetPool.Controllers:
+                    if (TargetPool.Controllers == pool)
+                        effects.Add(effect);
+                    break;
+                case TargetPool.Damagables:
+                    if (TargetPool.Controllers == pool || TargetPool.Creatures == pool || TargetPool.Damagables == pool)
+                        effects.Add(effect);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        BonusEffectComboBox.ItemsSource = effects;
+        BonusEffectComboBox.DisplayMemberPath = "EffectString";
+        BonusEffectComboBox.SelectedIndex = 0;
+    }
+
+    public Ability GetAbility()
+    {
+        TargetControl.PopulateTarget(CurrentAbility);
+        ValueControl.PopulateValue(CurrentAbility);
+
+        if (BonusEffectVisible)
+        {
+            bool bonus = true;
+            CurrentAbility.BonusEffect = (Effect)BonusEffectComboBox.SelectedItem;
+            BonusValueControl.PopulateValue(CurrentAbility, bonus);
+        }
+
+        return CurrentAbility;
     }
 }

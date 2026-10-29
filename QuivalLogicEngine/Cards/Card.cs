@@ -6,6 +6,7 @@ namespace QuivalLogicEngine.Cards;
 
 public class Set
 {
+    public Version Version { get; set; }
     public string Name { get; set; }
     public string SetCode { get; set; }
     public List<CardDefinition> Cards {  get; set; }
@@ -84,6 +85,7 @@ public class CreatureCard : Card
         CurrentHealth -= dmg;
         return CurrentHealth <= 0; 
     }
+
     public void HealCreature(int points)
     {
         CurrentHealth += points;

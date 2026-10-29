@@ -211,6 +211,6 @@ internal class Program
             .GroupBy(s => s.UniqueId)
             .Any(g => g.Count() > 4);
 
-        return hasMoreThanFourCopies;
+        return hasMoreThanFourCopies == false;
     }
 }

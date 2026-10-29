@@ -12,6 +12,12 @@ public partial class MainMenuView : UserControl
         InitializeComponent();
         MainWindow = mainWindow;
         NewCardButton.Click += NewCardButton_Click;
+        EditCardButton.Click += EditCardButton_Click;
+    }
+
+    private void EditCardButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainWindow.EditCard();
     }
 
     private void NewCardButton_Click(object sender, RoutedEventArgs e)

@@ -10,11 +10,11 @@
         <Grid x:Name="BattleField" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="OpponentLifeRow" Height="auto"></RowDefinition>
-                <RowDefinition x:Name="OpponentBlockZoneRow" Height="*"></RowDefinition>
+                <RowDefinition x:Name="OpponentBlockZoneRow" Height=".7*"></RowDefinition>
                 <RowDefinition x:Name="OpponentCombatZoneRow" Height="1*"/>
                 <RowDefinition x:Name="PlayerCombatZoneRow" Height="1*"/>
                 <RowDefinition x:Name="PlayerBlockZoneRow" Height="*"></RowDefinition>
-                <RowDefinition x:Name="PlayerHandZone" Height="*"></RowDefinition>
+                <RowDefinition x:Name="PlayerHandZone" Height="40"></RowDefinition>
                 <RowDefinition x:Name="PlayerLifeRow" Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -27,6 +27,15 @@
             <Grid x:Name="OpponentSummonZone" Grid.Column="1" Grid.RowSpan="2"></Grid>
 
             <local:BlockZone x:Name="OpponentBlockZone" Grid.Row="1" Grid.Column="1"/>
+
+            <Button 
+            x:Name="CastSpellButtonOpponent" 
+            Margin="5"
+            Width="110" Height="40"
+            Grid.Row="1" Grid.Column="2" 
+            FontSize="20"
+            Background="CornflowerBlue"
+            Foreground="DarkBlue"/>
 
             <local:CombatZone x:Name="OpponentCombatZone" Grid.Column="1" Grid.Row="2"/>
             <local:CombatZone x:Name="PlayerCombatZone" Grid.Column="1" Grid.Row="3"/>
@@ -51,7 +60,8 @@
             Background="CornflowerBlue"
             Foreground="DarkBlue"/>
 
-            <Button 
+            <Button
+                Grid.RowSpan="2"
             x:Name="EndTurnButton" 
             Margin="5"
             Width="110" Height="40"

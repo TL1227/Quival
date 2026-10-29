@@ -1,22 +1,25 @@
 ﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Cards.Effects;
 using QuivalLogicEngine.Client;
 using QuivalLogicEngine.States;
 using QuivalLogicEngine.Turns;
+using System.Security.Cryptography;
 
 namespace QuivalLogicEngine;
 
 public class Match
 {
-    private List<Player> Players { get; set; }
-    private BoardState BoardState { get; set; }
-    private List<EventMessage> EventMessages { get; set; }
+    public List<Player> Players { get; set; }
+    public BoardState BoardState { get; set; }
+    public List<Card> MatchCards;
+    private List<EventMessage> CurrentRoundsEvents { get; set; }
+    private List<EventMessage> CurrentTurnsEvents { get; set; }
     private int TurnCount { get; set; }
     private int RoundCount { get; set; }
 
     //NOTE: We start at 2 so we can use 0 and 1 as cards representing the player
     private int CardIdTotal = 2;
 
-    private List<Card> MatchCards;
     private int MaxRounds = 5;
 
     private bool OnePlayerMode = false;
@@ -28,7 +31,8 @@ public class Match
         TurnCount = 1;
         RoundCount = 1;
         MatchCards = new();
-        EventMessages = new();
+        CurrentRoundsEvents = new();
+        CurrentTurnsEvents = new();
     }
 
     public bool PlayerHasSetTurn(int playerId)
@@ -46,7 +50,8 @@ public class Match
             Hand = Players[playerId].Hand,
             Deck = Players[playerId].Deck,
             CardToPlay = Players[playerId].CardToPlay,
-            BlockingCreature = Players[playerId].BlockingCreature
+            BlockingCreature = Players[playerId].BlockingCreature,
+            OutOfMoves = Players[playerId].OutOfMoves,
         };
 
         ClientGameState state = new()
@@ -55,7 +60,7 @@ public class Match
             BoardState = BoardState,
             TurnCount= TurnCount,
             RoundCount= RoundCount,
-            GameEvents = EventMessages
+            GameEvents = CurrentRoundsEvents
         };
 
         Player opponent = GetOpponent(playerId);
@@ -70,7 +75,6 @@ public class Match
         {
             state.OpponentCardCount = opponent.Hand.Count();
             state.OpponentHealthPoints = opponent.HealthPoints;
-            Console.WriteLine($"Moving to turn {TurnCount}");
             state.OpponentManaPoints = opponent.Mana;
             state.OpponentBlockCard = opponent.BlockingCreature;
             state.OpponentCardToPlay = opponent.CardToPlay;
@@ -79,13 +83,29 @@ public class Match
         return state;
     }
 
-    private Player GetOpponent(int playerId) 
+    public Player GetOpponent(int playerId) 
     {
         if (OnePlayerMode)
             return Players[playerId];
 
         int opponentId = playerId == 0 ? 1 : 0;
         return Players[opponentId];
+    }
+
+    public static int GetOpponentId(int playerId) 
+    {
+        return playerId == 0 ? 1 : 0;
+    }
+
+    public List<CreatureCard> GetAllCreaturesOnBoard()
+    {
+        List<CreatureCard> creatureCards = BoardState.GetAllSummonedCreatures();
+
+        foreach (var player in Players)
+            if (player.BlockingCreature != null)
+                creatureCards.Add(player.BlockingCreature!);
+
+        return creatureCards;
     }
 
     public void SetPlayer(int id, List<Card> deck)
@@ -107,7 +127,7 @@ public class Match
 
     public void SubmitTurn(int playerId, QuivalTurn turn)
     {
-        if (turn.Trigger == TriggerType.EndTurn)
+        if (turn.TurnType == TurnType.EndTurn)
         {
             Players[playerId].SubmittedTurn = turn;
             return;
@@ -121,7 +141,7 @@ public class Match
             return;
         }
 
-        if (turn.Trigger == TriggerType.Cast)
+        if (turn.TurnType == TurnType.Cast)
         {
             if (cardToPlay.Cost <= Players[playerId].Mana)
             {
@@ -139,23 +159,20 @@ public class Match
             Players[playerId].SubmittedTurn = turn;
         }
 
-        List<Ability> abilitiesThatRequireSelection = new();
-        var abilities = GetSelectableAbilities(cardToPlay, turn.Trigger);
-        if (abilities != null)
+        foreach (var ability in GetAbilitiesThatRequireSelection(cardToPlay, turn.TurnType))
         {
-            foreach (var ability in abilities)
+            if (ConditionalsMet(playerId, ability.Conditionals, ability.ConditionalType))
             {
-                if (ConditionalsMet(ability.Conditionals))
-                {
-                    abilitiesThatRequireSelection.AddRange(abilities);
-                }
+                var targetSelection = GetTargetsForSelection(playerId, cardToPlay, ability);
+
+                if (targetSelection != null)
+                    Players[playerId].TargetSelections.Add(targetSelection);
             }
         }
 
-        if (abilitiesThatRequireSelection.Count > 0)
+        if (Players[playerId].TargetSelections.Count > 0)
         {
             Players[playerId].MakingSelections = true;
-            GetTargetsForSelection(playerId, cardToPlay.Id, abilitiesThatRequireSelection, turn.Trigger);
         }
     }
 
@@ -165,54 +182,62 @@ public class Match
         Players[playerId].TargetSelections = selections;
     }
 
-    public List<Ability>? GetSelectableAbilities(Card card, TriggerType triggerType)
+    public List<Ability> GetAbilitiesThatRequireSelection(Card card, TurnType turnType)
     {
-        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
+        List<Ability> abilities = new();
+
+        Trigger? trigger = null;
+        switch (turnType)
+        {
+            case TurnType.Cast:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is CastTrigger);
+                }
+                break;
+            case TurnType.Attack:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is SelfTrigger st && st.SelfTriggerType == SelfTriggerType.Attack);
+                }
+                break;
+            case TurnType.MoveToBlockZone:
+                {
+                    trigger = card.Triggers
+                        .SingleOrDefault(a => a is SelfTrigger st && st.SelfTriggerType == SelfTriggerType.MoveToBlockZone);
+                }
+                break;
+            case TurnType.EndTurn:
+            default:
+                break;
+        }
+
         if (trigger != null)
         {
-            return trigger.Abilities.Where(a => a.NumberOfTargetSelectionsNeeded > 0).ToList();
+            return trigger.Abilities.Where(a => a.Target is SelectionTarget).ToList();
         }
-        else
-        {
-            return null;
-        }
+
+        return abilities;
     }
 
-    public void GetTargetsForSelection(int playerId, int cardId, List<Ability> abilities, TriggerType trigger)
+
+    public TargetSelection? GetTargetsForSelection(int playerId, Card card, Ability ability)
     {
-        foreach (var ability in abilities)
+        if (ability.Target is SelectionTarget target)
         {
-            if (ability.TargetType == TargetType.Damageable)
+            TargetSelection ts = new()
             {
-                TargetSelection ts = new();
-                ts.TargetsToPickFrom.AddRange(BoardState.GetAllSummonedCreatures().Select(c => c.Id));
+                TargetsToPickFrom = target.GetTargetPool(playerId, this),
+                CardId = card.Id,
+                AbilityId = ability.Id,
+                Effect = ability.Effect,
+                NumberToPick = target.NumberToPick,
+            };
 
-                //try getting the card ides 
-                var testing = MatchCards.OfType<PlayerCard>().Select(c => c.Id).ToList();
-                ts.TargetsToPickFrom.AddRange(testing);
-
-                if (Players[0].BlockingCreature != null)
-                {
-                    ts.TargetsToPickFrom.Add(Players[0].BlockingCreature!.Id);
-                }
-
-                if (Players[1].BlockingCreature != null)
-                {
-                    ts.TargetsToPickFrom.Add(Players[1].BlockingCreature!.Id);
-                }
-
-                if (!ability.CanTargetSelf)
-                    ts.TargetsToPickFrom.Remove(cardId);
-
-                ts.TargetType = TargetType.Damageable;
-                ts.NumberToPick = ability.NumberOfTargetSelectionsNeeded;
-                ts.Trigger = trigger;
-                ts.AbilityId = ability.Id;
-                ts.CardId = cardId;
-                ts.Effect = ability.Effect;
-                Players[playerId].TargetSelections.Add(ts);
-            }
+            return ts;
         }
+
+        return null;
     }
 
     public List<TargetSelection>? GetSelectionsIfPlayerNeedsThem(int playerId)
@@ -272,13 +297,13 @@ public class Match
 
     private bool BothPlayersHaveEndedTheirTurn()
     {
-        return Players[0].SubmittedTurn!.Trigger == TriggerType.EndTurn &&
-                Players[1].SubmittedTurn!.Trigger == TriggerType.EndTurn;
+        return Players[0].SubmittedTurn!.TurnType == TurnType.EndTurn &&
+                Players[1].SubmittedTurn!.TurnType == TurnType.EndTurn;
     }
 
     public void ProcessCards()
     {
-        EventMessages.Clear();
+        CurrentRoundsEvents.Clear();
 
         if (Players[0].SubmittedTurn == null || Players[1].SubmittedTurn == null)
             return;
@@ -303,15 +328,45 @@ public class Match
         ProcessMoveToBlockZone();
         ProcessAttacks();
 
-        //NextRound()
+        NextRound();
+    }
+
+    private bool IsOutOfMoves(Player player)
+    {
+        bool hasCardsToPlay = false;
+        foreach (var card in player.Hand)
+        {
+            if (card.Cost <= player.Mana)
+                hasCardsToPlay = true;
+        }
+
+        bool hasCreaturesToMove = false;
+        foreach (var creature in BoardState.SummonedCreatures[player.Id])
+        {
+            if (creature.HasActed == false)
+                hasCreaturesToMove = true;
+        }
+
+        return !hasCardsToPlay && !hasCreaturesToMove;
+    }
+
+    private bool BothPlayersAreOutOfMoves()
+    {
+        foreach (var player in Players)
+            if (!player.OutOfMoves)
+                return false;
+        
+        return true;
+    }
+
+    public void NextRound()
+    {
         RoundCount++;
         foreach (var player in Players)
         {
             player.SubmittedTurn = null;
             player.TargetSelections.Clear();
-
-            //TODO: I think that we should do the calculating which players can and can't move next turn here
-            //currently it's all being done client side which is stupid
+            player.OutOfMoves = IsOutOfMoves(player);
         }
 
         //remove attack buffs
@@ -319,13 +374,53 @@ public class Match
             foreach (var creature in creatures)
                 creature.AttackBuffRound = 0;
 
-        if (RoundCount > MaxRounds)
+        CurrentTurnsEvents.AddRange(CurrentRoundsEvents);
+
+        if (RoundCount > MaxRounds || BothPlayersAreOutOfMoves())
         {
+            Console.WriteLine("[Turn] New Turn!");
             NextTurn();
         }
     }
 
-    private List<CreatureCard> GetAllCreatures()
+    private void NextTurn()
+    {
+        TurnCount++;
+        RoundCount = 1;
+
+        CurrentTurnsEvents.Clear();
+
+        EventMessage(new NewTurn(TurnCount, RoundCount)); //TODO: do we need this?
+
+        foreach (var card in MatchCards)
+        {
+            if (card is CreatureCard cc)
+            {
+                if (cc.CurrentHealth <= 0)
+                {
+                    BoardState.RemoveCreatureFromBoard(cc);
+                }
+                else
+                {
+                    cc.HasActed = false;
+                }
+            }
+        }
+
+        foreach (var player in Players)
+        {
+            player.Mana = BoardState.GetCurrentMana();
+            var cardsDrawn = player.DrawCard(1);
+            CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn) { PlayerId = player.Id });
+            player.MakingSelections = false;
+        }
+
+        BoardState.IncreaseManaClock();
+
+        CheckPassiveAbilities();
+    }
+
+    public List<CreatureCard> GetAllCreatures()
     {
         List<CreatureCard> creatureCards = new List<CreatureCard>();
         creatureCards.AddRange(BoardState.GetAllSummonedCreatures());
@@ -351,7 +446,7 @@ public class Match
     private void ProcessAbility(Card card, Ability ability)
     {
         var targets = GetTargets(card, ability);
-        int value = GetValue(card.PlayerId, ability);
+        int value = GetValue(card.PlayerId, ability.Value);
 
         foreach (Card target in targets)
         {
@@ -364,98 +459,118 @@ public class Match
                 Value = value
             };
 
-            EventMessages.Last().CardActionEvents.Add(message);
+            CurrentRoundsEvents.Last().CardActionEvents.Add(message);
 
-            if (target is CreatureCard targetCreature)
+            ApplyEffectToTarget(target, ability.Effect, value, ability.Id);
+
+            if (ability.BonusEffect != null && 
+                ability.BonusValue != null &&
+                ability.BonusConditionals != null &&
+                ability.BonusConditionalType != null
+                )
             {
-                switch (ability.Effect)
+                if (ConditionalsMet(card.PlayerId, ability.BonusConditionals, (ConditionalType)ability.BonusConditionalType))
                 {
-                    case Effect.AttackBuffRound:
-                        {
-                            targetCreature.AttackBuffRound += value;
-                            break;
-                        }
-                    case Effect.AttackBuff:
-                        {
-                            targetCreature.AttackModifiers[ability.Id] = value;
+                    message = new()
+                    {
+                        CardActionSource = card,
+                        PlayerId = card.PlayerId,
+                        Effect = ability.Effect,
+                        TargetsCardIds = targets.Select(c => c.Id).ToList(),
+                        Value = value
+                    };
 
-                            //remove the card action event we've added
-                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            break;
-                        }
-                    case Effect.AttackDebuff:
-                        {
-                            targetCreature.AttackModifiers[ability.Id] = -value;
+                    CurrentRoundsEvents.Last().CardActionEvents.Add(message);
 
-                            //remove the card action event we've added
-                            EventMessages.Last().CardActionEvents.Remove(EventMessages.Last().CardActionEvents.Last());
-                            break;
-                        }
-                    case Effect.DirectDamage:
-                        {
-                            bool hasDied = targetCreature.DamageCreature(value);
-                            if (hasDied)
-                            {
-                                EventMessage(new CreatureDeathEvent(targetCreature.Id, targetCreature.Name!));
-                                CheckPassiveAbilities();
-                            }
-                            break;
-                        }
-                    case Effect.Heal:
-                        {
-                            targetCreature.HealCreature(value);
-                            break;
-                        }
-                }
-            }
-            else if (target is PlayerCard playerCard)
-            {
-                switch (ability.Effect)
-                {
-                    //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
-                    case Effect.DirectDamage:
-                        {
-                            Players[playerCard.Id].HealthPoints -= value;
-                            break;
-                        }
-                    case Effect.Heal:
-                        {
-                            Players[playerCard.Id].HealthPoints += value;
-                            break;
-                        }
+                    int bonusValue = GetValue(card.PlayerId, ability.BonusValue);
+                    ApplyEffectToTarget(target, (Effect)ability.BonusEffect, bonusValue, ability.Id);
                 }
             }
         }
     }
 
-    private int GetValue(int playerId, Ability ability)
+    private void ApplyEffectToTarget(Card target, Effect effect, int value, int abilityId)
     {
-        switch (ability.ValueFrom)
+        if (target is CreatureCard targetCreature)
         {
-            case ValueFrom.CreaturesOnTheBoard:
-                {
-                    if (ability.Side == Side.Player)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(playerId).Count();
-                    else if (ability.Side == Side.Opponent)
-                        return BoardState.GetAllSummonedCreaturesByPlayerId(GetOpponent(playerId).Id).Count();
-                    else
-                        return GetAllCreatures().Count;
-                }
-            case ValueFrom.CardsInHand:
-                {
-                    int playerHand = Players[playerId].Hand.Count; 
-                    int opponentHand = Players[GetOpponent(playerId).Id].Hand.Count;
+            switch (effect)
+            {
+                case AttackBuffRound:
+                    {
+                        targetCreature.AttackBuffRound += value;
+                        break;
+                    }
+                case AttackBuff:
+                    {
+                        targetCreature.AttackModifiers[abilityId] = value;
 
-                    if (ability.Side == Side.Player)
-                        return playerHand;
-                    else if (ability.Side == Side.Opponent)
-                        return opponentHand;
-                    else
-                        return playerHand + opponentHand;
-                }
-            case ValueFrom.None:
-            default:
-                return ability.Value;
+                        //remove the card action event we've added
+                        CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
+                        break;
+                    }
+                case AttackDebuff:
+                    {
+                        targetCreature.AttackModifiers[abilityId] = -value;
+
+                        //remove the card action event we've added
+                        CurrentRoundsEvents.Last().CardActionEvents.Remove(CurrentRoundsEvents.Last().CardActionEvents.Last());
+                        break;
+                    }
+                case DirectDamage:
+                    {
+                        bool hasDied = targetCreature.DamageCreature(value);
+                        if (hasDied)
+                        {
+                            EventMessage(new CreatureDeathEvent(targetCreature.Id, targetCreature.Name!));
+                            CheckPassiveAbilities();
+                        }
+                        break;
+                    }
+                case Heal:
+                    {
+                        targetCreature.HealCreature(value);
+                        break;
+                    }
+            }
+        }
+        else if (target is PlayerCard playerCard)
+        {
+            switch (effect)
+            {
+                //TODO: maybe wrap these in DamagePlayer and HealPlayer methods
+                case DirectDamage:
+                    {
+                        Players[playerCard.Id].HealthPoints -= value;
+                        break;
+                    }
+                case Heal:
+                    {
+                        Players[playerCard.Id].HealthPoints += value;
+                        break;
+                    }
+                case DrawCard:
+                    {
+                        var cardsDrawn = Players[playerCard.Id].DrawCard(value);
+                        //CurrentRoundsEvents.Add(new CardDrawEvent(cardsDrawn){ PlayerId = playerCard.Id });
+                        break;
+                    }
+            }
+        }
+    }
+
+    private int GetValue(int playerId, Value value)
+    {
+        if (value is Fixed fv)
+        {
+            return fv.Amount;
+        }
+        else if (value is Count cv)
+        {
+            return cv.Get(playerId, this);
+        }
+        else
+        {
+            throw new Exception("Can't find Value Type");
         }
     }
 
@@ -463,7 +578,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.Cast)
+            if (player.SubmittedTurn!.TurnType != TurnType.Cast)
                 continue;
 
             if (player.CardToPlay != null)
@@ -483,8 +598,7 @@ public class Match
                         //creature.HasActed = true;
                         //creature.SummonedThisTurn = true;
 
-                        var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                        ProcessCardTriggers(player.Id, creature, player.SubmittedTurn.Trigger, targets);
+                        ProcessCardTriggers(player.Id, creature, new CastTrigger());
                     }
                     else
                     {
@@ -494,8 +608,7 @@ public class Match
                 else if (player.CardToPlay is SpellCard spell)
                 {
                     EventMessage(new CastEvent(player.Id ,spell));
-                    var targets = player.TargetSelections.Where(ts => ts.Trigger == player.SubmittedTurn.Trigger).ToList();
-                    ProcessCardTriggers(player.Id, spell, player.SubmittedTurn.Trigger, targets);
+                    ProcessCardTriggers(player.Id, spell, new CastTrigger());
                 }
             }
         }
@@ -505,7 +618,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.Attack)
+            if (player.SubmittedTurn!.TurnType != TurnType.Attack)
                 continue;
 
             if (player.CardToPlay is CreatureCard attackingCreature && attackingCreature.IsAlive())
@@ -514,7 +627,9 @@ public class Match
 
                 var attackEvent = new AttackEvent(player.Id, attackingCreature.Id, attackingCreature.Name!);
                 EventMessage(attackEvent);
-                ProcessCardTriggers(player.Id, player.CardToPlay, player.SubmittedTurn.Trigger, player.TargetSelections);
+
+                ProcessCardTriggers(player.Id, player.CardToPlay, 
+                    new SelfTrigger() { SelfTriggerType = SelfTriggerType.Attack });
 
                 if (otherPlayer.BlockingCreature == null || otherPlayer.BlockingCreature.IsDead())
                 {
@@ -555,7 +670,7 @@ public class Match
     {
         foreach (var player in Players)
         {
-            if (player.SubmittedTurn!.Trigger != TriggerType.MoveToBlockZone)
+            if (player.SubmittedTurn!.TurnType != TurnType.MoveToBlockZone)
                 continue;
 
             if (player.CardToPlay is CreatureCard newBlocker && newBlocker.IsAlive())
@@ -567,7 +682,8 @@ public class Match
 
                     EventMessage(new MoveToBlockZoneEvent(player.Id, newBlocker.Id, newBlocker.Name!));
 
-                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.MoveToBlockZone, player.SubmittedTurn.SelectedCardIds);
+                    ProcessCardTriggers(player.Id, player.CardToPlay, 
+                        new SelfTrigger() { SelfTriggerType = SelfTriggerType.MoveToBlockZone });
                 }
                 else
                 {
@@ -580,26 +696,27 @@ public class Match
 
                     EventMessage(new BlockSwapEvent(player.Id, newBlocker.Id, newBlocker.Name!, oldBlocker.Id, oldBlocker.Name!));
 
-                    //ProcessCardTriggers(player.Id, player.CardToPlay, TriggerType.BlockSwap, player.SubmittedTurn.SelectedCardIds);
+                    ProcessCardTriggers(player.Id, player.CardToPlay, 
+                        new SelfTrigger() { SelfTriggerType = SelfTriggerType.BlockSwap });
                 }
             }
         }
     }
 
     //abilities
-    private void ProcessCardTriggers(int playerId, Card card, TriggerType triggerType, List<TargetSelection>? targetSelections = null)
+    private void ProcessCardTriggers(int playerId, Card card, Trigger triggerToProcess)
     {
-        var trigger = card.Triggers.SingleOrDefault(a => a.TriggerType == triggerType);
+        var trigger = card.Triggers.SingleOrDefault(a => a.SameAs(triggerToProcess));
 
         if (trigger == null) 
         {
-            Console.WriteLine($"Couldn't find trigger {triggerType.ToString()} on the card {card.Name}");
+            Console.WriteLine($"Couldn't find trigger {triggerToProcess.ToString()} on the card {card.Name}");
             return;
         }
 
         foreach (var ability in GetAbilities(trigger))
         {
-            if (ConditionalsMet(ability.Conditionals))
+            if (ConditionalsMet(playerId, ability.Conditionals, ability.ConditionalType))
             {
                 ProcessAbility(card, ability);
             }
@@ -610,46 +727,45 @@ public class Match
     {
         List<Card> targetsResult = new();
 
-        if (ability.TargetType == TargetType.Self)
+        if (ability.Target is SelfTarget)
         {
             targetsResult.Add(cardToPlay);
         }
-        else if (ability.TargetType == TargetType.Opponent)
+        else if (ability.Target is PlayerTarget playerTarget)
         {
-            int opponentId = cardToPlay.PlayerId == 0 ? 1 : 0;
-            targetsResult.Add(GetCardFromId(opponentId)!);
-        }
-        else if (ability.TargetType == TargetType.Player)
-        {
-            targetsResult.Add(GetCardFromId(cardToPlay.PlayerId)!);
-        }
+            Card? player = GetCardFromId(cardToPlay.PlayerId);
 
-        List<TargetSelection>? targetSelections = Players[cardToPlay.PlayerId].TargetSelections;
-        TargetSelection? targetSelection;
-        if (targetSelections != null)
+            if (player != null)
+                targetsResult.Add(player);
+        }
+        else if (ability.Target is OpponentTarget opponentTarget)
         {
-            if (ability.TargetType == TargetType.UseFirst)
-            {
-                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == 0);
-            }
-            else
-            {
-                targetSelection = targetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
-            }
+            Card? opponent = GetCardFromId(GetOpponentId(cardToPlay.PlayerId));
 
-            if (targetSelection != null)
+            if (opponent != null)
+                targetsResult.Add(opponent);
+        }
+        else if (ability.Target is SelectionTarget selectTarget)
+        {
+            if (Players[cardToPlay.PlayerId].TargetSelections != null)
             {
-                foreach (var target in targetSelection.SelectedTargets)
+                var targetSelection = Players[cardToPlay.PlayerId].TargetSelections.SingleOrDefault(ts => ts.CardId == cardToPlay.Id && ts.AbilityId == ability.Id);
+
+                if (targetSelection != null)
                 {
-                    var card = GetCardFromId(target);
-
-                    if (card != null)
+                    foreach (var target in targetSelection.SelectedTargets)
                     {
-                        targetsResult.Add(card);
+                        var card = GetCardFromId(target);
+
+                        if (card != null)
+                        {
+                            targetsResult.Add(card);
+                        }
                     }
                 }
             }
         }
+
 
         return targetsResult;
     }
@@ -673,7 +789,7 @@ public class Match
         return actions;
     }
 
-    private bool ConditionalsMet(List<Conditional> conditionals)
+    private bool ConditionalsMet(int playerId, List<Conditional> conditionals, ConditionalType conditionalType)
     {
         if (conditionals.Count <= 0)
             return true;
@@ -683,58 +799,30 @@ public class Match
         {
             switch (condition)
             {
-                case Conditional.None: passes.Add(true); break;
                 case Conditional.Round1: passes.Add(RoundCount == 1); break;
                 case Conditional.Round2: passes.Add(RoundCount == 2); break;
                 case Conditional.Round3: passes.Add(RoundCount == 3); break;
                 case Conditional.Round4: passes.Add(RoundCount == 4); break;
                 case Conditional.Round5: passes.Add(RoundCount == 5); break;
-                default: 
+                case Conditional.PlayerCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent && x.PlayerId == playerId).Count() > 0); break;
+                case Conditional.OpponentCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent && x.PlayerId != playerId).Count() > 0); break;
+                case Conditional.AnyCreatureDiedThisTurn: passes.Add(CurrentTurnsEvents.Where(x => x is CreatureDeathEvent).Count() > 0); break;
+                default:
                     passes.Add(true); 
                     Console.WriteLine($"The condition {condition.ToString()} has not yet been implemented");
                 break;
             }
         }
 
-        return !passes.Contains(false); 
-    }
-
-    private void NextTurn()
-    {
-        TurnCount++;
-        RoundCount = 1;
-        EventMessage(new NewTurn(TurnCount, RoundCount)); //TODO: do we need this?
-
-        foreach (var card in MatchCards)
-        {
-            if (card is CreatureCard cc)
-            {
-                if (cc.CurrentHealth <= 0)
-                {
-                    BoardState.RemoveCreatureFromBoard(cc);
-                }
-                else
-                {
-                    cc.HasActed = false;
-                }
-            }
-        }
-
-        foreach (var player in Players)
-        {
-            player.Mana = BoardState.GetCurrentMana();
-            player.DrawCard(1);
-            player.MakingSelections = false;
-        }
-
-        BoardState.IncreaseManaClock();
-
-        CheckPassiveAbilities();
+        if (conditionalType == ConditionalType.And)
+            return !passes.Contains(false);
+        else 
+            return passes.Contains(true);
     }
 
     private void EventMessage(EventMessage message)
     {
         Console.WriteLine(message.GetString());
-        EventMessages.Add(message);
+        CurrentRoundsEvents.Add(message);
     }
 }

@@ -23,6 +23,7 @@ namespace LogicEngineConsole
         
         static void Main(string[] args)
         {
+            /*
             List<CardDefinition> cards =
             [
                 new (){
@@ -34,18 +35,25 @@ namespace LogicEngineConsole
                     Attack = 2,
                     Health = 2,
                     Triggers = [
-                        new Trigger()
+                        new SelfTrigger()
                         {
-                            TriggerType = TriggerType.Attack,
+                            SelfTriggerType = SelfTriggerType.Attack,
                             Abilities =
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.Heal,
-                                    TargetType = TargetType.Damageable,
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    CanTargetSelf = false,
-                                    Value = 2,
+                                    Effect = new HealEffect(),
+                                    Target = new SelectionTarget()
+                                    {
+                                        TargetPool = 
+                                        [
+                                            new (){ TargetPoolType = TargetPool.Creature, Side = Side.Any },
+                                            new (){ TargetPoolType = TargetPool.Player, Side = Side.Any },
+                                        ],
+                                        CanTargetSelf = false,
+                                        NumberToPick = 1,
+                                    },
+                                    Value = new Fixed(2),
                                     Conditionals =
                                     {
                                         Conditional.Round2
@@ -87,20 +95,17 @@ namespace LogicEngineConsole
                     Health = 4,
                     Triggers =
                     {
-                        new Trigger()
+                        new SelfTrigger()
                         {
-                            TriggerType = TriggerType.Attack,
+                            SelfTriggerType = SelfTriggerType.Attack,
                             Abilities =
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.AttackBuffRound,
-                                    TargetType = TargetType.Self,
-                                    Value = 2,
-                                    Conditionals =
-                                    {
-                                        Conditional.Round3
-                                    }
+                                    Effect = new AttackBuffRoundEffect(),
+                                    Target = new SelfTarget(),
+                                    Value = new Fixed(2),
+                                    Conditionals = { Conditional.Round3 }
                                 }
                             },
                         }
@@ -122,18 +127,21 @@ namespace LogicEngineConsole
                     Cost = 1,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Damageable,
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    Side = Side.Any,
-                                    Value = 2,
+                                    Effect = new DirectDamageEffect(),
+                                    Target = new SelectionTarget()
+                                    {
+                                        TargetPool = [ typeof(CreatureTarget), typeof(OpponentTarget), typeof(PlayerTarget)],
+                                        Side = Side.Any,
+                                        CanTargetSelf = true,
+                                        NumberToPick = 1
+                                    },
+                                    Value = new Fixed(2)
                                 }
                             }
                         }
@@ -147,18 +155,21 @@ namespace LogicEngineConsole
                     Cost = 2,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.Heal,
-                                    TargetType = TargetType.Damageable,
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    Side = Side.Any,
-                                    Value = 2,
+                                    Effect = new HealEffect(),
+                                    Target = new SelectionTarget()
+                                    {
+                                        TargetPool = [TargetPool.Creature, TargetPool.Player],
+                                        Side = Side.Any,
+                                        CanTargetSelf = true,
+                                        NumberToPick = 1
+                                    },
+                                    Value = new Fixed(2),
                                 }
                             }
                         }
@@ -172,26 +183,25 @@ namespace LogicEngineConsole
                     Cost = 4,
                     Triggers =
                     {
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
                             Abilities =
                             {
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Damageable,
-                                    NumberOfTargetSelectionsNeeded = 1,
-                                    Side = Side.Any,
-                                    Value = 1,
+                                    Effect = new DirectDamageEffect(),
+                                    Target = new SelectionTarget()
+                                    {
+                                        TargetPool = [ TargetPool.Creature, TargetPool.Player ],
+                                        Side = Side.Any,
+                                        NumberToPick = 1
+                                    },
+                                    Value = new Fixed(1),
+
+                                    BonusEffect = new DirectDamageEffect(),
+                                    BonusValue = new Fixed(3),
+                                    BonusConditionals = [ Conditional.Round4 ]
                                 },
-                                new Ability()
-                                {
-                                    Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.UseFirst,
-                                    Value = 3,
-                                    Conditionals = [ Conditional.Round4 ]
-                                }
                             },
                         }
                     }
@@ -203,18 +213,17 @@ namespace LogicEngineConsole
                     Cost = 2,
                     Attack = 1,
                     Health = 1,
-                    Triggers = 
+                    Triggers =
                     [
-                        new Trigger()
+                        new CastTrigger()
                         {
-                            TriggerType = TriggerType.Cast,
-                            Abilities = 
+                            Abilities =
                             [
                                 new Ability()
                                 {
-                                    Effect = Effect.DirectDamage,
-                                    TargetType = TargetType.Opponent,
-                                    Value = 1
+                                    Effect = new DirectDamageEffect(),
+                                    Target = new OpponentTarget(),
+                                    Value = new Fixed(1)
                                 }
                             ]
                         }
@@ -227,14 +236,17 @@ namespace LogicEngineConsole
                     Cost = 3,
                     Attack = 0,
                     Health = 3,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackBuff,
-                            TargetType = TargetType.Self,
-                            Side = Side.Player,
-                            ValueFrom = ValueFrom.CreaturesOnTheBoard
+                            Effect = new AttackBuffEffect(),
+                            Target = new SelfTarget(),
+                            Value = new Count()
+                            {
+                                CountSource = CountValueSource.CreaturesOnTheBoard,
+                                CountSide = Side.Player
+                            }
                         }
                     ]
                 },
@@ -245,14 +257,17 @@ namespace LogicEngineConsole
                     Cost = 3,
                     Attack = 4,
                     Health = 3,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackDebuff,
-                            TargetType = TargetType.Self,
-                            Side = Side.Opponent,
-                            ValueFrom = ValueFrom.CreaturesOnTheBoard
+                            Effect = new AttackDebuffEffect(),
+                            Target = new SelfTarget(),
+                            Value = new Count()
+                            {
+                                CountSource = CountValueSource.CreaturesOnTheBoard,
+                                CountSide = Side.Opponent
+                            }
                         }
                     ]
                 },
@@ -263,14 +278,54 @@ namespace LogicEngineConsole
                     Cost = 5,
                     Attack = 0,
                     Health = 4,
-                    PassiveAbilities = 
+                    PassiveAbilities =
                     [
                         new Ability()
                         {
-                            Effect = Effect.AttackBuff,
-                            TargetType = TargetType.Self,
-                            ValueFrom = ValueFrom.CardsInHand,
-                            Side = Side.Player
+                            Effect = new AttackBuffEffect(),
+                            Target = new SelfTarget(),
+                            Value = new Count()
+                            {
+                                CountSource = CountValueSource.CardsInHand,
+                                CountSide = Side.Player
+                            }
+                        }
+                    ]
+                },
+                new (){
+                    CardType = CardType.Spell,
+                    Name = "Simple Draw",
+                    Description = "Draw 1 card",
+                    Cost = 2,
+                    Triggers = [
+                        new CastTrigger() {
+                            Abilities = [
+                                new Ability() {
+                                    Effect = new DrawCardEffect(),
+                                    Target = new PlayerTarget(),
+                                    Value = new Fixed(1)
+                                }
+                            ]
+                        }
+                    ]
+                },
+                new (){
+                    CardType = CardType.Spell,
+                    Name = "Murderous Draw",
+                    Description = "Draw 1 card. If an opponent's creature died this turn draw another card",
+                    Cost = 3,
+                    Triggers = [
+                        new CastTrigger() {
+                            Abilities = [
+                                new Ability() {
+                                    Effect = new DrawCardEffect(),
+                                    Target = new PlayerTarget(),
+                                    Value = new Fixed(1),
+                                    BonusEffect = new DrawCardEffect(),
+                                    BonusValue = new Fixed(1),
+                                    BonusConditionals = [ Conditional.OpponentCreatureDiedThisTurn ]
+                                }
+                            ]
                         }
                     ]
                 },
@@ -278,6 +333,7 @@ namespace LogicEngineConsole
 
             Set set = new Set()
             {
+                Version = new Version(0,2,0),
                 Name = "Alpha",
                 SetCode = "ALP",
                 Cards = cards
@@ -294,15 +350,15 @@ namespace LogicEngineConsole
                     foreach (var ability in trigger.Abilities)
                         ability.Id = abilityId++;
 
-                if (card.CardType == CardType.Creature)
-                    Console.WriteLine($"{card.UniqueId} Attack {card.Attack} Health {card.Health} Cost {card.Cost}");
+                Console.WriteLine($"{card.UniqueId} # {card.Name}");
             }
 
             JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
             options.Converters.Add(new JsonStringEnumConverter());
 
             string json = JsonSerializer.Serialize(set, options);
-            File.WriteAllText("..\\..\\..\\..\\QuivalServer\\QuivalCards.json", json);
+            File.WriteAllText("..\\QuivalServer\\QuivalCards.json", json);
+            */
         }
     }
 }

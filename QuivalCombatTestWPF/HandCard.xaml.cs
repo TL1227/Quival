@@ -1,5 +1,5 @@
 ﻿using QuivalCombatTestWPF.Colours;
-using System.Globalization;
+using QuivalCombatTestWPF.Interfaces;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,11 +7,14 @@ using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
-    public partial class HandCard : UserControl
+    public partial class HandCard : UserControl, IHasPosition
     {
         public static double DefaultWidth { get; set; } = 243;
         public static double DefaultHeight { get; set; } = 324;
+        public static double SlideSpeed { get; set; } = 0.15;
         public int Id { get; set; }
+        public int HandSlotIndex { get; set; }
+        public bool InHand { get; set; } = true;
 
         public HandCard(int cardId)
         {
@@ -22,19 +25,20 @@ namespace QuivalCombatTestWPF
             MouseEnter += HandCard_MouseEnter;
             MouseLeave += HandCard_MouseLeave;
             RenderTransform = new TranslateTransform(0, 0);
+            HandIndex.Visibility = Visibility.Collapsed;
         }
 
         private void HandCard_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             UpdateLayout();
             Canvas.SetZIndex(this, 10);
-            Slide(-ActualHeight * 0.5);
+            Slide(-ActualHeight * 0.5, SlideSpeed);
         }
 
         private void HandCard_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Canvas.SetZIndex(this, 0);
-            Slide(0);
+            Slide(0, SlideSpeed);
         }
 
         public void RemoveHighlight()
@@ -42,6 +46,7 @@ namespace QuivalCombatTestWPF
             Overlay.Background = Brushes.Transparent;
             Overlay.Opacity = 0.0;
         }
+
         public void Highlight()
         {
             Overlay.Background = QuivalColour.HighlightColour;
@@ -54,18 +59,38 @@ namespace QuivalCombatTestWPF
             Canvas.SetLeft(this, p.Left);
         }
 
-        public void Slide(double targetHeight)
+        public Position GetPos()
+        {
+            Position position = new Position()
+            {
+                Top = Canvas.GetTop(this),
+                Left = Canvas.GetLeft(this)
+            };
+
+            return position;
+        }
+
+        public Task Slide(double targetHeight, double speed)
         {
             var transform = (TranslateTransform)RenderTransform;
 
             var animation = new DoubleAnimation
             {
                 To = targetHeight,
-                Duration = TimeSpan.FromSeconds(0.15),
+                Duration = TimeSpan.FromSeconds(speed),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
 
+            TaskCompletionSource tsc = new();
+            animation.Completed += (_, _) =>
+            {
+                //Overlay.Opacity = 0.0;
+                tsc.SetResult();
+            };
+
             transform.BeginAnimation(TranslateTransform.YProperty, animation);
+
+            return tsc.Task;
         }
 
         public Task SummonIn(Brush Brush)
@@ -91,6 +116,33 @@ namespace QuivalCombatTestWPF
             };
 
             Overlay.BeginAnimation(OpacityProperty, anim);
+
+            return tsc.Task;
+        }
+
+        public Task SummonOut(Brush Brush)
+        {
+            double animationSpeed = 0.4;
+            Overlay.Background = Brush;
+            Overlay.Opacity = 1.0;
+
+            DoubleAnimation anim = new()
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(animationSpeed),
+                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseIn },
+                FillBehavior = FillBehavior.Stop
+            };
+
+            TaskCompletionSource tsc = new();
+            anim.Completed += (_, _) =>
+            {
+                CardBackground.Opacity = 0.0;
+                tsc.SetResult();
+            };
+
+            CardBackground.BeginAnimation(OpacityProperty, anim);
 
             return tsc.Task;
         }

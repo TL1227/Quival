@@ -16,7 +16,7 @@ namespace QuivalCombatTestWPF
         public BlockZone()
         {
             InitializeComponent();
-            BlockArea.MouseLeftButtonDown += HandleClick;
+            MouseLeftButtonDown += HandleClick;
         }
 
         public void AddCardToBlockZone(BoardCard card, LayoutCanvas layout, Position blockArea)
@@ -41,13 +41,12 @@ namespace QuivalCombatTestWPF
         {
             if (value)
             {
-                BlockArea.Background = QuivalColour.HighlightColour;
-                BlockArea.Opacity = 1.0;
+                Overlay.Background = QuivalColour.HighlightColour;
+                Overlay.Opacity = 0.5;
             }
             else
             {
-                BlockArea.Background = Brushes.Transparent;
-                BlockArea.Opacity = 1.0;
+                Overlay.Background = Brushes.Transparent;
             }
         }
 

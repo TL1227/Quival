@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalCombatTestWPF
 {
@@ -50,6 +51,8 @@ namespace QuivalCombatTestWPF
         public bool CanClickCards { get; set; } = true;
         public bool ViewingCard { get; set; } = false;
 
+        private bool FirstGameStateUpdate { get; set; } = true;
+
         public MatchView(QuivalClient client)
         {
             InitializeComponent();
@@ -60,7 +63,6 @@ namespace QuivalCombatTestWPF
             OpponentBlockZone.Side = Side.Opponent;
 
             HandZone.CardClicked += HandZone_CardClicked;
-            PlayerCombatZone.CardClicked += CombatZone_CardClicked;
             PlayerBlockZone.ZoneClicked += PlayerBlockZone_ZoneClicked;
             OpponentBlockZone.ZoneClicked += OpponentBlockZone_ZoneClicked;
             ClickBlocker.MouseDown += ClickBlocker_Click;
@@ -70,7 +72,6 @@ namespace QuivalCombatTestWPF
             BlockZones = [PlayerBlockZone, OpponentBlockZone];
             SummonZones = [PlayerSummonZone, OpponentSummonZone];
             GameResources = [PlayerResources, OpponentResources];
-
 
             KeyDown += MainWindow_KeyDown;
 
@@ -141,7 +142,6 @@ namespace QuivalCombatTestWPF
 
             UnselectAll();
 
-
             var castEvents = cgs.GameEvents.OfType<CastEvent>().ToList<EventMessage>();
             await AnimateEvents(castEvents);
 
@@ -160,7 +160,71 @@ namespace QuivalCombatTestWPF
             var deathEvents = cgs.GameEvents.OfType<CreatureDeathEvent>().ToList();
             await PlayDeathAnimations(deathEvents);
 
+            //next turn
+
+            var cardDrawEvents = cgs.GameEvents.OfType<CardDrawEvent>().ToList<EventMessage>();
+            await AnimateEvents(cardDrawEvents);
+
+            //This delay prevents some UI flashing after the animations play. (It also actually "feels" nicer)
+            await Task.Delay(200); 
+
             await UpdateUIFromGameState();
+        }
+
+        private async Task PlayHandShuffleUp(Side side)
+        {
+            if (PlayerSide == (int)side)
+            {
+                var handCards = Layout.Canvas.Children
+                    .OfType<HandCard>()
+                    .Where(c => c.InHand == true)
+                    .OrderBy(x => x.HandSlotIndex).ToList();
+
+                List<Task> tasks = new();
+
+                for (int i = 0; i < handCards.Count; i++)
+                {
+                    if (handCards[i].HandSlotIndex != i)
+                    {
+                        Position pos = Layout.PlayerHandSlots[i];
+
+                        int storedIndex = i; //If we just use i directly it messes up the indexing
+                        tasks.Add(
+                            Animation.DelayThen(50 * storedIndex,
+                                () => Animation.MoveToPoint(handCards[storedIndex], handCards[storedIndex].GetPos(), pos, 0.3))
+                            );
+
+                        handCards[i].HandSlotIndex = i;
+                    }
+                }
+
+                await Task.WhenAll(tasks);
+            }
+        }
+
+        private async Task PlayInitialHandShuffleUp()
+        {
+            var handCards = Layout.Canvas.Children
+                .OfType<HandCard>()
+                .Where(c => c.InHand == true)
+                .OrderBy(x => x.HandSlotIndex).ToList(); 
+
+            List<Task> tasks = new();
+
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                Position pos = Layout.PlayerHandSlots[i];
+
+                int storedIndex = i; //If we just use i directly it messes up the indexing
+                tasks.Add(
+                    Animation.DelayThen(20 * storedIndex,
+                        () => Animation.MoveToPoint(handCards[storedIndex], handCards[storedIndex].GetPos(), pos, 0.5))
+                    );
+
+                handCards[i].HandSlotIndex = i;
+            }
+
+            await Task.WhenAll(tasks);
         }
 
         private async Task AnimateEvents(List<EventMessage> events)
@@ -199,8 +263,39 @@ namespace QuivalCombatTestWPF
                 case AttackEvent attackEvent:
                     await PlayAttackAnimation(attackEvent, side);
                     break;
+                case CardDrawEvent cardDrawEvent:
+                    Debug.WriteLine("CardDrawEvent");
+                    await PlayHandShuffleUp(side);
+                    await PlayCardDrawAnimation(side);
+                    break;
                 default:
                     break;
+            }
+        }
+
+        private async Task PlayCardDrawAnimation(Side side)
+        {
+            if (PlayerSide == (int)side)
+            {
+                Debug.WriteLine("Animating Card Draw!");
+                var cardsDisplayedInHand = Layout.Canvas.Children
+                    .OfType<HandCard>()
+                    .Where(c => c.InHand == true)
+                    .OrderBy(x => x.HandSlotIndex)
+                    .Count();
+
+                Position p = new()
+                {
+                    Top = Layout.PlayerHandSlots[cardsDisplayedInHand].Top + 300, //TODO: don't hardcode this!
+                    Left = Layout.PlayerHandSlots[cardsDisplayedInHand].Left
+                };
+
+                var handCard = Mapper.MapToHandCard(CurrentGameState.PlayerState.Hand[cardsDisplayedInHand]);
+                handCard.SetPos(p);
+                Layout.Canvas.Children.Add(handCard);
+                Layout.Canvas.UpdateLayout();
+
+                await handCard.Slide(-300, 0.5);
             }
         }
 
@@ -213,11 +308,11 @@ namespace QuivalCombatTestWPF
             {
                 List<Task> tasks = new();
 
-                tasks.Add(Animation.MoveToPoint(newCreature, newCreature.GetPos(), Layout.BlockAreas[(int)side]));
+                tasks.Add(Animation.MoveToPoint(newCreature, newCreature.GetPos(), Layout.BlockAreas[(int)side], 0.6));
                 int removedCardIndex = CombatZones[(int)side].RemoveCardFromZone(newCreature.Id, Layout);
                 BlockZones[(int)side].AddCardToBlockZone(newCreature, Layout, Layout.BlockAreas[(int)side]);
 
-                tasks.Add(Animation.MoveToPoint(oldCreature, oldCreature.GetPos(), newCreature.GetPos()));
+                tasks.Add(Animation.MoveToPoint(oldCreature, oldCreature.GetPos(), newCreature.GetPos(), 0.6));
                 CombatZones[(int)side].SummonedCards[removedCardIndex] = oldCreature;
 
                 await Task.WhenAll(tasks);
@@ -231,7 +326,7 @@ namespace QuivalCombatTestWPF
             {
                 if (summonedCard != null && summonedCard.Id == blockEvent.CreatureId)
                 {
-                    await Animation.MoveToPoint(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[theSide]);
+                    await Animation.MoveToPoint(summonedCard, summonedCard.GetPos(), Layout.BlockAreas[theSide], 0.6);
                     CombatZones[theSide].RemoveCardFromZone(summonedCard.Id, Layout);
                     BlockZones[theSide].AddCardToBlockZone(summonedCard, Layout, Layout.BlockAreas[theSide]);
                 }
@@ -240,7 +335,7 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayAttackAnimation(AttackEvent attackEvent, Side side)
         {
-            var attackingBoardCard = GetBoardCard(attackEvent.CreatureId);
+            var attackingBoardCard = Layout.GetBoardCard(attackEvent.CreatureId);
 
             if (attackingBoardCard != null)
             {
@@ -248,16 +343,16 @@ namespace QuivalCombatTestWPF
                 //TODO: This is a silly hack for now. 
                 //We're going to need a way to figure out which effects should animate before the attack and which should animate after
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect == QuivalLogicEngine.Cards.Effect.AttackBuffRound)
+                    if (action.Effect is AttackBuffRound)
                         await PlayCardActionAnimation(action, side, attackingBoardCard);
 
                 Position originalPos = attackingBoardCard.GetPos();
-                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)]);
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), Layout.BlockAreas[OppositeSide((int)side)], 0.6);
 
                 var attackingCreature = (CreatureCard)attackingBoardCard.Tag;
                 if (attackingCreature != null)
                 {
-                    var blockingBoardCard = GetBoardCard(attackEvent.BlockingCreatureId);
+                    var blockingBoardCard = Layout.GetBoardCard(attackEvent.BlockingCreatureId);
                     if (blockingBoardCard != null)
                     {
                         blockingBoardCard.TakeDamage(attackingCreature.GetAttackDamage());
@@ -270,11 +365,11 @@ namespace QuivalCombatTestWPF
                     }
                 }
 
-                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, System.Windows.Media.Animation.EasingMode.EaseOut);
+                await Animation.MoveToPoint(attackingBoardCard, attackingBoardCard.GetPos(), originalPos, 0.6, System.Windows.Media.Animation.EasingMode.EaseOut);
 
                 //More of the above silly hack
                 foreach (var action in attackEvent.CardActionEvents)
-                    if (action.Effect != QuivalLogicEngine.Cards.Effect.AttackBuffRound)
+                    if (action.Effect is not AttackBuffRound)
                         await PlayCardActionAnimation(action, side, attackingBoardCard);
             }
         }
@@ -285,7 +380,7 @@ namespace QuivalCombatTestWPF
 
             foreach (var eve in deathEvents)
             {
-                var card = GetBoardCard(eve.CreatureId);
+                var card = Layout.GetBoardCard(eve.CreatureId);
 
                 if (card != null)
                 {
@@ -309,23 +404,16 @@ namespace QuivalCombatTestWPF
                 var boardCard = Mapper.MapToBoardCard(cardToSummon, BoardCard_Clicked);
                 if (boardCard != null)
                 {
-                    Position handcardPos = new();
-                    foreach (var child in Layout.Canvas.Children)
-                    {
-                        if (child is HandCard handCard)
-                        {
-                            if (handCard.Id == boardCard.Id)
-                            {
-                                handcardPos.Left = Canvas.GetLeft(handCard);
-                                handcardPos.Top = Canvas.GetTop(handCard);
-                                handCard.Visibility = Visibility.Hidden;
-                            }
-                        }
-                    }
+                    Position summonStartPos = new();
 
                     if (side == Side.Player)
                     {
-                        boardCard.SetPos(handcardPos);
+                        var handCard = Layout.GetHandCard(boardCard.Id);
+                        summonStartPos.Left = Canvas.GetLeft(handCard);
+                        summonStartPos.Top = Canvas.GetTop(handCard);
+                        boardCard.SetPos(summonStartPos);
+
+                        Layout.Canvas.Children.Remove(handCard);
                     }
                     else
                     {
@@ -334,15 +422,12 @@ namespace QuivalCombatTestWPF
                     }
 
                     int summonIndex = CombatZones[(int)side].AddCardToNextFreeSlot(boardCard, Layout);
-                    await Animation.MoveToPoint(boardCard, handcardPos, Layout.SummonSlots[(int)side][summonIndex]);
+                    await Animation.MoveToPoint(boardCard, summonStartPos, Layout.SummonSlots[(int)side][summonIndex], 0.6);
 
                     foreach (var action in summonEvent.CardActionEvents)
                     {
                         await PlayCardActionAnimation(action, side, boardCard);
-                        //await Task.Delay(500);
                     }
-
-                    await Task.Delay(500);
                 }
             }
         }
@@ -356,7 +441,7 @@ namespace QuivalCombatTestWPF
 
             foreach (var target in actionEvent.TargetsCardIds)
             {
-                var targetCard = GetBoardCard(target);
+                var targetCard = Layout.GetBoardCard(target);
 
                 if (targetCard == null)
                 {
@@ -367,19 +452,24 @@ namespace QuivalCombatTestWPF
                         //handle the player thing
                         switch (actionEvent.Effect)
                         {
-                            case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                            case DirectDamage:
                                 {
                                     Point point = GameResources[targetSideIndex].TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
                                     await Animation.DirectEffect(point, actionCardPoint, Layout.Canvas, Brushes.Red);
                                     GameResources[targetSideIndex].TakeDamage(actionEvent.Value);
                                 }
                                 break;
-                            case QuivalLogicEngine.Cards.Effect.Heal:
+                            case Heal:
                                 {
                                     Point point = GameResources[targetSideIndex].TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
                                     await Animation.DirectEffect(point, actionCardPoint, Layout.Canvas, Brushes.Green);
                                     GameResources[targetSideIndex].HealDamage(actionEvent.Value);
                                 }
+                                break;
+                            case DrawCard:
+                                await PlayHandShuffleUp((Side)targetSideIndex);
+                                for (int i = 0; i < actionEvent.Value; i++)
+                                    await PlayCardDrawAnimation(side);
                                 break;
                             default:
                                 break;
@@ -394,7 +484,7 @@ namespace QuivalCombatTestWPF
                 {
                     switch (actionEvent.Effect)
                     {
-                        case QuivalLogicEngine.Cards.Effect.AttackBuffRound:
+                        case AttackBuffRound:
                             {
                                 await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = targetCard.GetAttackFromLabel() + actionEvent.Value;
@@ -402,30 +492,28 @@ namespace QuivalCombatTestWPF
                                 await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.AttackBuff:
+                        case AttackBuff:
                             {
                                 //await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = actionEvent.Value;
                                 //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.AttackDebuff:
+                        case AttackDebuff:
                             {
                                 //await targetCard.FlashUp(Brushes.Aquamarine);
                                 targetCard.AttackLabel.Content = actionEvent.Value;
                                 //await targetCard.FlashDown(Brushes.Aquamarine);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.DamageAbsorbToken:
-                            break;
-                        case QuivalLogicEngine.Cards.Effect.DirectDamage:
+                        case DirectDamage:
                             {
                                 Point targetPoint = new(targetCard.GetPos().Left, targetCard.GetPos().Top);
                                 await Animation.DirectEffect(targetPoint, actionCardPoint, Layout.Canvas, Brushes.Red);
                                 targetCard.TakeDamage(actionEvent.Value);
                             }
                             break;
-                        case QuivalLogicEngine.Cards.Effect.Heal:
+                        case Heal:
                             {
                                 await targetCard.FlashUp(Brushes.LimeGreen);
 
@@ -440,12 +528,6 @@ namespace QuivalCombatTestWPF
                                 await targetCard.FlashDown(Brushes.LimeGreen);
                             }
                             break;
-
-                        case QuivalLogicEngine.Cards.Effect.DrawCard:
-                            break;
-                        case QuivalLogicEngine.Cards.Effect.RestoreAction:
-                            break;
-                        case QuivalLogicEngine.Cards.Effect.None:
                         default:
                             break;
                     }
@@ -455,15 +537,26 @@ namespace QuivalCombatTestWPF
 
         private async Task PlayCastAnimation(CastEvent castEvent, Side side)
         {
-            //TODO: fix all this hard coding!!!
-            var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
             Position blockAreaPos = Layout.BlockAreas[(int)side];
-
             Position summonPos = new()
             {
-                Left = blockAreaPos.Left - 300,
-                Top = blockAreaPos.Top - 50
+                Left = blockAreaPos.Left - 350,
+                Top = blockAreaPos.Top - 200
             };
+
+            if (side == (Side)PlayerSide)
+            {
+                List<Task> animations = new();
+                var handCard = Layout.GetHandCard(castEvent.CastCard.Id);
+                await handCard.SummonOut(Brushes.Aquamarine);
+                Debug.WriteLine($"Cards in hand = {Layout.Canvas.Children.OfType<HandCard>().Count()}");
+                Layout.Canvas.Children.Remove(handCard);
+                Debug.WriteLine($"Cards in hand = {Layout.Canvas.Children.OfType<HandCard>().Count()}");
+            }
+
+            //TODO: fix all this hard coding!!!
+            var fullCard = Mapper.MapToHandCard(castEvent.CastCard);
+            fullCard.InHand = false;
 
             fullCard.SetPos(summonPos);
             Layout.Canvas.Children.Add(fullCard);
@@ -485,8 +578,9 @@ namespace QuivalCombatTestWPF
 
             await Task.Delay(500);
 
-            Layout.Canvas.Children.Remove(fullCard);
+            await fullCard.SummonOut(Brushes.Aquamarine);
 
+            Layout.Canvas.Children.Remove(fullCard);
         }
         #endregion
 
@@ -537,8 +631,24 @@ namespace QuivalCombatTestWPF
                 }
             }
 
-            UpdateHand(gs.PlayerState.Hand);
+            if (FirstGameStateUpdate)
+            {
+                Debug.WriteLine("Setting Start Hand Position");
+                SetInitialHandPosition(gs.PlayerState.Hand);
+                await PlayInitialHandShuffleUp();
+
+                Debug.WriteLine("First Turn Over");
+                FirstGameStateUpdate = false;
+            }
+            else
+            {
+                Debug.WriteLine("Updating hand!");
+                UpdateHand(gs.PlayerState.Hand);
+            }
+
             UpdateOpponentHand(gs.OpponentCardCount);
+
+            await Task.Delay(500);
 
             string gameEvents = "";
             foreach (var gameEvent in gs.GameEvents)
@@ -566,7 +676,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = TriggerType.EndTurn
+                    TurnType = TurnType.EndTurn
                 };
                 Client.SubmitTurn(turn);
 
@@ -650,13 +760,15 @@ namespace QuivalCombatTestWPF
         public void UpdateHand(List<Card> cards)
         {
             Layout.ClearHand();
+
             for (int i = 0; i < cards.Count; i++)
             {
-                if (i >= Layout.PlayerHandSlots.Length)
-                    break;
+                if (i >= Layout.PlayerHandSlots.Length) break;
 
                 HandCard hand = Mapper.MapToHandCard(cards[i]);
                 hand.MouseLeftButtonDown += HandZone_CardClicked;
+                hand.HandSlotIndex = i;
+                hand.HandIndex.Content = i;
                 hand.SetPos(Layout.PlayerHandSlots[i]);
                 Layout.Canvas.Children.Add(hand);
 
@@ -667,6 +779,30 @@ namespace QuivalCombatTestWPF
                     hand.TextPanel.ActualHeight
                     );
 
+            }
+        }
+
+        public void SetInitialHandPosition(List<Card> cards)
+        {
+            Layout.ClearHand();
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (i >= Layout.PlayerHandSlots.Length) break;
+
+                HandCard hand = Mapper.MapToHandCard(cards[i]);
+                hand.MouseLeftButtonDown += HandZone_CardClicked;
+                hand.HandSlotIndex = i;
+                hand.HandIndex.Content = i;
+                hand.SetPos(new Position() { Top = 540, Left = 960 });
+                Layout.Canvas.Children.Add(hand);
+
+                //fix font size if too big
+                hand.UpdateLayout();
+                QuivalText.FitFontSize(hand.CardDescriptionLabel,
+                    hand.TextPanel.ActualWidth,
+                    hand.TextPanel.ActualHeight
+                    );
             }
         }
 
@@ -722,7 +858,7 @@ namespace QuivalCombatTestWPF
         {
             QuivalTurn turn = new()
             {
-                Trigger = TriggerType.EndTurn
+                TurnType = TurnType.EndTurn
             };
 
             Client.SubmitTurn(turn);
@@ -735,7 +871,7 @@ namespace QuivalCombatTestWPF
         {
             CurrentTurn = new()
             {
-                Trigger = TriggerType.Cast,
+                TurnType = TurnType.Cast,
                 CardToPlayId = hc.Id
             };
 
@@ -750,15 +886,27 @@ namespace QuivalCombatTestWPF
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (sender is BoardCard bc)
+                if (sender is BoardCard bc && CanClickCards)
                 {
-                    if (!CanClickCards) return;
-
                     if (CardSelector != null)
                     {
                         HandleCardSelectionClick(bc.Id);
 
                         e.Handled = true; //So we don't trigger other click events
+                    }
+                    else if (CombatZones[PlayerSide].CardIsSummonedByPlayer(bc))
+                    {
+                        if (!bc.HasActed)
+                        {
+                            UnselectAll();
+
+                            bc.Highlight();
+                            SelectedCard = bc;
+
+                            //TODO: Highlight 
+                            PlayerBlockZone.SetHighlighted(true);
+                            OpponentBlockZone.SetHighlighted(true);
+                        }
                     }
                     else if (IsInBlockZone(bc))
                     {
@@ -789,27 +937,6 @@ namespace QuivalCombatTestWPF
             return BlockZones[0].CurrentCard == card || BlockZones[1].CurrentCard == card;
         }
 
-        private void CombatZone_CardClicked(object? sender, EventArgs e)
-        {
-            if (sender is BoardCard card)
-            {
-                if (CombatZones[PlayerSide].CardIsSummonedByPlayer(card))
-                {
-                    if (!card.HasActed)
-                    {
-                        UnselectAll();
-
-                        card.Highlight();
-                        //card.Overlay.Opacity = 0.4;
-                        SelectedCard = card;
-
-                        PlayerBlockZone.SetHighlighted(true);
-                        OpponentBlockZone.SetHighlighted(true);
-                    }
-                }
-            }
-        }
-
         //BlockZones
         private void PlayerBlockZone_ZoneClicked(object? sender, EventArgs e)
         {
@@ -817,7 +944,7 @@ namespace QuivalCombatTestWPF
             {
                 QuivalTurn turn = new()
                 {
-                    Trigger = TriggerType.MoveToBlockZone,
+                    TurnType = TurnType.MoveToBlockZone,
                     CardToPlayId = bc.Id
                 };
 
@@ -838,7 +965,7 @@ namespace QuivalCombatTestWPF
                 {
                     QuivalTurn turn = new()
                     {
-                        Trigger = TriggerType.Attack,
+                        TurnType = TurnType.Attack,
                         CardToPlayId = bc.Id
                     };
 
@@ -909,28 +1036,6 @@ namespace QuivalCombatTestWPF
 
             ClickBlocker.IsHitTestVisible = false;
             CanClickCards = true;
-        }
-
-        public BoardCard? GetBoardCard(int cardId)
-        {
-            foreach (var bc in Layout.Canvas.Children.OfType<BoardCard>())
-            {
-                if (bc.Id == cardId)
-                    return bc;
-            }
-
-            return null;
-        }
-
-        public HandCard? GetHandCard(int cardId)
-        {
-            foreach (var bc in Layout.Canvas.Children.OfType<HandCard>())
-            {
-                if (bc.Id == cardId)
-                    return bc;
-            }
-
-            return null;
         }
     }
 }

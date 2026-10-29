@@ -26,6 +26,7 @@
             </Grid>
 
             <DockPanel Grid.Row="1" Background="White">
+                <Label x:Name="HandIndex" FontSize="30" Foreground="Red"></Label>
                 <Image x:Name="CardImage"></Image>
             </DockPanel>
 

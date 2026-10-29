@@ -1,20 +1,18 @@
-﻿using QuivalLogicEngine.Cards;
+﻿using QuivalLogicEngine.Cards.Effects;
 
 namespace QuivalLogicEngine.Turns;
 
-/*
 public enum TurnType
 {
-    Attack,
     Cast,
-    EndTurn,
-    MoveToBlock,
+    Attack,
+    MoveToBlockZone,
+    EndTurn
 }
-*/
 
 public class QuivalTurn
 {
-    public TriggerType Trigger { get; set;}
+    public TurnType TurnType { get; set;}
     public int CardToPlayId { get; set; }
     public Dictionary<Effect, List<int>> SelectedCardIds { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using QuivalCombatTestWPF.Colours;
+using QuivalCombatTestWPF.Interfaces;
 using QuivalLogicEngine.Cards;
 using System.Diagnostics;
 using System.Reflection;
@@ -9,7 +10,7 @@ using System.Windows.Media.Animation;
 
 namespace QuivalCombatTestWPF
 {
-    public partial class BoardCard : UserControl
+    public partial class BoardCard : UserControl, IHasPosition
     {
         public required int Id { get; set ; }
 

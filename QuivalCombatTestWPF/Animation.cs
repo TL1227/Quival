@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using QuivalCombatTestWPF.Interfaces;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -41,37 +42,47 @@ namespace QuivalCombatTestWPF
             return tsc.Task;
         }
 
-        public static Task MoveToPoint(BoardCard boardCard, Position start, Position end, EasingMode easingMode = EasingMode.EaseIn)
+        public static async Task DelayThen(int delayMs, Func<Task> action)
         {
-            double animationSpeed = 0.6;
+            await Task.Delay(delayMs);
+            await action();
+        }
 
-            DoubleAnimation yAnim = new()
+        //TODO: this usercontrol should really just be some kind of UICard that Boardcard and HandCard inherit from
+        public static Task MoveToPoint(UserControl boardCard, Position start, Position end, double speed, EasingMode easingMode = EasingMode.EaseIn)
+        {
+            if (boardCard is IHasPosition hasPostition)
             {
-                From = start.Top,
-                To = end.Top,
-                Duration = TimeSpan.FromSeconds(animationSpeed),
-                EasingFunction = new CubicEase() { EasingMode = easingMode }
-            };
+                DoubleAnimation yAnim = new()
+                {
+                    From = start.Top,
+                    To = end.Top,
+                    Duration = TimeSpan.FromSeconds(speed),
+                    EasingFunction = new CubicEase() { EasingMode = easingMode }
+                };
 
-            DoubleAnimation xAnim = new()
-            {
-                From = start.Left,
-                To = end.Left,
-                Duration = TimeSpan.FromSeconds(animationSpeed),
-                EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
-            };
+                DoubleAnimation xAnim = new()
+                {
+                    From = start.Left,
+                    To = end.Left,
+                    Duration = TimeSpan.FromSeconds(speed),
+                    EasingFunction = new BackEase() { Amplitude = 0.05, EasingMode = easingMode }
+                };
 
-            TaskCompletionSource tsc = new();
-            xAnim.Completed += (_, _) =>
-            {
-                boardCard.SetPos(end);
-                tsc.SetResult();
-            };
+                TaskCompletionSource tsc = new();
+                xAnim.Completed += (_, _) =>
+                {
+                    hasPostition.SetPos(end);
+                    tsc.SetResult();
+                };
 
-            boardCard.BeginAnimation(Canvas.LeftProperty, xAnim);
-            boardCard.BeginAnimation(Canvas.TopProperty, yAnim);
+                boardCard.BeginAnimation(Canvas.LeftProperty, xAnim);
+                boardCard.BeginAnimation(Canvas.TopProperty, yAnim);
 
-            return tsc.Task;
+                return tsc.Task;
+            }
+
+            return Task.CompletedTask;
         }
 
         public static Task AnimateDeath(BoardCard card)
