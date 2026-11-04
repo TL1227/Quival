@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+
 using Trigger = QuivalLogicEngine.Cards.Trigger;
 using Key = QuivalLogicEngine.CardDescription.CardDescriptionKeys;
 
@@ -17,6 +18,7 @@ public partial class CardDesignView : UserControl
     private MainWindow MainWindow { get; set; }
 
     private CardDefinition CurrentCardDefinition { get; set; }
+    private CardDefinitionViewModel CurrentCardDefinitionViewModel { get; set; }
 
     private Config Config { get; set; }
 
@@ -181,10 +183,13 @@ public partial class CardDesignView : UserControl
     {
         if (sender is TextBox textBox)
         {
+
             if (textBox.Name == "CardNameTextBox")
             {
+                /*
                 CurrentCardPreview.CardNameLabel.Content = textBox.Text;
                 CurrentCardDefinition.Name = textBox.Text;
+                */
             }
             else if (textBox.Name == "DescriptionTextBox")
             {
@@ -209,58 +214,25 @@ public partial class CardDesignView : UserControl
 
     private void LoadBlankCard()
     {
-        CurrentCardDefinition = new CardDefinition();
+        CurrentCardDefinitionViewModel = new CardDefinitionViewModel();
+        DataContext = CurrentCardDefinitionViewModel;
 
-        CurrentCardPreview.CardNameLabel.Content = "";
-        CurrentCardPreview.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
-        CurrentCardPreview.CostContent.Content = 0;
-        //fullCard.CardBackground.Background = GetColor(CurrentCard);
-
-        //NOTE: 
         CurrentCardPreview.CardBackground.Background = Brushes.CornflowerBlue;
-
-        /*
-        string imagePath = GetImagePath(CurrentCard.Name);
-        if (imagePath != "")
-            fullCard.CardImage.Source = new BitmapImage(new Uri(imagePath));
-        */
-
-        //We could get this by querying the card database?
-        CurrentCardPreview.GlobalId.Content = CurrentCardDefinition.UniqueId;
-
-        CurrentCardPreview.AttackLabel.Content = 0;
-        CurrentCardPreview.HealthLabel.Content = 0;
     }
 
     private void LoadCard(CardDefinition cardDefinition)
     {
         LoadingCard = true;
 
-        CurrentCardDefinition = cardDefinition;
+        CurrentCardDefinitionViewModel = new CardDefinitionViewModel(cardDefinition);
+        DataContext = CurrentCardDefinitionViewModel;
 
-        CurrentCardPreview.CardNameLabel.Content = CurrentCardDefinition.Name;
-        CardNameTextBox.Text = CurrentCardDefinition.Name;
-
-        CurrentCardPreview.CardDescriptionLabel.Text = CurrentCardDefinition.Description;
-        DescriptionTextBox.Text = CurrentCardDefinition.Description;
-
-        CostComboBox.SelectedIndex = CurrentCardDefinition.Cost - 1;
-        CurrentCardPreview.CostContent.Content = CurrentCardDefinition.Cost;
-
-        AttackComboBox.SelectedIndex = CurrentCardDefinition.Attack - 1;
-        CurrentCardPreview.AttackLabel.Content = CurrentCardDefinition.Attack;
-
-        HealthComboBox.SelectedIndex = CurrentCardDefinition.Health - 1;
-        CurrentCardPreview.HealthLabel.Content = CurrentCardDefinition.Health;
-
-        //todo: get the triggers
-        foreach (var trigger in CurrentCardDefinition.Triggers)
+        foreach (var trigger in CurrentCardDefinitionViewModel.Triggers)
         {
             TriggerListBox.Items.Add(new TriggerControl(trigger));
         }
 
         CurrentCardPreview.CardBackground.Background = Brushes.CornflowerBlue;
-        CurrentCardPreview.GlobalId.Content = CurrentCardDefinition.UniqueId;
 
         LoadingCard = false;
     }
@@ -282,6 +254,9 @@ public partial class CardDesignView : UserControl
     private void SaveCardButton_Click(object sender, RoutedEventArgs e)
     {
         SyncTriggersWithCurrentCardDefinition();
+
+        //TODO: change 
+        var currentCardDefinition = CurrentCardDefinitionViewModel.GetCardDefinition();
 
         string fileName = $"{Config.CardDirectory.FullName}\\{CurrentCardDefinition.Name}.csv";
 

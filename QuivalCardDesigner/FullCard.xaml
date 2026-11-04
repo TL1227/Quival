@@ -22,8 +22,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="25"/>
                 </Grid.ColumnDefinitions>
-                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="0" x:Name="CardNameLabel" FontSize="18"></Label>
-                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="2" x:Name="CostContent" Content="3" FontSize="18"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="0" x:Name="CardNameLabel" FontSize="18" Content="{Binding Name}"></Label>
+                <Label Margin="0,0,0,5" Background="Cornsilk" Grid.Column="2" x:Name="CostContent"   FontSize="18" Content="{Binding Cost}"></Label>
             </Grid>
 
             <DockPanel Grid.Row="1" Background="White">
@@ -31,7 +31,7 @@
             </DockPanel>
 
             <DockPanel Grid.Row="2" Background="LightGray">
-                <TextBlock Margin="5" x:Name="CardDescriptionLabel" TextWrapping="WrapWithOverflow" FontSize="14" >
+                <TextBlock Margin="5" x:Name="CardDescriptionLabel" TextWrapping="WrapWithOverflow" FontSize="14" Text="{Binding Description}" >
                 <Italic>DoubleUp 3</Italic>.<LineBreak/>If Keen Bean attacks on round 3, attack another time.
                 </TextBlock>
             </DockPanel>
@@ -44,9 +44,9 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" x:Name="GlobalId" Content="ALP001" FontSize="12" VerticalAlignment="Bottom"/>
-                <Label Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="3" FontSize="20" />
+                <Label Background="Cornsilk" Grid.Column="1" x:Name="AttackLabel" Content="{Binding Attack}" FontSize="20" />
                 <Label Background="Cornsilk" Grid.Column="2" x:Name="Divider" Content="/" FontSize="20"/>
-                <Label Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="4" FontSize="20"/>
+                <Label Background="Cornsilk" Grid.Column="3" x:Name="HealthLabel" Content="{Binding Health}" FontSize="20"/>
             </Grid>
         </Grid>
         <DockPanel x:Name="Overlay" Background="Aquamarine" Opacity="0"></DockPanel>

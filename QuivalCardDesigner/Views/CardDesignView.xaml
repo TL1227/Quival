@@ -23,7 +23,7 @@
         <StackPanel Margin="10,20,10,5">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
             <Label Content="Type"/>
-                <ComboBox x:Name="CardTypeComboBox" Width="100" SelectedIndex="0"/>
+                <ComboBox x:Name="CardTypeComboBox" Width="100" SelectedIndex="0" SelectedItem="{Binding CardType}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label Content="Name"/>
@@ -31,24 +31,26 @@
                     VerticalAlignment="Center" 
                     MinWidth="200"
                     x:Name="CardNameTextBox"
-                    Text="Place Holder"/>
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Content="Cost"/>
-                <ComboBox x:Name="CostComboBox" SelectedIndex="0"/>
+                <ComboBox x:Name="CostComboBox" SelectedIndex="0" SelectedItem="{Binding Cost}"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label x:Name="AttackLabel" Content="Attack"/>
-                <ComboBox x:Name="AttackComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"/>
+                <ComboBox x:Name="AttackComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"
+                          SelectedItem="{Binding Attack}"/>
 
                 <Label x:Name="HealthLabel" Content="Health"/>
-                <ComboBox x:Name="HealthComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"/>
+                <ComboBox x:Name="HealthComboBox" Width="50" VerticalAlignment="Center" SelectedIndex="0"
+                          SelectedItem="{Binding Health}"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label Content="Description"/>
                 <Button x:Name="GenerateDescriptionButton" Content=" Generate "></Button>
             </StackPanel>
-            <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,20"/>
+            <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,20" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"/>
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
                 <Label>Triggers</Label>
                 <ComboBox x:Name="TriggerTypeComboBox" Width="150" SelectedIndex="0" Margin="0,0,5,0"/>
