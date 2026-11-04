@@ -42,13 +42,10 @@ public partial class CardDesignView : UserControl
         SaveCardButton.Click += SaveCardButton_Click;
 
         HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        HealthComboBox.SelectionChanged += HealthComboBox_SelectionChanged;
 
         AttackComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        AttackComboBox.SelectionChanged += AttackComboBox_SelectionChanged;
 
         CostComboBox.ItemsSource = new[]   { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        CostComboBox.SelectionChanged += CostComboBox_SelectionChanged;
 
         GenerateDescriptionButton.Click += GenerateDescriptionButton_Click;
 
@@ -159,24 +156,6 @@ public partial class CardDesignView : UserControl
         }
 
         DescriptionTextBox.Text = triggerString.ToString();
-    }
-
-    private void HealthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        CurrentCardPreview.HealthLabel.Content = (int)HealthComboBox.SelectedItem;
-        CurrentCardDefinition.Health = (int)HealthComboBox.SelectedItem;
-    }
-
-    private void AttackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        CurrentCardPreview.AttackLabel.Content = (int)AttackComboBox.SelectedItem;
-        CurrentCardDefinition.Attack = (int)AttackComboBox.SelectedItem;
-    }
-
-    private void CostComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        CurrentCardPreview.CostContent.Content = (int)CostComboBox.SelectedItem;
-        CurrentCardDefinition.Cost = (int)CostComboBox.SelectedItem;
     }
 
     private void TextBoxChanged(object sender, TextChangedEventArgs e)
