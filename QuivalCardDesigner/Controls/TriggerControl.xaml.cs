@@ -29,12 +29,18 @@ namespace QuivalCardDesigner.Controls
                 TriggerTypeComboBox.SelectionChanged += TriggerTypeComboBox_SelectionChanged;
             }
 
-            if (trigger is ListeningTrigger)
+            if (trigger is SelfTrigger st)
+            {
+                TriggerTypeComboBox.SelectedIndex = (int)st.SelfTriggerType;
+            }
+            else if (trigger is ListeningTrigger lt)
             {
                 TriggerSideLabel.Visibility = Visibility.Visible;
                 TriggerSideComboBox.Visibility = Visibility.Visible;
                 TriggerSideComboBox.ItemsSource = Enum.GetValues<Side>();
                 TriggerSideComboBox.SelectionChanged += TriggerSideComboBox_SelectionChanged;
+                TriggerSideComboBox.SelectedIndex = (int)lt.Side;
+                TriggerTypeComboBox.SelectedIndex = (int)lt.ListeningTriggerType;
             }
 
             Type baseType = typeof(Effect);
@@ -60,7 +66,6 @@ namespace QuivalCardDesigner.Controls
 
             EffectChoiceTypeComboBox.SelectionChanged += EffectChoiceTypeComboBox_SelectionChanged;
             
-
             foreach (var ability in CurrentTrigger.Abilities)
             {
                 AbilitiesListBox.Items.Add(new AbilityControl(ability));
@@ -124,19 +129,6 @@ namespace QuivalCardDesigner.Controls
 
         public Trigger GetTrigger()
         {
-            CurrentTrigger.Abilities.Clear();
-
-            int abilityId = 0;
-            foreach (var item in AbilitiesListBox.Items)
-            {
-                if (item is AbilityControl abilityControl)
-                {
-                    var ability = abilityControl.GetAbility();
-                    ability.Id = abilityId++;
-                    CurrentTrigger.Abilities.Add(ability);
-                }
-            }
-
             if (EffectChoiceTypeComboBox.SelectedItem != null)
                 CurrentTrigger.ChoiceType = (ChoiceType)EffectChoiceTypeComboBox.SelectedItem;
 
@@ -160,8 +152,11 @@ namespace QuivalCardDesigner.Controls
             var selectedType = (Type)AbilitiyEffectComboBox.SelectedItem;
             var effect = (Effect)Activator.CreateInstance(selectedType)!;
             Ability newAbility = new();
+            newAbility.Id = 69;
             newAbility.Effect = effect;
+
             AbilitiesListBox.Items.Add(new AbilityControl(newAbility));
+            CurrentTrigger.Abilities.Add(newAbility);
 
             if (AbilitiesListBox.Items.Count > 1)
             {

@@ -15,9 +15,6 @@ namespace QuivalCardDesigner.Views;
 
 public partial class CardDesignView : UserControl
 {
-    private MainWindow MainWindow { get; set; }
-
-    private CardDefinition CurrentCardDefinition { get; set; }
     private CardDefinitionViewModel CurrentCardDefinitionViewModel { get; set; }
 
     private Config Config { get; set; }
@@ -30,9 +27,6 @@ public partial class CardDesignView : UserControl
 
         CardTypeComboBox.ItemsSource = Enum.GetValues<CardType>();
         CardTypeComboBox.SelectionChanged += CardTypeComboBox_SelectionChanged;
-
-        CardNameTextBox.TextChanged += TextBoxChanged;
-        DescriptionTextBox.TextChanged += TextBoxChanged;
 
         AddTriggerButton.Click += AddTriggerButton_Click;
 
@@ -103,26 +97,22 @@ public partial class CardDesignView : UserControl
 
     private void OnAnySelectionChanged(object sender, RoutedEventArgs e)
     {
-        if (!LoadingCard)
-        {
-            SyncTriggersWithCurrentCardDefinition();
-            GenerateCardDescription();
-        }
+        GenerateCardDescription();
     }
 
     private void GenerateDescriptionButton_Click(object sender, RoutedEventArgs e)
     {
-        SyncTriggersWithCurrentCardDefinition();
         GenerateCardDescription();
     }
 
-    //TODO: maybe this whole thing should be a function that lives in CardDefinition???
     private void GenerateCardDescription()
     {
         StringBuilder triggerString = new();
-        foreach (var trigger in CurrentCardDefinition.Triggers)
+        foreach (TriggerControl triggerControl in TriggerListBox.Items)
         {
-            if (CurrentCardDefinition.CardType == CardType.Creature)
+            var trigger = triggerControl.GetTrigger();
+
+            if (CurrentCardDefinitionViewModel.CardType == CardType.Creature)
             {
                 triggerString.Append("Whenever ");
                 triggerString.Append(trigger.GetTriggerDescription().Replace(Key.CardName, CardNameTextBox.Text));
@@ -158,25 +148,6 @@ public partial class CardDesignView : UserControl
         DescriptionTextBox.Text = triggerString.ToString();
     }
 
-    private void TextBoxChanged(object sender, TextChangedEventArgs e)
-    {
-        if (sender is TextBox textBox)
-        {
-
-            if (textBox.Name == "CardNameTextBox")
-            {
-                /*
-                CurrentCardPreview.CardNameLabel.Content = textBox.Text;
-                CurrentCardDefinition.Name = textBox.Text;
-                */
-            }
-            else if (textBox.Name == "DescriptionTextBox")
-            {
-                CurrentCardPreview.CardDescriptionLabel.Text = textBox.Text;
-                CurrentCardDefinition.Description = textBox.Text;
-            }
-        }
-    }
     private void CardTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (CardTypeComboBox.SelectedItem is CardType type)
@@ -187,7 +158,7 @@ public partial class CardDesignView : UserControl
             PopulateTriggerTypeComboBox(type);
             TriggerListBox.Items.Clear();
 
-            CurrentCardDefinition.CardType = type;
+            CurrentCardDefinitionViewModel.CardType = type;
         }
     }
 
@@ -232,52 +203,28 @@ public partial class CardDesignView : UserControl
 
     private void SaveCardButton_Click(object sender, RoutedEventArgs e)
     {
-        SyncTriggersWithCurrentCardDefinition();
-
-        //TODO: change 
         var currentCardDefinition = CurrentCardDefinitionViewModel.GetCardDefinition();
+        currentCardDefinition.Triggers = GetTriggersFromControls();
 
-        string fileName = $"{Config.CardDirectory.FullName}\\{CurrentCardDefinition.Name}.csv";
+        string fileName = $"{Config.CardDirectory.FullName}\\{currentCardDefinition.Name}.csv";
 
         File.Delete(fileName);
 
         JsonSerializerOptions options = new JsonSerializerOptions();
         options.WriteIndented = true;
-        var json = JsonSerializer.Serialize(CurrentCardDefinition, options);
+        var json = JsonSerializer.Serialize(currentCardDefinition, options);
         File.AppendAllText(fileName, json);
     }
 
-    //TODO: we need to change this once we fix the view/model stuff
-    private void SyncTriggersWithCurrentCardDefinition()
+    private List<Trigger> GetTriggersFromControls()
     {
-        try
+        List<Trigger> triggers = [];
+        foreach (TriggerControl triggerControl in TriggerListBox.Items)
         {
-            CurrentCardDefinition.Triggers.Clear();
-
-            foreach (var item in TriggerListBox.Items)
-                if (item is TriggerControl triggerControl)
-                {
-                    var trigger = triggerControl.GetTrigger();
-
-                    foreach (var ability in trigger.Abilities)
-                    {
-                        if (ability.BonusEffect != null)
-                        {
-                            if (ability.BonusConditionals == null ||
-                                ability.BonusConditionals.Count == 0)
-                            {
-                                MessageBox.Show("A Bonus effect needs a conditional!");
-                            }
-                        }
-                    }
-
-                    CurrentCardDefinition.Triggers.Add(trigger);
-                }
+            triggers.Add(triggerControl.GetTrigger());
         }
-        catch (Exception e)
-        {
-            MessageBox.Show(e.ToString());
-        }
+
+        return triggers;
     }
 
     private void AddTriggerButton_Click(object sender, RoutedEventArgs e)

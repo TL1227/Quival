@@ -7,6 +7,8 @@ namespace QuivalCardDesigner.Controls;
 
 public partial class ValueControl : UserControl
 {
+    private Ability CurrentAbility;
+
     public ValueControl()
     {
         InitializeComponent();
@@ -33,53 +35,51 @@ public partial class ValueControl : UserControl
 
         CountSideComboBox.ItemsSource = Enum.GetValues<CountSide>();
         CountValueSourceComboBox.ItemsSource = Enum.GetValues<CountValueSource>();
+        CountValueSourceComboBox.SelectionChanged += CountValueSourceComboBox_SelectionChanged;
 
         FixedValueComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        FixedValueComboBox.SelectionChanged += FixedValueComboBox_SelectionChanged;
 
         SetValueTypeOptionsVisibility();
     }
 
-    public void PopulateValue(Ability ability, bool bonusValue = false)
+    public void Initialise(Ability ability)
     {
-        if (ValueTypeComboBox.SelectedItem is Value value)
-        {
-            if (value is Count countValue)
-            {
-                countValue.CountSource = (CountValueSource)CountValueSourceComboBox.SelectedItem;
-                countValue.CountSide = (CountSide)CountSideComboBox.SelectedItem;
-            }
-
-            if (bonusValue)
-            {
-                ability.BonusValue = value;
-                ability.BonusValue.Amount = (int)FixedValueComboBox.SelectedItem;
-            }
-            else
-            {
-                ability.Value = value;
-                ability.Value.Amount = (int)FixedValueComboBox.SelectedItem;
-            }
-        }
+        CurrentAbility = ability;
     }
 
-    public void PopulateBonusValue(Ability ability)
-    {
-        if (ValueTypeComboBox.SelectedItem is Value value)
-        {
-            if (value is Count countValue)
-            {
-                countValue.CountSource = (CountValueSource)CountValueSourceComboBox.SelectedItem;
-                countValue.CountSide = (CountSide)CountSideComboBox.SelectedItem;
-            }
-
-            ability.BonusValue = value;
-            ability.BonusValue.Amount = (int)FixedValueComboBox.SelectedItem;
-        }
-    }
 
     private void ValueTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SetValueTypeOptionsVisibility();
+        UpdateValue();
+    }
+
+    private void CountValueSourceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateValue();
+    }
+    private void FixedValueComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateValue();
+    }
+
+    private void UpdateValue()
+    {
+        if (ValueTypeComboBox.SelectedItem is Value value)
+        {
+            if (value is Count count)
+            {
+                count.CountSource = (CountValueSource)CountValueSourceComboBox.SelectedItem;
+                count.CountSide = (CountSide)CountSideComboBox.SelectedItem;
+                CurrentAbility.Value = count;
+            }
+            else if (value is Fixed fix)
+            {
+                fix.Amount = (int)FixedValueComboBox.SelectedItem;
+                CurrentAbility.Value = fix;
+            }
+        }
     }
 
     private void SetValueTypeOptionsVisibility()

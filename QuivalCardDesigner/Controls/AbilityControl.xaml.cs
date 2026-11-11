@@ -15,12 +15,13 @@ public partial class AbilityControl : UserControl
     {
         InitializeComponent();
         CurrentAbility = ability;
+        CurrentAbility.Id = 67;
         EffectLabel.Content = CurrentAbility.Effect.GetType().Name.Replace("Effect", "");
 
         TargetControl.Initialise(CurrentAbility);
         TargetControl.ChangeToTarget += TargetControlHasChanged;
 
-        ValueControl.PopulateValue(CurrentAbility);
+        ValueControl.Initialise(CurrentAbility);
 
         ConditionalControl.SetConditionals(CurrentAbility.Conditionals);
         BonusConditionalControl.SetConditionals(CurrentAbility.BonusConditionals);
@@ -112,20 +113,5 @@ public partial class AbilityControl : UserControl
         BonusEffectComboBox.ItemsSource = effects;
         BonusEffectComboBox.DisplayMemberPath = "EffectString";
         BonusEffectComboBox.SelectedIndex = 0;
-    }
-
-    public Ability GetAbility()
-    {
-        TargetControl.PopulateTarget(CurrentAbility);
-        ValueControl.PopulateValue(CurrentAbility);
-
-        if (BonusEffectVisible)
-        {
-            bool bonus = true;
-            CurrentAbility.BonusEffect = (Effect)BonusEffectComboBox.SelectedItem;
-            BonusValueControl.PopulateValue(CurrentAbility, bonus);
-        }
-
-        return CurrentAbility;
     }
 }

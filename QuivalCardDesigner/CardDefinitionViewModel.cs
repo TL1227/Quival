@@ -86,8 +86,8 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
         cardDefinition.Attack = Attack;
         cardDefinition.Health = Health;
 
-        cardDefinition.Triggers = Triggers.ToList();
-        cardDefinition.PassiveAbilities = PassiveAbilities.ToList();
+        //cardDefinition.Triggers = Triggers.ToList();
+        //cardDefinition.PassiveAbilities = PassiveAbilities.ToList();
 
         return cardDefinition;
     }

@@ -25,7 +25,7 @@ public enum ConditionalType
 public class Ability
 {
     public int Id { get; set; }
-    public Target Target { get; set; }
+    public Target Target { get; set; } = new SelfTarget();
     public Effect Effect { get; set; }
     public Value Value { get; set; }
     public List<Conditional> Conditionals { get; set; } = new();

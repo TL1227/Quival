@@ -9,6 +9,8 @@ public partial class TargetControl : UserControl
 {
     public EventHandler ChangeToTarget;
 
+    private Ability CurrentAbility;
+
     public TargetControl()
     {
         InitializeComponent();
@@ -16,6 +18,8 @@ public partial class TargetControl : UserControl
 
     public void Initialise(Ability ability)
     {
+        CurrentAbility = ability;
+
         List<Target> targets = new();
         List<TargetPool> targetPools = new();
         switch (ability.Effect.ValidTargetPool)
@@ -40,6 +44,8 @@ public partial class TargetControl : UserControl
         TargetTypeComboBox.DisplayMemberPath = "DisplayName";
         TargetTypeComboBox.SelectionChanged += TargetTypeComboBox_SelectionChanged;
 
+        CurrentAbility.Target = (Target)TargetTypeComboBox.SelectedItem;
+
         TargetPoolComboBox.ItemsSource = targetPools;
         TargetPoolComboBox.SelectionChanged += TargetPoolComboBox_SelectionChanged;
 
@@ -51,8 +57,7 @@ public partial class TargetControl : UserControl
         SetSelectionTargetOptionsVisibility();
     }
 
-
-    public void PopulateTarget(Ability ability)
+    public void PopulateTarget()
     {
         if (TargetTypeComboBox.SelectedItem is Target target)
         {
@@ -64,10 +69,8 @@ public partial class TargetControl : UserControl
                 st.NumberToPick = (int)TargetNumberCombobox.SelectedItem;
             }
 
-            ability.Target = target;
+            CurrentAbility.Target = target;
         }
-
-        //ValueControl.PopulateValue(ability);
     }
 
     private void ChangeSelectionTargetOptionsVisibility(Visibility visibility)
@@ -123,18 +126,21 @@ public partial class TargetControl : UserControl
     private void TargetPoolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplyTargetPoolSelection();
+        PopulateTarget();
         ChangeToTarget.Invoke(sender, e);
     }
 
     private void TargetTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SetSelectionTargetOptionsVisibility();
+        PopulateTarget();
         ChangeToTarget.Invoke(sender, e);
     }
 
     private void SideComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplyTargetPoolSelection();
+        PopulateTarget();
         ChangeToTarget.Invoke(sender, e);
     }
 }
