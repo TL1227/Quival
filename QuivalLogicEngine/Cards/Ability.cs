@@ -27,14 +27,14 @@ public class Ability
     public int Id { get; set; }
     public Target Target { get; set; } = new SelfTarget();
     public Effect Effect { get; set; }
-    public Value Value { get; set; }
+    public Value Value { get; set; } = new Fixed();
     public List<Conditional> Conditionals { get; set; } = new();
     public ConditionalType ConditionalType { get; set; }
 
     public Effect? BonusEffect { get; set; }
     public Value? BonusValue { get; set; }
-    public List<Conditional>? BonusConditionals { get; set; } = new();
-    public ConditionalType? BonusConditionalType { get; set; }
+    public List<Conditional> BonusConditionals { get; set; } = new();
+    public ConditionalType BonusConditionalType { get; set; }
 
     //TODO: this function should probably live in another file
     public string GetConditionalText()

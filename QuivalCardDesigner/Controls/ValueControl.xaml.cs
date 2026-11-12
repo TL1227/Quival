@@ -43,11 +43,10 @@ public partial class ValueControl : UserControl
         SetValueTypeOptionsVisibility();
     }
 
-    public void Initialise(Ability ability)
+    public void Bind(Ability ability)
     {
         CurrentAbility = ability;
     }
-
 
     private void ValueTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

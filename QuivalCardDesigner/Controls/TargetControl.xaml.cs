@@ -16,7 +16,7 @@ public partial class TargetControl : UserControl
         InitializeComponent();
     }
 
-    public void Initialise(Ability ability)
+    public void Bind(Ability ability)
     {
         CurrentAbility = ability;
 

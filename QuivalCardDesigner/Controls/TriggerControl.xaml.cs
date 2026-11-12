@@ -152,7 +152,6 @@ namespace QuivalCardDesigner.Controls
             var selectedType = (Type)AbilitiyEffectComboBox.SelectedItem;
             var effect = (Effect)Activator.CreateInstance(selectedType)!;
             Ability newAbility = new();
-            newAbility.Id = 69;
             newAbility.Effect = effect;
 
             AbilitiesListBox.Items.Add(new AbilityControl(newAbility));

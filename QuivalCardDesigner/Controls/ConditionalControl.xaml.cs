@@ -17,17 +17,16 @@ public partial class ConditionalControl : UserControl
         AddConditionalButton.Click += AddConditionalButton_Click;
     }
 
-    public void SetConditionals(List<Conditional>? conditionals)
+    public void Bind(List<Conditional> conditionals)
     {
-        if (conditionals != null)
-        {
-            CurrentConditionals = conditionals;
+        CurrentConditionals = conditionals;
 
-            foreach (Conditional conditional in CurrentConditionals)
-            {
-                ConditionalsListBox.Items.Add(conditional);
-            }
+        foreach (Conditional conditional in CurrentConditionals)
+        {
+            ConditionalsListBox.Items.Add(conditional);
         }
+
+        SetVisibility();
     }
 
     private void AddConditionalButton_Click(object sender, RoutedEventArgs e)
@@ -44,17 +43,21 @@ public partial class ConditionalControl : UserControl
                 CurrentConditionals.Add(conditional);
             }
 
-            //set visibilities
-            if (ConditionalsListBox.Items.Count > 0)
-            {
-                ConditionalsListBox.Visibility = Visibility.Visible;
-            }
+            SetVisibility();
+        }
+    }
 
-            if (ConditionalsListBox.Items.Count > 1)
-            {
-                ConditionalTypeComboBox.Visibility = Visibility.Visible;
-                ConditionalTypeLabel.Visibility = Visibility.Visible;
-            }
+    private void SetVisibility()
+    {
+        if (ConditionalsListBox.Items.Count > 0)
+        {
+            ConditionalsListBox.Visibility = Visibility.Visible;
+        }
+
+        if (ConditionalsListBox.Items.Count > 1)
+        {
+            ConditionalTypeComboBox.Visibility = Visibility.Visible;
+            ConditionalTypeLabel.Visibility = Visibility.Visible;
         }
     }
 }

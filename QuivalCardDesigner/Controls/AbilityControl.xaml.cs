@@ -2,7 +2,6 @@
 using QuivalLogicEngine.Cards.Effects;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace QuivalCardDesigner.Controls;
 
@@ -14,17 +13,17 @@ public partial class AbilityControl : UserControl
     public AbilityControl(Ability ability)
     {
         InitializeComponent();
+
         CurrentAbility = ability;
-        CurrentAbility.Id = 67;
         EffectLabel.Content = CurrentAbility.Effect.GetType().Name.Replace("Effect", "");
 
-        TargetControl.Initialise(CurrentAbility);
+        TargetControl.Bind(CurrentAbility);
         TargetControl.ChangeToTarget += TargetControlHasChanged;
 
-        ValueControl.Initialise(CurrentAbility);
+        ValueControl.Bind(CurrentAbility);
 
-        ConditionalControl.SetConditionals(CurrentAbility.Conditionals);
-        BonusConditionalControl.SetConditionals(CurrentAbility.BonusConditionals);
+        ConditionalControl.Bind(CurrentAbility.Conditionals);
+        BonusConditionalControl.Bind(CurrentAbility.BonusConditionals);
 
         BonusEffectButton.Click += BonusEffectButton_Click;
     }
@@ -46,20 +45,22 @@ public partial class AbilityControl : UserControl
                 BonusEffectStackPanel.Visibility = Visibility.Collapsed;
                 BonusEffectButton.Content = " Add Bonus Effect ";
 
-                CurrentAbility.BonusValue = null;
-                CurrentAbility.BonusEffect = null;
-                CurrentAbility.BonusConditionals = null;
-                CurrentAbility.BonusConditionalType = null;
-
                 BonusEffectVisible = false;
             }
             else
             {
                 BonusEffectStackPanel.Visibility = Visibility.Visible;
-                PopulateBonusEffectComboBox(target);
                 BonusEffectButton.Content = " Remove Bonus Effect ";
+
+                PopulateBonusEffectComboBox(target);
+
                 BonusEffectVisible = true;
             }
+
+            CurrentAbility.BonusValue = null;
+            CurrentAbility.BonusEffect = null;
+            CurrentAbility.BonusConditionals.Clear();
+            CurrentAbility.BonusConditionalType = ConditionalType.And;
         }
     }
 
