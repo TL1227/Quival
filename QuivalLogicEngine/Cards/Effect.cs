@@ -23,6 +23,17 @@ public abstract class Effect()
 
 }
 
+public interface ITargetsControllers
+{
+    public string GetPlayerTargetDescription();
+    public string GetOpponentTargetDescription();
+}
+
+public interface ITargetsCreatures
+{
+    public string GetSelfTargetDescription();
+}
+
 public class Heal: Effect 
 {
     public Heal()
@@ -245,6 +256,21 @@ public class DrawCard: Effect
 
     public override string GetEffectCardDescription(Target target,  Trigger trigger)
     {
-        return $"Draw {Key.EffectValue} card(s) {Key.CountValue}";
+        if (target is PlayerTarget)
+        {
+            return $"Draw {Key.EffectValue} card(s) {Key.CountValue}";
+        }
+        else if (target is OpponentTarget)
+        {
+            return $"Your opponent draws {Key.EffectValue} card(s) {Key.CountValue}";
+        }
+        else if (target is SelectionTarget)
+        {
+            return $"choose a player to draw {Key.EffectValue} card(s) {Key.CountValue}";
+        }
+        else
+        {
+            return "Effect Description not implemented for target type";
+        }
     }
 }

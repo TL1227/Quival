@@ -142,9 +142,4 @@ public class SelectionTarget : Target
 
         return text;
     }
-
-    public string GetTargetNoun()
-    {
-        return "hello";
-    }
 }

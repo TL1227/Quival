@@ -231,7 +231,23 @@ public partial class CardDesignView : UserControl
     {
         if (TriggerTypeComboBox.SelectedItem is Trigger trigger)
         {
-            TriggerListBox.Items.Add(new TriggerControl(trigger));
+            switch (trigger)
+            {
+                case CastTrigger:
+                    TriggerListBox.Items.Add(new TriggerControl(new CastTrigger()));
+                    break;
+                case SelfTrigger:
+                    TriggerListBox.Items.Add(new TriggerControl(new SelfTrigger()));
+                    break;
+                case ListeningTrigger:
+                    TriggerListBox.Items.Add(new TriggerControl(new ListeningTrigger()));
+                    break;
+                case PhaseTrigger:
+                    TriggerListBox.Items.Add(new TriggerControl(new PhaseTrigger()));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

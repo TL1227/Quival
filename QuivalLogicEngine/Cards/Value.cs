@@ -8,7 +8,7 @@ namespace QuivalLogicEngine.Cards
     public abstract class Value
     {
         public abstract string Name { get; set; }
-        public int Amount { get; set; }
+        public int Amount { get; set; } = 1;
     }
 
     public class Fixed : Value

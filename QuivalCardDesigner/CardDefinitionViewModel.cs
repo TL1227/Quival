@@ -12,9 +12,9 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
     private string _name = string.Empty;
     private string? _description;
     private string? _flavourText;
-    private int _cost;
-    private int _attack;
-    private int _health;
+    private int _cost = 1;
+    private int _attack = 1;
+    private int _health = 1;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
