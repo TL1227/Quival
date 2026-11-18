@@ -1,7 +1,6 @@
 ﻿using QuivalCardDesigner.Views;
 using System.Windows.Input;
 using System.Windows;
-using System.IO;
 
 namespace QuivalCardDesigner;
 
@@ -27,10 +26,7 @@ public partial class MainWindow : Window
 
     public void EditCard()
     {
-        var cards = CurrentConfig.CardDirectory.GetFiles();
-        string json = File.ReadAllText(cards[0].FullName);
-
-        CurrentView.Content = new CardDesignView(CurrentConfig, json);
+        CurrentView.Content = new CardListView(CurrentConfig);
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)

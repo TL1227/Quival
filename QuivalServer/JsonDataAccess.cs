@@ -1,4 +1,5 @@
 ﻿using QuivalLogicEngine.Cards;
+using QuivalLogicEngine.Client;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,6 +25,7 @@ namespace QuivalServer
             options.Converters.Add(new JsonStringEnumConverter());
             CurrentSet = JsonSerializer.Deserialize<Set>(json, options)!;
         }
+
 
         public Card? GetCard(string uniqueId)
         {

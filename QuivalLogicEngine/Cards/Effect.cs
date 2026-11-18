@@ -171,7 +171,7 @@ public class AttackBuffRound: Effect
                 }
                 else
                 {
-                    text = $"increase it's own attack by {Key.CardName} until the end of the round";
+                    text = $"increase it's own attack by {Key.EffectValue} until the end of the round";
                 }
                 break;
         }
@@ -204,7 +204,7 @@ public class AttackBuff: Effect
                 }
                 else
                 {
-                    text = $"increase it's own attack by {Key.CardName}";
+                    text = $"increase it's own attack by {Key.EffectValue}";
                 }
                 break;
         }
@@ -237,7 +237,7 @@ public class AttackDebuff: Effect
                 }
                 else
                 {
-                    text = $"decrease it's own attack by {Key.CardName}";
+                    text = $"decrease it's own attack by {Key.EffectValue}";
                 }
                 break;
         }

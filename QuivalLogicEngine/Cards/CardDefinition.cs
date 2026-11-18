@@ -9,6 +9,7 @@ public enum CardType
 public class CardDefinition
 {
     public string UniqueId { get; set; }
+    public Guid DesignId { get; set; }
     public CardType CardType { get; set; }
     public string Name { get; set; }
     public string? Description { get; set; }

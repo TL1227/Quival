@@ -15,6 +15,7 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
     private int _cost = 1;
     private int _attack = 1;
     private int _health = 1;
+    private Guid _designId = Guid.Empty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -71,6 +72,7 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
 
     public CardDefinitionViewModel()
     {
+        _designId = Guid.NewGuid();
     }
 
     public CardDefinition GetCardDefinition()
@@ -88,6 +90,8 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
 
         //cardDefinition.Triggers = Triggers.ToList();
         //cardDefinition.PassiveAbilities = PassiveAbilities.ToList();
+
+        cardDefinition.DesignId = _designId;
 
         return cardDefinition;
     }
@@ -108,6 +112,8 @@ public class CardDefinitionViewModel : INotifyPropertyChanged
 
         foreach (var ability in definition.PassiveAbilities)
             PassiveAbilities.Add(ability);
+
+        _designId = definition.DesignId;
     }
 
     protected virtual void OnPropertyChanged(

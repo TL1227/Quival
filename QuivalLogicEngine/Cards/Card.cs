@@ -1,6 +1,4 @@
-﻿//using QuivalLogicEngine;
-using System.Text.Json.Serialization;
-//using static System.Net.Mime.MediaTypeNames;
+﻿using System.Text.Json.Serialization;
 
 namespace QuivalLogicEngine.Cards;
 

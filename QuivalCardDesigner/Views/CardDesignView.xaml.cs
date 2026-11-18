@@ -206,9 +206,11 @@ public partial class CardDesignView : UserControl
         var currentCardDefinition = CurrentCardDefinitionViewModel.GetCardDefinition();
         currentCardDefinition.Triggers = GetTriggersFromControls();
 
-        string fileName = $"{Config.CardDirectory.FullName}\\{currentCardDefinition.Name}.csv";
+        string directoryPath = $"{Config.CardDirectory.FullName}\\{currentCardDefinition.DesignId}";
+        Directory.CreateDirectory(directoryPath);
 
-        File.Delete(fileName);
+        string timestamp = $"{DateTime.UtcNow:yyyyMMddHHmmss}";
+        string fileName = $"{directoryPath}\\{currentCardDefinition.Name}_{timestamp}.json";
 
         JsonSerializerOptions options = new JsonSerializerOptions();
         options.WriteIndented = true;
