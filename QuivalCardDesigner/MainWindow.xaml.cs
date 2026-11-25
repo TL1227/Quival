@@ -15,42 +15,61 @@ public partial class MainWindow : Window
         KeyDown += MainWindow_KeyDown;
 
         Config.CardDirectory = new("Cards");
+
+        NewCardButton.Click += NewCardButton_Click;
+        SaveCardButton.Click += SaveCardButton_Click;
+        LoadCardButton.Click += LoadCardButton_Click;
+        MenuButton.Click += MenuButton_Click;
     }
 
-    public void OpenNewCardView()
+    private void ToggleMenuVisibility(Visibility visibility)
     {
-        BackButton.Visibility = Visibility.Visible;
-        CurrentView.Content = new CardDesignView();
-
-        BackButton.Click += ReturnToMainMenu;
+        NewCardButton.Visibility = visibility;
+        SaveCardButton.Visibility = visibility;
+        LoadCardButton.Visibility = visibility;
+        MenuButton.Visibility = visibility;
     }
 
-    public void ViewCardList()
+    private void MenuButton_Click(object sender, RoutedEventArgs e)
     {
-        BackButton.Visibility = Visibility.Visible;
-        CurrentView.Content = new CardListView(this);
-
-        BackButton.Click += ReturnToMainMenu;
+        ToggleMenuVisibility(Visibility.Collapsed);
+        CurrentView.Content = new MainMenuView(this);
     }
 
-    private void ViewCardList(object sender, RoutedEventArgs e)
+    private void LoadCardButton_Click(object sender, RoutedEventArgs e)
     {
         ViewCardList();
     }
 
-    public void OpenExistingCardView(CardDefinition card)
+    public void ViewCardList()
     {
-        BackButton.Visibility = Visibility.Visible;
-        CurrentView.Content = new CardDesignView(card);
-
-        BackButton.Click += ViewCardList;
+        ToggleMenuVisibility(Visibility.Visible);
+        CurrentView.Content = new CardListView(this);
     }
 
-
-    private void ReturnToMainMenu(object sender, RoutedEventArgs e)
+    private void SaveCardButton_Click(object sender, RoutedEventArgs e)
     {
-        BackButton.Visibility = Visibility.Collapsed;
-        CurrentView.Content = new MainMenuView(this);
+        if (CurrentView.Content is CardDesignView view)
+        {
+            view.SaveCard();
+        }
+    }
+
+    private void NewCardButton_Click(object sender, RoutedEventArgs e)
+    {
+        OpenNewCardView();
+    }
+
+    public void OpenNewCardView()
+    {
+        ToggleMenuVisibility(Visibility.Visible);
+        CurrentView.Content = new CardDesignView();
+    }
+
+    public void OpenExistingCardView(CardDefinition card)
+    {
+        ToggleMenuVisibility(Visibility.Visible);
+        CurrentView.Content = new CardDesignView(card);
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)

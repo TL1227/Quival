@@ -21,7 +21,7 @@
         <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="40" FontFamily="Bahnschrift">Quival Card Designer</TextBlock>
         <StackPanel Grid.Row="1" Grid.Column="1" CanVerticallyScroll="True">
             <Button x:Name="NewCardButton" Margin="2" FontSize="20" BorderThickness="0">New Card</Button>
-            <Button x:Name="EditCardButton" Margin="2" FontSize="20" BorderThickness="0">Edit Card</Button>
+            <Button x:Name="EditCardButton" Margin="2" FontSize="20" BorderThickness="0">Load Card</Button>
         </StackPanel>
     </Grid>
 </UserControl>

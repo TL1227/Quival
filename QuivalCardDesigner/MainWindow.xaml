@@ -11,7 +11,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button x:Name="BackButton" Grid.Row="0" Content="  Back  " Height="20" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed"/>
+        <StackPanel Orientation="Horizontal">
+            <Button x:Name="NewCardButton"  Content="  New   " BorderThickness="0" Margin="0,0,5,0" Height="Auto" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed" d:Visibility="Visible"/>
+            <Button x:Name="SaveCardButton" Content="  Save  " BorderThickness="0" Margin="0,0,5,0" Height="Auto" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed" d:Visibility="Visible"/>
+            <Button x:Name="LoadCardButton" Content="  Load  " BorderThickness="0" Margin="0,0,5,0" Height="Auto" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed" d:Visibility="Visible"/>
+            <Button x:Name="MenuButton"     Content="  Menu  " BorderThickness="0" Margin="0,0,5,0" Height="Auto" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed" d:Visibility="Visible"/>
+        </StackPanel>
         <ContentControl Grid.Row="1" x:Name="CurrentView"></ContentControl>
     </Grid>
 </Window>

@@ -31,7 +31,7 @@ public partial class CardDesignView : UserControl
         TriggerTypeComboBox.DisplayMemberPath = "Name";
         PopulateTriggerTypeComboBox();
 
-        SaveCardButton.Click += SaveCardButton_Click;
+        //SaveCardButton.Click += SaveCardButton_Click;
 
         HealthComboBox.ItemsSource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -196,8 +196,7 @@ public partial class CardDesignView : UserControl
         CurrentCardPreview.HealthLabel.Visibility = visibility;
     }
 
-
-    private void SaveCardButton_Click(object sender, RoutedEventArgs e)
+    public void SaveCard()
     {
         var currentCardDefinition = CurrentCardDefinitionViewModel.GetCardDefinition();
         currentCardDefinition.Triggers = GetTriggersFromControls();

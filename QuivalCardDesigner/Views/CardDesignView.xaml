@@ -61,16 +61,5 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl Margin="10,5,10,10" x:Name="TriggerListBox" HorizontalContentAlignment="Stretch"/>
         </ScrollViewer>
-
-
-        <Button 
-            Grid.Row="2" 
-            x:Name="SaveCardButton" 
-            Width="100" 
-            Margin="0,0,10,20"
-            Content="Save Card" 
-            BorderThickness="0"
-            HorizontalAlignment="Right"/>
-
     </Grid>
 </UserControl>
