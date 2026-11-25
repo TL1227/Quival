@@ -17,8 +17,6 @@ public partial class CardDesignView : UserControl
 {
     private CardDefinitionViewModel CurrentCardDefinitionViewModel { get; set; }
 
-    private Config Config { get; set; }
-
     private bool LoadingCard { get; set; }
 
     public CardDesignView()
@@ -46,12 +44,12 @@ public partial class CardDesignView : UserControl
         AddHandler(Selector.SelectionChangedEvent, new RoutedEventHandler(OnAnySelectionChanged));
         //AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
         //AddHandler(ToggleButton.UncheckedEvent, new RoutedEventHandler(OnAnySelectionChanged));
+
+        LoadBlankCard();
     }
 
-    public CardDesignView(Config config, string json) : this()
+    public CardDesignView(string json) : this()
     {
-        Config = config;
-
         var cardDef = JsonSerializer.Deserialize<CardDefinition>(json);
         if (cardDef != null)
         {
@@ -59,11 +57,9 @@ public partial class CardDesignView : UserControl
         }
     }
 
-    public CardDesignView(Config config) : this()
+    public CardDesignView(CardDefinition cardDefinition) : this()
     {
-        Config = config;
-
-        LoadBlankCard();
+        LoadCard(cardDefinition);
     }
 
     public void PopulateTriggerTypeComboBox(CardType cardType = CardType.Creature)

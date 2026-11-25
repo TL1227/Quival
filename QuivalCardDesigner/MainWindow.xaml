@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="Quival Card Designer" Height="600" Width="1000">
     <Grid>
-        <ContentControl x:Name="CurrentView"></ContentControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="BackButton" Grid.Row="0" Content="  Back  " Height="20" Width="Auto" HorizontalAlignment="Left" Visibility="Collapsed"/>
+        <ContentControl Grid.Row="1" x:Name="CurrentView"></ContentControl>
     </Grid>
 </Window>

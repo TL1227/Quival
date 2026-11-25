@@ -1,4 +1,5 @@
 ﻿using QuivalCardDesigner.Views;
+using QuivalLogicEngine.Cards;
 using System.Windows.Input;
 using System.Windows;
 
@@ -6,8 +7,6 @@ namespace QuivalCardDesigner;
 
 public partial class MainWindow : Window
 {
-    private Config CurrentConfig { get; set; }
-
     public MainWindow()
     {
         InitializeComponent();
@@ -15,18 +14,43 @@ public partial class MainWindow : Window
 
         KeyDown += MainWindow_KeyDown;
 
-        //this will be moved to some kind of options menu
-        CurrentConfig = new("Cards");
+        Config.CardDirectory = new("Cards");
     }
 
-    public void OpenCardDesignView()
+    public void OpenNewCardView()
     {
-        CurrentView.Content = new CardDesignView(CurrentConfig);
+        BackButton.Visibility = Visibility.Visible;
+        CurrentView.Content = new CardDesignView();
+
+        BackButton.Click += ReturnToMainMenu;
     }
 
-    public void EditCard()
+    public void ViewCardList()
     {
-        CurrentView.Content = new CardListView(CurrentConfig);
+        BackButton.Visibility = Visibility.Visible;
+        CurrentView.Content = new CardListView(this);
+
+        BackButton.Click += ReturnToMainMenu;
+    }
+
+    private void ViewCardList(object sender, RoutedEventArgs e)
+    {
+        ViewCardList();
+    }
+
+    public void OpenExistingCardView(CardDefinition card)
+    {
+        BackButton.Visibility = Visibility.Visible;
+        CurrentView.Content = new CardDesignView(card);
+
+        BackButton.Click += ViewCardList;
+    }
+
+
+    private void ReturnToMainMenu(object sender, RoutedEventArgs e)
+    {
+        BackButton.Visibility = Visibility.Collapsed;
+        CurrentView.Content = new MainMenuView(this);
     }
 
     private void MainWindow_KeyDown(object sender, KeyEventArgs e)

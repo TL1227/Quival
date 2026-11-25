@@ -8,19 +8,24 @@ namespace QuivalCardDesigner.Views;
 
 public class CardGrid
 {
-    public string Name { get; set; }
+    public required string Name { get; set; }
     public int Attack { get; set; }
     public int Health { get; set; }
+    public string Description { get; set; }
+    public required CardDefinition CardDefinition { get; set; }
 }
 
 public partial class CardListView : UserControl
 {
-    public CardListView(Config config)
+    private MainWindow MainWindow {  get; set; }
+
+    public CardListView(MainWindow mainwindow)
     {
         InitializeComponent();
+        MainWindow = mainwindow;
 
         List<CardGrid> cardz = new List<CardGrid>();
-        foreach (var dir in config.CardDirectory.GetDirectories())
+        foreach (var dir in Config.CardDirectory.GetDirectories())
         {
             var orderedFiles = dir.GetFiles().OrderBy(f => f.LastWriteTimeUtc).ToList();
 
@@ -31,6 +36,8 @@ public partial class CardListView : UserControl
                 Name = cardDef.Name,
                 Attack = cardDef.Attack,
                 Health = cardDef.Health,
+                Description = cardDef.Description,
+                CardDefinition = cardDef
             };
 
             cardz.Add(cardGrid);
@@ -38,12 +45,23 @@ public partial class CardListView : UserControl
 
         CardListItems.ItemsSource = cardz;
         CardListItems.MouseDoubleClick += CardListItems_MouseDoubleClick;
+        CardListItems.UpdateLayout();
+
+        Loaded += CardListView_Loaded;
+    }
+
+    private void CardListView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+    {
+        //This hides the last property on the CardGrid object
+        CardListItems.Columns[^1].MaxWidth = 0;
     }
 
     private void CardListItems_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        //TODO: load the card in the design view
-        throw new NotImplementedException();
+        if (CardListItems.SelectedItem != null && CardListItems.SelectedItem is CardGrid g)
+        {
+            MainWindow.OpenExistingCardView(g.CardDefinition);
+        }
     }
 
     //TODO: This function should probably live in some core IO module

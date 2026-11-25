@@ -2,15 +2,7 @@
 
 namespace QuivalCardDesigner;
 
-public class Config
+public static class Config
 {
-    public DirectoryInfo CardDirectory { get; set; }
-
-    public Config(string cardDirectoryPath)
-    {
-        CardDirectory = new(cardDirectoryPath);
-
-        if (!CardDirectory.Exists)
-            CardDirectory.Create();
-    }
+    public static DirectoryInfo CardDirectory { get; set; }
 }

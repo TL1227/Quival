@@ -17,11 +17,11 @@ public partial class MainMenuView : UserControl
 
     private void EditCardButton_Click(object sender, RoutedEventArgs e)
     {
-        MainWindow.EditCard();
+        MainWindow.ViewCardList();
     }
 
     private void NewCardButton_Click(object sender, RoutedEventArgs e)
     {
-        MainWindow.OpenCardDesignView();
+        MainWindow.OpenNewCardView();
     }
 }
